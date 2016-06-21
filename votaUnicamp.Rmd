@@ -59,9 +59,9 @@ Obter localizações (lat/lon) por meio do OpenStreet Maps:
 - Atualizar o data.frame abaixo com as informações
 
 ```{r enderecos}
-ends = data.frame(instituto=c('IMECC', 'FEM', 'FEF'),
-           lat=c(-22.81583,-22.81938,-22.81476),
-           lon=c(-47.06769,-47.06592,-47.07333))
+ends = data.frame(instituto=c('IMECC', 'FEM', 'FEF', 'IFCH', 'IEL', 'IA', 'IB', 'IQ', 'IFGW', 'FE', 'FEC', 'IE', 'IC', 'FEA', 'FEEC', 'FEQ'),
+           lat=c(-22.81583,-22.81938,-22.81476, -22.81548, -22.81488, -22.81511, -22.81945, -22.81899, -22.81713, -22.81666, -22.81610, -22.81484, -22.81477, -22.82036, -22.82136, -22.82034),
+           lon=c(-47.06769,-47.06592,-47.07333, -47.06852, -47.06894, -47.07005, -47.06988, -47.06785, -47.06725, -47.06556, -47.06392, -47.06565, -47.06464, -47.06723, -47.06580, -47.06443))
 map = leaflet()
 map = addTiles(map)
 map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto)
