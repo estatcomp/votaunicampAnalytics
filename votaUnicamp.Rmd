@@ -56,12 +56,10 @@ Obter localizações (lat/lon) por meio do OpenStreet Maps:
 - Abrir OpenStreet Maps (OSM) em (http://www.openstreetmap.org/#map=16/-22.8173/-47.0677)
 - Dar zoom máximo no instituto de interesse
 - Olhar o endereço na barra de endereço após o zoom
-- Atualizar o data.frame abaixo com as informações
+- Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
 
 ```{r enderecos}
-ends = data.frame(instituto=c('IMECC', 'FEM', 'FEF','IA','IEL','IFCH','IFGW','IQ','IB','FEEC','FEQ','FE','IE','IC','FEC','FEAGRI','FCM','IG','FEA'),
-           lat=c(-22.81583,-22.81938,-22.81476,-22.815127, -22.815121, -22.814924, -22.816778, -22.818993, -22.819333, -22.821286, -22.820336, -22.816466, -22.814952, -22.814663, -22.816503, -22.819405, -22.831345, -22.813084, -22.820475),
-           lon=c(-47.06769,-47.06592,-47.07333,-47.070112, -47.069397, -47.068303, -47.067328, -47.068038, -47.069402, -47.065894, -47.065617, -47.065728, -47.066153, -47.064811, -47.061943, -47.060955, -47.062188, -47.068574, -47.067189))
+ends = read.table('institutos.tab', sep='\t', header=TRUE)
 map = leaflet()
 map = addTiles(map)
 map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto)
