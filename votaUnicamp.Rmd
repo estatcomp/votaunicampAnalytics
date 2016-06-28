@@ -6,7 +6,9 @@ output: html_document
 
 #Introdução
 
-  Em meio à crise em que o Brasil se encontra, a educação foi afetada com cortes de orçamento e, infelizmente, isso inclui Universidades. Diante disso, o movimento grevista tem tomado conta da Unicamp. A greve foi decidida por meio de assembleias estudantis, contudo muito se questiona a respeito da representatividade das decisões tomadas uma vez que existe pouca adesão. Com intuito de verificar qual a opinião da classe estudantil foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e se quisessem justificassem o voto.
+  Em meio à crise em que o Brasil se encontra, a educação foi afetada com cortes de orçamento e, infelizmente, isso inclui as Universidades.     
+Diante disso, o movimento grevista tem tomado conta da Unicamp e, com isso, a greve foi decidida por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão.   
+Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto.
 
 ```{r input, message=FALSE, results='hide', echo=FALSE}
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
@@ -48,13 +50,13 @@ mytbl = merge(mytbl, inst)
 
 #Objetivos
 
-Deseja-se verificar a proporção de alunos contrários à greve estudantil. Além disso também temos o intuito de estudar o comportamento da classe, como por exemplo, se existe uma relação entre a área de estudo e o voto. Assim podemos caracterizar o perfil do aluno favorável ou contrário a mobilização.
+Desejamos verificar a proporção de alunos contrários à greve estudantil. Além disso, também temos o intuito de estudar o comportamento da classe, como por exemplo, se existe uma relação entre a área de estudo e o voto. Assim, podemos caracterizar o perfil do aluno como favorável ou contrário à mobilização.
 
 #Metodologia
 
 ## Formatação de Dados
 
-Extraímos do site uma tabela com o número de votos de cada curso, sim não e abstenho, incluindo cursos da Unicamp campus Limeira e Piracicaba.
+Extraímos do site uma tabela com o número de votos de cada curso (sim, não ou abstenho), incluindo cursos da Unicamp campus Limeira e Piracicaba.
 
 ```{r echo=FALSE}
 head(tbl)
@@ -70,6 +72,7 @@ ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC'
 
 
 ##Proporções
+
 
 ```{r , message=FALSE, echo=FALSE, warning=FALSE}
 #Proporção de Não
@@ -169,3 +172,17 @@ res_boot = boot(pop, prop, R=10000)
 ```
 
 Estimamos que a proporção de alunos contrários à greve corresponde a `r round(res_boot,2)*100`%. Lembrando que essa estimativa considera que os alunos votantes são uma amostra aleatória da população.
+
+##Análise de Cluster
+
+```{r plot}
+newtbl = dados2[,c("Não","Sim","Abstenções")]
+newtbl = as.data.frame(newtbl)
+dados2$Instituto = as.character(dados2$Instituto)
+rownames(newtbl)= dados2[[1]]
+fit= prcomp(newtbl)
+biplot(fit)
+```
+
+#Conclusão
+
