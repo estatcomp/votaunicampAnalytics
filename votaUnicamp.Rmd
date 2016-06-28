@@ -160,7 +160,7 @@ tblnomes=html_table(page)[[3]]
 pop=tblnomes[,c(4,5)]
 ```
 
-```{r boot}
+```{r boot, echo=FALSE}
 prop=function(pop, indices){
   length(which(pop[indices,]$Voto == "Não"))/nrow(pop[indices,])
 }
@@ -168,3 +168,4 @@ library(boot)
 res_boot = boot(pop, prop, R=10000)
 ```
 
+Estimamos que a proporção de alunos contrários à greve corresponde a `r round(res_boot,2)*100`%. Lembrando que essa estimativa considera que os alunos votantes são uma amostra aleatória da população.
