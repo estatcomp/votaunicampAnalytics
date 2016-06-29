@@ -1,13 +1,23 @@
 ---
-title: "Vota Unicamp!"
-author: "Benilton S Carvalho"
+title: "Vota Unicamp"
 output: html_document
 ---
 
+## Introdução
+
+  O país, hoje, vive uma crise, a qual gerou inúmeros cortes, inclusive na educação. 
+Estes cortes na educação, em específico das universidades, geraram revoltas dos estudantes, o que impulsinou o movimento grevista dos alunos dentro das três maiores universidades do Brasil, USP, UNESP e UNICAMP. 
+  Na UNICAMP, apesar de existir um movimento geral, cada instituto tem uma certa autonomia sobre as salas de aulas, e matérias ministradas por eles. Perante a este fato, a greve de alunos de cada instituto é decidida por meio de assembléias estudantis, organizada, normalmente, pelo centro acadêmico. Entretando, as tomadas de decisões baseadas nos resultados das assembléias são questionadas devido a sua falta representatividade. 
+  Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site "https://votaunicamp.herokuapp.com/", no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto se desejarem. 
+  
+  
 ## Setup
 
-```{r input, message=FALSE}
-Sys.setlocale(locale='UTF-8')
+```{r input, message=FALSE, echo = FALSE}
+if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
+library(lattice)
+library(mapview)
+library(sp)
 library(stringr)
 library(rvest)
 library(googleVis)
@@ -19,7 +29,8 @@ head(tbl)
 
 ## Formatação de Dados
 
-```{r format}
+```{r format, echo=FALSE}
+colnames(tbl)= c("Cursos", "Total", "Sim","Abstenções", "Não")
 mytbl = data.frame(codigo=as.integer(str_extract(tbl$Curso, "^\\d+")),
                    nivel=NA,
                    curso=gsub("^(\\d+) - (.*)$", "\\2", tbl$Curso),
@@ -36,6 +47,132 @@ rm(nivel)
 mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
 head(mytbl)
 ```
+
+
+## Institutos
+
+Baseada na divisão de cursos por instututos da dac - graduação, obtemos os votos por institutos.
+
+
+```{r votoinstitutos, echo=FALSE}
+imecc = subset(mytbl, (nivel == "Graduacao" & (codigo == 2 | codigo == 28 | codigo ==29 | codigo == 1))|(nivel == "Mestrado" & (codigo == 2 | codigo == 1 | codigo ==29)) | (nivel == "Doutorado" & (codigo == 31 | codigo == 51 | codigo ==79)))
+
+fca = subset(mytbl, (nivel == "Graduacao" & (codigo == 109 | codigo == 110 | codigo == 100 | codigo == 101 | codigo == 102 | codigo == 107)) | (nivel == "Mestrado" & (codigo == 31 | codigo == 51 | codigo ==79)) | (nivel == "Doutorado" & (codigo == 33)))
+
+fcf = subset(mytbl, nivel == "Graduacao" & (codigo == 63))
+
+fcm = subset(mytbl, (nivel == "Graduacao" & (codigo == 58 | codigo == 15)) | (nivel == "Doutorado" &(codigo == 89 | codigo == 8 | codigo == 75 | codigo == 97 | codigo == 23 | codigo == 104 | codigo == 90 | codigo == 87 | codigo == 36 |codigo == 91)) | (nivel == "Mestrado" &(codigo == 49 | codigo == 58 | codigo == 35 | codigo == 42 | codigo == 74 | codigo == 51 | codigo == 50 | codigo == 44 | codigo == 90 |codigo == 48)))
+
+fe = subset(mytbl, (nivel == "Graduacao" & (codigo == 56 | codigo == 20 | codigo ==38)) | (nivel =="Mestrado" & (codigo == 20 | codigo ==86)) | (nivel == "Doutorado" & (codigo == 70 | codigo == 102)))
+  
+fea = subset(mytbl, (nivel == "Graduacao" & (codigo == 13 | codigo == 43)) | (nivel == "Mestrado" & (codigo == 47 | codigo == 56 | codigo == 57 | codigo == 55)) | (nivel == "Doutorado" & (codigo == 81 | codigo == 34 | codigo == 6 | codigo == 7 | codigo == 5)))
+
+feagri = subset(mytbl, (nivel == "Graduacao" & (codigo == 8)) | (nivel == "Mestrado" & (codigo == 8)) | (nivel == "Doutorado" & (codigo == 58)))
+
+fec = subset(mytbl, (nivel == "Graduacao" & (codigo == 48 | codigo == 12)) | (nivel == "Mestrado" & (codigo == 89 | codigo == 12)) | (nivel == "Doutorado" & (codigo == 32 | codigo == 62)))
+
+feec = subset(mytbl, (nivel == "Graduacao" & (codigo == 11 | codigo == 41)) | (nivel == "Mestrado" & (codigo == 11)) | (nivel == "Doutorado" & (codigo == 61)))
+
+fef = subset(mytbl, (nivel == "Graduacao" & (codigo == 27 | codigo == 45)) | (nivel == "Mestrado" & (codigo == 28)) | (nivel == "Doutorado" & (codigo == 78)))
+
+fem = subset(mytbl, (nivel == "Graduacao" & (codigo == 49 | codigo == 10))|(nivel == "Mestrado" & (codigo == 72 | codigo == 10 | codigo == 39)) | (nivel == "Doutorado" & (codigo == 98 | codigo == 60 | codigo == 92)))
+
+fenf = subset(mytbl, (nivel == "Graduacao" & (codigo == 21)) | (nivel == "Mestrado" & (codigo == 59)) | (nivel == "Doutorado" & (codigo == 100)))
+
+feq = subset(mytbl, (nivel == "Graduacao" & (codigo == 9 | codigo == 39)) | (nivel == "Mestrado" & (codigo == 9)) | (nivel == "Doutorado" & (codigo == 59)))
+
+fop = subset(mytbl, (nivel == "Graduacao" & (codigo == 14)) | (nivel == "Mestrado" & (codigo == 67 | codigo == 23 | codigo == 71 | codigo == 70 | codigo == 14 | codigo == 69)) | (nivel == "Doutorado" & (codigo == 16 | codigo == 73 | codigo == 20 | codigo == 19 | codigo == 64 | codigo == 18)))
+
+ft = subset(mytbl, (nivel == "Graduacao" & (codigo == 36 | codigo == 83 | codigo ==73 | codigo == 87 | codigo == 89 | codigo == 88 | codigo == 94)) | (nivel == "Mestrado" & (codigo == 82)) | (nivel == "Doutorado" & (codigo == 35)))
+
+ia = subset(mytbl, (nivel == "Graduacao" & (codigo == 26 | codigo == 25 | codigo ==64 | codigo == 23 | codigo == 22)) | (nivel == "Mestrado" & (codigo == 87 | codigo == 88 | codigo == 30 | codigo == 73)) | (nivel == "Doutorado" & (codigo == 105 | codigo == 106 | codigo == 2 | codigo == 22)))
+
+ib = subset(mytbl, (nivel == "Graduacao" & (codigo == 6 | codigo == 46)), (nivel == "Mestrado" & (codigo == 83 | codigo == 65 | codigo == 61 | codigo ==60 | codigo == 63 | codigo == 64 | codigo == 62)) | (nivel == "Doutorado" & (codigo == 101 | codigo == 14 | codigo == 10 | codigo ==9 | codigo == 12 | codigo == 13 | codigo == 11)))
+
+ic = subset(mytbl, (nivel == "Graduacao" & (codigo == 42 | codigo == 34 )) | (nivel == "Mestrado" & (codigo == 3 )) | (nivel == "Doutorado" & (codigo == 53 )) )
+
+ie = subset(mytbl, (nivel == "Graduacao" & (codigo == 17 | codigo == 47)) | (nivel == "Mestrado" & (codigo == 53 | codigo == 17)) | (nivel == "Doutorado" & (codigo == 21 | codigo == 67)))
+
+iel = subset(mytbl, (nivel == "Graduacao" & (codigo == 75 | codigo == 7 | codigo ==57 | codigo == 18)) | (nivel == "Mestrado" & (codigo == 81 | codigo == 18 | codigo == 40 | codigo == 7)) | (nivel == "Doutorado" & (codigo == 68 | codigo == 93 | codigo == 57)))
+
+ifch = subset(mytbl, (nivel == "Graduacao" & (codigo == 16 | codigo == 44 | codigo == 30 | codigo == 19)) | (nivel == "Mestrado" & (codigo == 36 | codigo == 37 | codigo == 75 | codigo == 24 | codigo == 19 | codigo == 80 | codigo == 38)) | (nivel == "Doutorado" & (codigo == 28 | codigo == 25 | codigo == 30 | codigo == 66 | codigo == 94 | codigo == 74 | codigo == 69 | codigo == 103 | codigo == 27)))
+
+profis = subset(mytbl, nivel == "Graduacao" & (codigo == 200))
+
+iq = subset(mytbl, (nivel == "Graduacao" & (codigo == 5 | codigo == 50)) | (nivel == "Mestrado" & (codigo == 5)) | (nivel == "Doutorado" & (codigo == 55)))
+
+ig = subset(mytbl, (nivel == "Graduacao" & (codigo == 54 | codigo == 55 | codigo ==53)) | (nivel == "Mestrado" & (codigo == 54 | codigo == 26 | codigo == 79 | codigo == 41)) | (nivel == "Doutorado" & (codigo == 26 | codigo == 76 | codigo == 24 | codigo ==95)))
+
+ifgw = subset(mytbl, (nivel == "Graduacao" & (codigo == 108 | codigo == 4 | codigo ==40 | codigo == 51)) | (nivel == "Mestrado" & (codigo == 4)) | (nivel == "Doutorado" & (codigo == 54)))
+  
+institutos = data.frame(matrix(nrow = 25, ncol = 4))
+institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao))
+institutos[2,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao))
+institutos[3,] = c(sum(fcm$total), sum(fcm$sim), sum(fcm$nao), sum(fcm$abstencao))
+institutos[4,] = c(sum(fe$total), sum(fe$sim), sum(fe$nao), sum(fe$abstencao))
+institutos[5,] = c(sum(fea$total), sum(fea$sim), sum(fea$nao), sum(fea$abstencao))
+institutos[6,] = c(sum(feagri$total), sum(feagri$sim), sum(feagri$nao), sum(feagri$abstencao))
+institutos[7,] = c(sum(fec$total), sum(fec$sim), sum(fec$nao), sum(fec$abstencao))
+institutos[8,] = c(sum(feec$total), sum(feec$sim), sum(feec$nao), sum(feec$abstencao))
+institutos[9,] = c(sum(fef$total), sum(fef$sim), sum(fef$nao), sum(fef$abstencao))
+institutos[10,] = c(sum(fem$total), sum(fem$sim), sum(fem$nao), sum(fef$abstencao))
+institutos[11,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao))
+institutos[12,] = c(sum(feq$total), sum(feq$sim), sum(feq$nao), sum(feq$abstencao))
+institutos[13,] = c(sum(fop$total), sum(fop$sim), sum(fop$nao), sum(fop$abstencao))
+institutos[14,] = c(sum(ft$total), sum(ft$sim), sum(ft$nao), sum(ft$abstencao))
+institutos[15,] = c(sum(ia$total), sum(ia$sim), sum(ia$nao), sum(ia$abstencao))
+institutos[16,] = c(sum(ib$total), sum(ib$sim), sum(ib$nao), sum(ib$abstencao))
+institutos[17,] = c(sum(ic$total), sum(ic$sim), sum(ic$nao), sum(ic$abstencao))
+institutos[18,] = c(sum(ie$total), sum(ie$sim), sum(ie$nao), sum(ie$abstencao))
+institutos[19,] = c(sum(iel$total), sum(iel$sim), sum(iel$nao), sum(iel$abstencao))
+institutos[20,] = c(sum(ifch$total), sum(ifch$sim), sum(ifch$nao), sum(ifch$abstencao))
+institutos[21,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao))
+institutos[22,] = c(sum(iq$total), sum(iq$sim), sum(iq$nao), sum(iq$abstencao))
+institutos[23,] = c(sum(ig$total), sum(ig$sim), sum(ig$nao), sum(ig$abstencao))
+institutos[24,] = c(sum(ifgw$total), sum(ifgw$sim), sum(ifgw$nao), sum(ifgw$abstencao))
+institutos[25,] = c(sum(fca$total), sum(fca$sim), sum(fca$nao), sum(fca$abstencao))
+
+colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao")
+rownames(institutos) = c("IMECC", "FCF", "FCM", "FE", "FEA", "FEAGRI", "FEC", "FEEC", "FEF", "FEM", "FENF", "FEQ", "FOP", "FT", "IA", "IB", "IC", "IE", "IEL", "IFCH", "PROFIS", "IQ", "IG", "IFGW", "FCA")
+```
+
+
+# por área
+
+agora colocando os cursos por área 
+
+
+##Tamanho da amostra
+
+Considerando uma amostra aleatória simples sem reposição, para encontrar o tamanho amostral consideramos o nível de significancia de $\alpha = 0.01, e fixamos um erro de 0.01. Por teoria, temos:
+
+$$
+P = (|\hat{P} - P | \leq B) \approx 1- \alpha
+$$
+
+Agora fixando os valores estabelecidos acima, temos:
+
+$$
+P(|\hat{P} - P | \leq 0.01) \approx 0.99
+$$
+
+Considerando
+
+$$
+n = \frac{N}{\frac{(N-1)D}{(PQ) + 1}}
+$$
+
+```{r echo = FALSE}
+library(xlsx)
+setwd("/Users/Bel Fonseca/Documents/Bel/5ºSemestre/ME524 - Comp (Benilton)/Projeto/votaunicamp/")
+matriculados <-read.xlsx2("vota.xlsx", sheetIndex = 1, header = FALSE)
+tamamostral = subset(mytbl, nivel=='Graduacao')
+colnames(tamamostral) = c("codigo","nivel","curso","total", "sim", "nao", "abstencao")
+tamamostral = tamamostral[,c(-2,-4,-5,-6,-7)]
+tamamostral = cbind(tamamostral, matriculados$X1)
+colnames(tamamostral) = c("codigo","curso","Qtd matriculados")
+```
+
 
 ## Gauge Plots
 
@@ -59,12 +196,60 @@ Obter localizações (lat/lon) por meio do OpenStreet Maps:
 - Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
 
 ```{r enderecos}
-ends = read.table('institutos.tab', sep='\t', header=TRUE)
+aux = read.table('institutos.tab', sep='\t', header=TRUE)
+fldr <- tempfile()
+dir.create(fldr)
+
+pop <- lapply(seq(length(institutos[,1])), function(i) {
+
+  #p = panel.barchart(x=c("Sim","Não","Abstenção"),y=c(institutos[i,2],institutos[i,3],institutos[i,4]))
+ # p <- ggplot(institutos) +
+#+   geom_bar(stat="identity") #Colocar o plot da bel
+
+  svg(filename = paste(fldr, "test.svg", sep = "/"), 
+      width = 250 * 0.01334, height = 250 * 0.01334)
+  print(p)
+  dev.off()
+
+  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
+
+  return(tst)
+})
+
+ends = aux
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop)
+#ends$instituto
 map
 ```
+
+##Proporção
+```{r , message=FALSE, echo=FALSE, warning=FALSE}
+#Proporção de Não
+pnao = with(mytbl, nao/total)
+mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
+ics = cbind(pmax(pnao-mes, 0), pmin(pnao+mes, 1))
+colnames(ics) = c("lowerpnao", "upperpnao")
+mytbl$pnao = pnao
+mytbl = cbind(mytbl, ics)
+rm(pnao, mes, ics)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Intervalos de Confiança
 
