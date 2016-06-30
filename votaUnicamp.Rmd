@@ -139,11 +139,10 @@ Podemos fazer algumas análises exploratórias para estudar o comportamento dos 
 Uma das maneiras que encontramos para isso foi mapear o campus da Unicamp em Barão Geraldo a fim de ver qual o posicionamento de cada instituto.   
 Temos abaixo o mapeamento de acordo com a proporção de votos contrários à greve por instituto. Quanto mais vermelho o indicador, menor a proporção, ou seja, mais votos a favor da greve. Quanto mais azul, maior a proporção de votos contra à greve.  
 
-
+$\\$
 
 ```{r enderecos, echo=FALSE}
 ends = merge(ends, dados)
-
 pal= colorQuantile("RdBu",ends$propn, n=8)
 map = leaflet()
 map = addTiles(map)
@@ -151,14 +150,16 @@ map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, 
 map
 ```
   
-  
+$\\$
   
   
 Também podemos estudar a abrangência do site, ou seja, quais institutos de fato votaram e quantos votos temos. O que encontra-se na Figura 2.
 
 ```{r grafbar, echo=FALSE, fig.cap="Gráfico do total de votos por instituto", fig.align="center"}
 library(ggplot2)
-ggplot(dados, aes(reorder(instituto, total), total)) + geom_bar(stat='identity') + coord_flip() + theme_bw() #não esta rodadno
+Institutos=reorder(dados$instituto, dados$total)
+Total=dados$total
+ggplot(dados, aes(Institutos, Total)) + geom_bar(stat='identity') + coord_flip() + theme_bw()
 ```
 
 Na tabela abaixo temos mais detalhadamente os votos de alguns institutos.
@@ -206,8 +207,8 @@ biplot(fit)
 
 Como podemos ver, este gráfico mostra a tendência marjoritaria dos votos por institutos em relação aos vetores referentes as opções de voto. É notável que existem alguns instutos com opiniões semelhantes, por isso cabe um estudo aprofundado do assunto.   
 Nesse caso, a metodologia usada será a análise de *cluster*.  
-Abaixo calculamos as proporções de votos pelas áreas
-##FAZER TABELA
+Abaixo calculamos as proporções de votos pelas áreas:
+
 ```{r prop-area, echo=FALSE}
 darea = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by= area]
 darea = as.data.frame(darea)
