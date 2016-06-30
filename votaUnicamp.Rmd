@@ -12,6 +12,7 @@ Com intuito de verificar qual a opinião da classe estudantil, foi criado o site
 
 ```{r input, message=FALSE, results='hide', echo=FALSE, warning=FALSE}
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
+library(knitr)
 library(printr)
 library(vegan)
 library(stringr)
@@ -41,7 +42,6 @@ mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
 ```
 
 ```{r melhoropcaoinstitutos, echo=FALSE}
-setwd("~/Documentos/Github/votaunicampAnalytics") 
 gradinst = cbind(nivel='Graduacao', read.table('Grad.csv', header=TRUE, sep=','))
 doutinst = cbind(nivel='Doutorado', read.table('Dout.csv', header=TRUE, sep=','))
 mestinst = cbind(nivel='Mestrado', read.table('Mestr.csv', header=TRUE, sep=','))
@@ -67,6 +67,7 @@ Abaixo, algumas observações da tabela:
 head(tbl) #primeiras linhas dos dados do site
 ```
 
+A Tabela 1 completa pode ser acessada em *Apêndice*.
 
 ```{r echo=FALSE, message=FALSE}
 #coordenadas de cada isntituto da unicamp campinas
@@ -125,8 +126,10 @@ dados = as.data.frame(dados)
 dados$psim = with(dados, sim/total)
 dados$pnao = with(dados, nao/total)
 dados$pabs = with(dados, abstencao/total)
-formattable(dados[,-c(2,3,4,5)])
+head(dados[,-c(2,3,4,5)])
 ```
+
+A Tabela 2 pode ser encontrada em *Apêndice*.
 
 ##Análises Exploratórias
 
@@ -152,24 +155,26 @@ library(ggplot2)
 ggplot(dados, aes(reorder(instituto, total), total)) + geom_bar(stat='identity') + coord_flip() + theme_bw() #não esta rodadno
 ```
 
-Na tabela abaixo temos mais detalhadamente os votos de cada instituto.
+Na tabela abaixo temos mais detalhadamente os votos de alguns institutos.
 
 ```{r, echo=FALSE, fig.cap="Tabela de votos por instituto"}
 dados2 = dados[, c('instituto', 'nao', 'sim', 'abstencao', 'total')]
 names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
-formattable(dados2)
+head(dados2)
 ```
+
+A tabela completa encontra-se em *Apêndice*
 
 ##Estimador Para a Proporção
 
 Uma maneira de estimar a proporção para a população de alunos da Unicamp é através do estimador de *Bootstrap*. Para isso consideraremos os alunos que votaram no site uma amostra da população. 
 
-```{r dados, echo=FALSE}
+```{r dados, echo=FALSE, message=FALSE}
 tblnomes=html_table(page)[[3]]
 pop=tblnomes[,c(4,5)]
 ```
 
-```{r boot, echo=FALSE}
+```{r boot, echo=FALSE, message=FALSE}
 prop=function(pop, indices){
   length(which(pop[indices,]$Voto == "Não"))/nrow(pop[indices,])
 }
@@ -205,10 +210,11 @@ darea$pnao = with(darea, nao/total)
 darea$pabs = with(darea, abstencao/total)
 ```
 
-Ao realizarmos análise de cluster por meio de um dendograma utilizando o Índice de *Bray-Curtis*. Este indicador calcula a similaridade entre os institutos, e pertence ao intervalo de $[0,1]$. Quanto mais próximo de 0, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre grupos.
+Ao realizarmos análise de cluster por meio de um dendograma utilizando o Índice de *Bray-Curtis*. Este indicador calcula a similaridade entre os institutos, e pertence ao intervalo $[0,1]$. Quanto mais próximo de 0, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre grupos.
 
 ```{r dendograma, echo=FALSE, fig.cap="Dendograma de Cluster"}
-par(mfrow=c(1,2))
+#par(mfrow=c(2,1))
+library(vegan)
 teste=vegdist(newtbl, method = "jaccard")
 plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Jaccard", xlab = "Institutos", ylab = "Índice de Jaccard")
 
@@ -219,4 +225,19 @@ plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Bray-Cu
 
 
 #Conclusão
+
+#Apêndice
+
+Tabela 1: Tabela com os dados extraídos do site
+
+```{r echo=FALSE}
+kable(head(tbl), caption = 'TESTE') #primeiras linhas dos dados do site
+```
+
+Tabela 2:
+
+```{r echo=FALSE, }
+head(dados[,-c(2,3,4,5)])
+```
+
 
