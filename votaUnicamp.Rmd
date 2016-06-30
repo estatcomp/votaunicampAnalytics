@@ -370,3 +370,68 @@ colnames(ics) = c("lower", "upper")
 mytbl$p = p
 mytbl = cbind(mytbl, ics)
 ```
+## Comparações
+
+Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
+
+```{r exatas_naoexatas}
+NaoExatas = subset(mytbl, codigo == 26 | codigo == 25 | codigo == 64 | codigo == 23 | codigo == 22 | codigo == 6 |
+                     codigo == 100 | codigo == 27 | codigo == 45 | codigo == 21 | codigo == 63 | codigo == 58 |
+                     codigo == 46 | codigo == 15 | codigo == 107 | codigo == 14 |
+                     codigo == 109 | codigo == 110 | codigo == 17 | codigo == 47 |
+                     codigo == 16 | codigo == 44 | codigo == 75 | codigo == 30 | codigo == 54 | codigo == 55 |
+                     codigo == 19 | codigo == 7 | codigo == 57 | codigo == 56 | codigo == 18 | codigo == 20 | codigo == 38)
+
+
+Exatas = subset(mytbl, codigo != 26 & codigo != 25 & codigo != 64 & codigo != 23 & codigo != 22 & codigo != 6 &
+                   codigo != 100 & codigo != 27 & codigo != 45 & codigo != 21 & codigo != 63 & codigo != 58 &
+                     codigo != 46 & codigo != 15 & codigo != 107 & codigo != 14 &
+                     codigo != 109 & codigo != 110 & codigo != 17 & codigo != 47 &
+                     codigo != 16 & codigo != 44 & codigo != 75 & codigo != 30 & codigo != 54 & codigo != 55 &
+                     codigo != 19 & codigo != 7 & codigo != 57 & codigo != 56 & codigo != 18 & codigo != 20 & codigo != 38)
+```
+
+Podemos ver que de fato as proporções são diferentes: 
+
+```{r prop_exatas_naoexatas}
+props = c(p_NaoExatas = sum(NaoExatas$nao)/sum(NaoExatas$total),
+p_Exatas = sum(Exatas$nao)/sum(Exatas$total))
+names(props) = c("Não Exatas", "Exatas")
+props
+```
+
+Mas precisamos formalizar isso, usando um teste de hipótese, onde temos como hipótese nula "As proporções são iguais" e hipótese alternativa "As proporções são diferentes". O nível de significância escolhido será de $\alpha = 0.01$. Temos então o seguinte teste:
+
+```{r teste_dif_exatas}
+x = c(rep(1,sum(Exatas$nao)), rep(0,sum(Exatas$total)-sum(Exatas$nao)))
+y = c(rep(1,sum(NaoExatas$nao)), rep(0,sum(NaoExatas$total)-sum(NaoExatas$nao)))
+
+(teste_dif_exatas_nao_exatas = t.test(x,y))
+```
+
+Como temos um valor-p muito baixo, ou seja, menor que o nível de significância escolhido, rejeitamos a hipótese de que as proporções são iguais, confirmando assim o que já era esperado anteriormente. 
+
+## Testes de hipótese
+
+Foi realizado testes para a igualdade de proporção de votos **contra** para todos pares de cursos do banco de dados, utilizando como critério os intervalos de confiança de 95% para a proporção em cada curso. Pares de cursos que não foi encontrada interseção significam que, com 95% de certeza, estes pares tem opiniões diferentes em relação à greve: as proporções têm diferenças significativas, mostrando assim uma mentalidade ortodoxa entre os pares selecionados.
+
+Devido à escassez de dados para cada curso, se o teste para diferença de proporção foi significativo, significa que a diferença entre as proprções destes pares foi grande.
+
+```{r hypoteses}
+a=1
+cursos = matrix(nrow=100, ncol=2)
+for (i in (1:(dim(mytbl)[1]-1))){
+  for(j in ((i+1):(dim(mytbl)[1]))){
+    if(mytbl$upper[i]<mytbl$lower[j] | mytbl$lower[i]>mytbl$upper[j]){
+        cursos[a, 1] = paste(mytbl$curso[i], mytbl$nivel[i], sep = " ")
+        cursos[a, 2] = paste(mytbl$curso[j], mytbl$nivel[j], sep = " ")
+        a = a + 1
+    }
+  }
+}
+(cursos = cursos[1:58,])
+```
+
+Pode-se observar que existe uma polaridade forte na universidade:  `r dim(cursos)[1]` pares de cursos entre todos que foram testados para igualdade de proporção de votos **contra**, falharam, concluindo que estes pares de cursos tiveram opiniões divergentes em relação à greve.
+
+Pode ser observado a forte presença de divergência entre cursos de áreas diferentes (biológicas, exatas e humanas), onde o conflito entre cursos de áreas iguais é bem mais fraco, porém ainda existem, com enfoque no curso "Licenciatura em Física", onde este curso, de exatas, conflituou com outros cursos de exatas com frequência considerável.
