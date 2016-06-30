@@ -17,7 +17,7 @@ library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
-page = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
+page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
 ```
 
