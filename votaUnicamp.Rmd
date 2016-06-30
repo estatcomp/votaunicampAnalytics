@@ -12,17 +12,11 @@ Estes cortes na educação, em específico nas universidades, geraram revoltas d
   Na UNICAMP, apesar de existir um movimento geral, cada instituto tem uma certa autonomia sobre as salas de aulas, e matérias ministradas por eles. Perante a este fato, a greve de alunos de cada instituto é decidida por meio de assembléias estudantis, organizada, normalmente, pelo centro acadêmico. Entretando, as tomadas de decisões baseadas nos resultados das assembléias são questionadas devido a sua falta representatividade. 
   Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site "https://votaunicamp.herokuapp.com/", no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto se desejarem. 
   
-  
-  
-```{r tabelatudo, echo=FALSE, warning=FALSE, message=FALSE}
-#library(DT)
-#datatable(mytbl, options = list(pageLength = 5))
-```
 
-  
 ```{r input, message=FALSE, echo = FALSE, warning=FALSE, message=FALSE}
 ##setup
-if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
+if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252")
+
 library(lattice)
 library(mapview)
 library(sp)
@@ -30,7 +24,7 @@ library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
-#pageatual = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
+#pageatual0 = read_html('http://votaunicamp.herokuapp.com/results/')
 #tblatual = html_table(page)[[2]]
 #head(tblatual)
 
@@ -119,6 +113,7 @@ ifgw = subset(mytbl, (nivel == "Graduacao" & (codigo == 108 | codigo == 4 | codi
   
 institutos = data.frame(matrix(nrow = 19, ncol = 5))
 institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
+institutospira = data.frame(matrix(nrow = 1, ncol = 5))
 
 
 institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao),"IMECC")
@@ -133,8 +128,6 @@ institutos[3,] = c(sum(fef$total), sum(fef$sim), sum(fef$nao), sum(fef$abstencao
 institutos[2,] = c(sum(fem$total), sum(fem$sim), sum(fem$nao), sum(fem$abstencao), "FEM")
 #institutos1[11,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao))
 institutos[11,] = c(sum(feq$total), sum(feq$sim), sum(feq$nao), sum(feq$abstencao), "FEQ")
-#institutos1[13,] = c(sum(fop$total), sum(fop$sim), sum(fop$nao), sum(fop$abstencao))
-
 institutos[4,] = c(sum(ia$total), sum(ia$sim), sum(ia$nao), sum(ia$abstencao), "IA")
 institutos[9,] = c(sum(ib$total), sum(ib$sim), sum(ib$nao), sum(ib$abstencao), "IB")
 institutos[14,] = c(sum(ic$total), sum(ic$sim), sum(ic$nao), sum(ic$abstencao), "IC")
@@ -152,6 +145,10 @@ institutoslim[1,] = c(sum(fca$total), sum(fca$sim), sum(fca$nao), sum(fca$absten
 institutoslim[2,] = c(sum(ft$total), sum(ft$sim), sum(ft$nao), sum(ft$abstencao), "FT")
 
 
+institutospira[1,] = c(sum(fop$total), sum(fop$sim), sum(fop$nao), sum(fop$abstencao), "FOP")
+
+colnames(institutospira) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
+rownames(institutospira) = c("FOP")
 colnames(institutoslim) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
 rownames(institutoslim) = c("FCA", "FT")
 colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
@@ -277,19 +274,21 @@ institutos[,3] = as.numeric(institutos[,3])
 institutos[,4] = as.numeric(institutos[,4])
 colnames(institutos) = c("Total","Sim","Não","Abstenção","Nomes")
 
-pop <- lapply(seq(length(institutos[,1])), function(i) {
-  if(institutos$Total[i]==0){return("Sem Votos")}
-  
-  respostas = c(rep("Sim",institutos[i,2]),rep("Não",institutos[i,3]),rep("Abstenção",institutos[i,4]))
-  df.resp = as.data.frame(respostas)
-  
-  categs = if(institutos[i,4]==0) c("Sim","Não") else c("Sim","Não","Abstenção")
-  cores=c(Sim="#FE2E2E",Não="#0000FF",Abstenção="#3ADF00")
-  
-  p = ggplot(data = df.resp, aes(x=respostas,fill=respostas))+ geom_bar(stat="count") + xlab("Resposta") +
-    ylab("Número de Resposta") + ggtitle(institutos$Nomes[i]) + scale_x_discrete(limits = categs) + 
-    scale_fill_manual(values=cores,guide=FALSE)
 
+pop <- lapply(seq(length(institutos[,1])), function(i) {
+ if(institutos$Total[i]==0){return("Sem Votos")}
+  
+  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
+  dados[1,2]<-institutos[i,2]
+  dados[2,2]<-institutos[i,3]
+  dados[3,2]<-institutos[i,4]
+  
+  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
+    ggtitle(rownames((institutos[i,])))+xlab("")+ theme(legend.position="none")+
+    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
+    geom_text(aes(label=Total), vjust=0.2,
+              position = position_dodge(0.9), size=3.5)
+  
   svg(filename = paste(fldr, "test.svg", sep = "/"), 
       width = 250 * 0.01334, height = 250 * 0.01334)
   print(p)
@@ -299,7 +298,6 @@ pop <- lapply(seq(length(institutos[,1])), function(i) {
 
   return(tst)
 })
-
 ends = aux
 map = leaflet()
 map = addTiles(map)
@@ -308,12 +306,6 @@ map
 ```
 
 ```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
-library(lattice)
-library(mapview)
-library(sp)
-library(ggplot2)
-
-
 endlim = data.frame(matrix(nrow = 2, ncol = 3))
 endlim[1,] = c("FCA", -22.55385, -47.42841)
 endlim[2,] = c( "FT", -22.56201, -47.42397)
@@ -323,7 +315,6 @@ endlim[,3] = as.numeric(endlim[,3])
 
 fldr <- tempfile()
 dir.create(fldr)
-
 
 institutoslim[,1] = as.numeric(institutoslim[,1])
 institutoslim[,2] = as.numeric(institutoslim[,2])
@@ -340,10 +331,21 @@ pop <- lapply(seq(length(institutoslim[,1])), function(i) {
   categs = if(institutoslim[i,4]==0) c("Sim","Não") else c("Sim","Não","Abstenção")
   cores=c(Sim="#FE2E2E",Não="#0000FF",Abstenção="#3ADF00")
   
-  p = ggplot(data = df.resp, aes(x=respostas,fill=respostas))+ geom_bar(stat="count") + xlab("Resposta") +
-    ylab("Número de Resposta") + ggtitle(institutoslim$Nomes[i]) + scale_x_discrete(limits = categs) + 
-    scale_fill_manual(values=cores,guide=FALSE)
+  # p = ggplot(data = df.resp, aes(x=respostas,fill=respostas))+ geom_bar(stat="count") + xlab("Resposta") +
+  #   ylab("Número de Resposta") + ggtitle(institutoslim$Nomes[i]) + scale_x_discrete(limits = categs) + 
+  #   scale_fill_manual(values=cores,guide=FALSE)
 
+  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
+  dados[1,2]<-institutoslim[i,2]
+  dados[2,2]<-institutoslim[i,3]
+  dados[3,2]<-institutoslim[i,4]
+  
+  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
+    ggtitle(rownames((institutoslim[i,])))+xlab("")+ theme(legend.position="none")+
+    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
+    geom_text(aes(label=Total), vjust=0.2,
+              position = position_dodge(0.9), size=3.5)
+  
   svg(filename = paste(fldr, "test.svg", sep = "/"), 
       width = 250 * 0.01334, height = 250 * 0.01334)
   print(p)
@@ -360,6 +362,57 @@ map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
 map
 ```
 
+```{r enderecos_pira, echo=FALSE, warning=FALSE, message=FALSE}
+
+endpira = data.frame(matrix(nrow = 1, ncol = 3))
+endpira[1,] = c("FOP", -22.70154, -47.64767)
+colnames(endpira) = c("instituto", "lat", "lon")
+endpira[,2] = as.numeric(endpira[,2])
+endpira[,3] = as.numeric(endpira[,3])
+
+
+fldr <- tempfile()
+dir.create(fldr)
+
+
+institutospira[,1] = as.numeric(institutospira[,1])
+institutospira[,2] = as.numeric(institutospira[,2])
+institutospira[,3] = as.numeric(institutospira[,3])
+institutospira[,4] = as.numeric(institutospira[,4])
+colnames(institutospira) = c("Total","Sim","Não","Abstenção","Nomes")
+
+pop <- lapply(seq(length(institutos[,1])), function(i) {
+ if(institutos$Total[i]==0){return("Sem Votos")}
+  
+  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
+  dados[1,2]<-institutos[i,2]
+  dados[2,2]<-institutos[i,3]
+  dados[3,2]<-institutos[i,4]
+  
+  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
+    ggtitle(rownames((institutos[i,])))+xlab("")+ theme(legend.position="none")+
+    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
+    geom_text(aes(label=Total), vjust=0.2,
+              position = position_dodge(0.9), size=3.5)
+  
+  svg(filename = paste(fldr, "test.svg", sep = "/"), 
+      width = 250 * 0.01334, height = 250 * 0.01334)
+  print(p)
+  dev.off()
+
+  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
+
+  return(tst)
+})
+
+map = leaflet()
+map = addTiles(map)
+map = addCircleMarkers(map, lat=endpira$lat, lng=endpira$lon, popup = pop)
+map
+```
+
+
+
 ## Intervalos de Confiança
 
 ```{r stats, echo=FALSE, warning=FALSE, message=FALSE}
@@ -370,6 +423,46 @@ colnames(ics) = c("lower", "upper")
 mytbl$p = p
 mytbl = cbind(mytbl, ics)
 ```
+
+## Tabelas interativa
+
+```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
+library(DT)
+
+instituto.por.numero <- read.csv("~/instituto por numero.csv", header=FALSE, sep=";")
+
+instituto.por.numero <- instituto.por.numero[,1:4]
+
+humanas = rbind(tbl_artes, tbl_humanas1, tbl_humanas2)
+exatas = rbind(tbl_exatas2, tbl_exatas1)
+biologicas = rbind(tbl_bio1, tbl_bio2, tbl_odonto)
+
+
+humanasnome = c("Humanas")
+exatasnome = c("Exatas")
+biologicasnome = c("Biológicas")
+humanas12 = cbind(humanas, humanasnome)
+exatas12 = cbind(exatas, exatasnome)
+biologicas12 = cbind(biologicas, biologicasnome)
+colnames(humanas12) = c("codigo", "nivel", "curso", "total", "sim", "nao", "abstencao", "area")
+colnames(biologicas12) = c("codigo", "nivel", "curso", "total", "sim", "nao", "abstencao", "area")
+colnames(exatas12) = c("codigo", "nivel", "curso", "total", "sim", "nao", "abstencao", "area")
+tabelafinal = rbind(humanas12, exatas12, biologicas12)
+
+
+for(i in 1:dim(tabelafinal)[1])
+{ tabelafinal[i,2] = levels(instituto.por.numero[,1])[instituto.por.numero[which(tabelafinal[i,1] == instituto.por.numero[,3]),1]]
+}
+
+tabelafinal$codigo = tabelafinal$area
+tabelafinal = tabelafinal[,c(-8)]
+colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
+
+datatable(tabelafinal, options = list(pageLength = 5))
+
+```
+
+
 ## Comparações
 
 Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
