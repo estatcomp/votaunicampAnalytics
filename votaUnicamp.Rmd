@@ -17,6 +17,7 @@ Estes cortes na educação, em específico nas universidades, geraram revoltas d
 ##setup
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252")
 
+library(ggplot2)
 library(lattice)
 library(mapview)
 library(sp)
@@ -61,6 +62,9 @@ Baseada na divisão de cursos por instututos da dac - graduação, obtemos os vo
 
 
 ```{r votoinstitutos, echo=FALSE, warning=FALSE, message=FALSE}
+
+## Separando os dados por institutos 
+
 imecc = subset(mytbl, (nivel == "Graduacao" & (codigo == 2 | codigo == 28 | codigo ==29 | codigo == 1))|(nivel == "Mestrado" & (codigo == 2 | codigo == 1 | codigo ==29)) | (nivel == "Doutorado" & (codigo == 31 | codigo == 51 | codigo ==79)))
 
 fca = subset(mytbl, (nivel == "Graduacao" & (codigo == 109 | codigo == 110 | codigo == 100 | codigo == 101 | codigo == 102 | codigo == 107)) | (nivel == "Mestrado" & (codigo == 31 | codigo == 51 | codigo ==79)) | (nivel == "Doutorado" & (codigo == 33)))
@@ -110,12 +114,13 @@ iq = subset(mytbl, (nivel == "Graduacao" & (codigo == 5 | codigo == 50)) | (nive
 ig = subset(mytbl, (nivel == "Graduacao" & (codigo == 54 | codigo == 55 | codigo ==53)) | (nivel == "Mestrado" & (codigo == 54 | codigo == 26 | codigo == 79 | codigo == 41)) | (nivel == "Doutorado" & (codigo == 26 | codigo == 76 | codigo == 24 | codigo ==95)))
 
 ifgw = subset(mytbl, (nivel == "Graduacao" & (codigo == 108 | codigo == 4 | codigo ==40 | codigo == 51)) | (nivel == "Mestrado" & (codigo == 4)) | (nivel == "Doutorado" & (codigo == 54)))
-  
+
+#criando data.frame - inst.
 institutos = data.frame(matrix(nrow = 19, ncol = 5))
 institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
 institutospira = data.frame(matrix(nrow = 1, ncol = 5))
 
-
+#Institutos Campinas
 institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao),"IMECC")
 #institutos1[2,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao))
 institutos[17,] = c(sum(fcm$total), sum(fcm$sim), sum(fcm$nao), sum(fcm$abstencao),"FCM")
@@ -140,13 +145,14 @@ institutos[18,] = c(sum(ig$total), sum(ig$sim), sum(ig$nao), sum(ig$abstencao), 
 institutos[7,] = c(sum(ifgw$total), sum(ifgw$sim), sum(ifgw$nao), sum(ifgw$abstencao), "IFGW")
 
 
-
+#institutos limeira
 institutoslim[1,] = c(sum(fca$total), sum(fca$sim), sum(fca$nao), sum(fca$abstencao), "FCA")
 institutoslim[2,] = c(sum(ft$total), sum(ft$sim), sum(ft$nao), sum(ft$abstencao), "FT")
 
-
+#institutos Piracicaba
 institutospira[1,] = c(sum(fop$total), sum(fop$sim), sum(fop$nao), sum(fop$abstencao), "FOP")
 
+#Nomes por institutos
 colnames(institutospira) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
 rownames(institutospira) = c("FOP")
 colnames(institutoslim) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
@@ -250,6 +256,7 @@ plot(gauge)
 
 ## Obtenção de Dados Geográficos
 
+
 Obter localizações (lat/lon) por meio do OpenStreet Maps:
 
 - Abrir OpenStreet Maps (OSM) em (http://www.openstreetmap.org/#map=16/-22.8173/-47.0677)
@@ -258,12 +265,15 @@ Obter localizações (lat/lon) por meio do OpenStreet Maps:
 - Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
 
 ```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
-library(lattice)
-library(mapview)
-library(sp)
-library(ggplot2)
+ends = read.table('institutos.tab', sep='\t', header=TRUE)
+localizacao_faltantes = data.frame(matrix(nrow = 3, ncol = 3))
+localizacao_faltantes[1,] = c("PROFIS", -22.8174, -47.06847)
+#localizacao_faltantes[1,] = c("FENF", , )
+localizacao_faltantes[1,] = c("FCF", -22.81770, -47.07084)
 
-aux = read.table('institutos.tab', sep='\t', header=TRUE)
+#institutos1[21,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao))
+#institutos1[11,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao))
+#institutos1[2,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao))
 
 fldr <- tempfile()
 dir.create(fldr)
@@ -301,7 +311,7 @@ pop <- lapply(seq(length(institutos[,1])), function(i) {
 ends = aux
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=aux$lat, lng=aux$lon, popup = pop)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop)
 map
 ```
 
