@@ -3,7 +3,7 @@ title: "Vota Unicamp"
 output: html_document
 ---
 
-## Introdução 1213 4 
+## Introdução
 
   A um pouco mais de um mês estudantes impulsionados por problemas que as universidades estaduais paulistas (USP, UNESP e UNICAMP) enfrentam, seja ele, má administração, corte financeiros, permanência estudantil, entraram em greve para reinvindicar suas pautas.
 
@@ -14,9 +14,9 @@ Estes cortes na educação, em específico nas universidades, geraram revoltas d
   
   
   
-```{r}
-library(DT)
-datatable(mytbl, options = list(pageLength = 5))
+```{r tabelatudo, echo=FALSE, warning=FALSE, message=FALSE}
+#library(DT)
+#datatable(mytbl, options = list(pageLength = 5))
 ```
 
   
@@ -30,8 +30,12 @@ library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
-#page = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
-#tbl = html_table(page)[[2]]
+#pageatual = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
+#tblatual = html_table(page)[[2]]
+#head(tblatual)
+
+page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
+tbl = html_table(page)[[2]]
 #head(tbl)
 ```
 
@@ -62,7 +66,7 @@ head(mytbl)
 Baseada na divisão de cursos por instututos da dac - graduação, obtemos os votos por institutos.
 
 
-```{r votoinstitutos, echo=FALSE}
+```{r votoinstitutos, echo=FALSE, warning=FALSE, message=FALSE}
 imecc = subset(mytbl, (nivel == "Graduacao" & (codigo == 2 | codigo == 28 | codigo ==29 | codigo == 1))|(nivel == "Mestrado" & (codigo == 2 | codigo == 1 | codigo ==29)) | (nivel == "Doutorado" & (codigo == 31 | codigo == 51 | codigo ==79)))
 
 fca = subset(mytbl, (nivel == "Graduacao" & (codigo == 109 | codigo == 110 | codigo == 100 | codigo == 101 | codigo == 102 | codigo == 107)) | (nivel == "Mestrado" & (codigo == 31 | codigo == 51 | codigo ==79)) | (nivel == "Doutorado" & (codigo == 33)))
@@ -95,7 +99,7 @@ ft = subset(mytbl, (nivel == "Graduacao" & (codigo == 36 | codigo == 83 | codigo
 
 ia = subset(mytbl, (nivel == "Graduacao" & (codigo == 26 | codigo == 25 | codigo ==64 | codigo == 23 | codigo == 22)) | (nivel == "Mestrado" & (codigo == 87 | codigo == 88 | codigo == 30 | codigo == 73)) | (nivel == "Doutorado" & (codigo == 105 | codigo == 106 | codigo == 2 | codigo == 22)))
 
-ib = subset(mytbl, (nivel == "Graduacao" & (codigo == 6 | codigo == 46)), (nivel == "Mestrado" & (codigo == 83 | codigo == 65 | codigo == 61 | codigo ==60 | codigo == 63 | codigo == 64 | codigo == 62)) | (nivel == "Doutorado" & (codigo == 101 | codigo == 14 | codigo == 10 | codigo ==9 | codigo == 12 | codigo == 13 | codigo == 11)))
+ib = subset(mytbl, (nivel == "Graduacao" & (codigo == 6 | codigo == 46)) | (nivel == "Mestrado" & (codigo == 83 | codigo == 65 | codigo == 61 | codigo ==60 | codigo == 63 | codigo == 64 | codigo == 62)) | (nivel == "Doutorado" & (codigo == 101 | codigo == 14 | codigo == 10 | codigo ==9 | codigo == 12 | codigo == 13 | codigo == 11)))
 
 ic = subset(mytbl, (nivel == "Graduacao" & (codigo == 42 | codigo == 34 )) | (nivel == "Mestrado" & (codigo == 3 )) | (nivel == "Doutorado" & (codigo == 53 )) )
 
@@ -113,35 +117,44 @@ ig = subset(mytbl, (nivel == "Graduacao" & (codigo == 54 | codigo == 55 | codigo
 
 ifgw = subset(mytbl, (nivel == "Graduacao" & (codigo == 108 | codigo == 4 | codigo ==40 | codigo == 51)) | (nivel == "Mestrado" & (codigo == 4)) | (nivel == "Doutorado" & (codigo == 54)))
   
-institutos = data.frame(matrix(nrow = 19, ncol = 4))
-institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao))
+institutos = data.frame(matrix(nrow = 19, ncol = 5))
+institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
+
+
+institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao),"IMECC")
 #institutos1[2,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao))
-institutos[17,] = c(sum(fcm$total), sum(fcm$sim), sum(fcm$nao), sum(fcm$abstencao))
-institutos[12,] = c(sum(fe$total), sum(fe$sim), sum(fe$nao), sum(fe$abstencao))
-institutos[19,] = c(sum(fea$total), sum(fea$sim), sum(fea$nao), sum(fea$abstencao))
-institutos[16,] = c(sum(feagri$total), sum(feagri$sim), sum(feagri$nao), sum(feagri$abstencao))
-institutos[15,] = c(sum(fec$total), sum(fec$sim), sum(fec$nao), sum(fec$abstencao))
-institutos[10,] = c(sum(feec$total), sum(feec$sim), sum(feec$nao), sum(feec$abstencao))
-institutos[3,] = c(sum(fef$total), sum(fef$sim), sum(fef$nao), sum(fef$abstencao))
-institutos[2,] = c(sum(fem$total), sum(fem$sim), sum(fem$nao), sum(fef$abstencao))
+institutos[17,] = c(sum(fcm$total), sum(fcm$sim), sum(fcm$nao), sum(fcm$abstencao),"FCM")
+institutos[12,] = c(sum(fe$total), sum(fe$sim), sum(fe$nao), sum(fe$abstencao), "FE")
+institutos[19,] = c(sum(fea$total), sum(fea$sim), sum(fea$nao), sum(fea$abstencao), "FEA")
+institutos[16,] = c(sum(feagri$total), sum(feagri$sim), sum(feagri$nao), sum(feagri$abstencao), "FEAGRI")
+institutos[15,] = c(sum(fec$total), sum(fec$sim), sum(fec$nao), sum(fec$abstencao), "FEC")
+institutos[10,] = c(sum(feec$total), sum(feec$sim), sum(feec$nao), sum(feec$abstencao), "FEEC")
+institutos[3,] = c(sum(fef$total), sum(fef$sim), sum(fef$nao), sum(fef$abstencao), "FEF")
+institutos[2,] = c(sum(fem$total), sum(fem$sim), sum(fem$nao), sum(fem$abstencao), "FEM")
 #institutos1[11,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao))
-institutos[11,] = c(sum(feq$total), sum(feq$sim), sum(feq$nao), sum(feq$abstencao))
+institutos[11,] = c(sum(feq$total), sum(feq$sim), sum(feq$nao), sum(feq$abstencao), "FEQ")
 #institutos1[13,] = c(sum(fop$total), sum(fop$sim), sum(fop$nao), sum(fop$abstencao))
-#institutos1[14,] = c(sum(ft$total), sum(ft$sim), sum(ft$nao), sum(ft$abstencao))
-institutos[4,] = c(sum(ia$total), sum(ia$sim), sum(ia$nao), sum(ia$abstencao))
-institutos[9,] = c(sum(ib$total), sum(ib$sim), sum(ib$nao), sum(ib$abstencao))
-institutos[14,] = c(sum(ic$total), sum(ic$sim), sum(ic$nao), sum(ic$abstencao))
-institutos[13,] = c(sum(ie$total), sum(ie$sim), sum(ie$nao), sum(ie$abstencao))
-institutos[5,] = c(sum(iel$total), sum(iel$sim), sum(iel$nao), sum(iel$abstencao))
-institutos[6,] = c(sum(ifch$total), sum(ifch$sim), sum(ifch$nao), sum(ifch$abstencao))
+
+institutos[4,] = c(sum(ia$total), sum(ia$sim), sum(ia$nao), sum(ia$abstencao), "IA")
+institutos[9,] = c(sum(ib$total), sum(ib$sim), sum(ib$nao), sum(ib$abstencao), "IB")
+institutos[14,] = c(sum(ic$total), sum(ic$sim), sum(ic$nao), sum(ic$abstencao), "IC")
+institutos[13,] = c(sum(ie$total), sum(ie$sim), sum(ie$nao), sum(ie$abstencao), "IE")
+institutos[5,] = c(sum(iel$total), sum(iel$sim), sum(iel$nao), sum(iel$abstencao), "IEL")
+institutos[6,] = c(sum(ifch$total), sum(ifch$sim), sum(ifch$nao), sum(ifch$abstencao), "IFCH")
 #institutos1[21,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao))
-institutos[8,] = c(sum(iq$total), sum(iq$sim), sum(iq$nao), sum(iq$abstencao))
-institutos[18,] = c(sum(ig$total), sum(ig$sim), sum(ig$nao), sum(ig$abstencao))
-institutos[7,] = c(sum(ifgw$total), sum(ifgw$sim), sum(ifgw$nao), sum(ifgw$abstencao))
-#institutos1[25,] = c(sum(fca$total), sum(fca$sim), sum(fca$nao), sum(fca$abstencao))
+institutos[8,] = c(sum(iq$total), sum(iq$sim), sum(iq$nao), sum(iq$abstencao), "IQ")
+institutos[18,] = c(sum(ig$total), sum(ig$sim), sum(ig$nao), sum(ig$abstencao), "IG")
+institutos[7,] = c(sum(ifgw$total), sum(ifgw$sim), sum(ifgw$nao), sum(ifgw$abstencao), "IFGW")
 
 
-colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao")
+
+institutoslim[1,] = c(sum(fca$total), sum(fca$sim), sum(fca$nao), sum(fca$abstencao), "FCA")
+institutoslim[2,] = c(sum(ft$total), sum(ft$sim), sum(ft$nao), sum(ft$abstencao), "FT")
+
+
+colnames(institutoslim) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
+rownames(institutoslim) = c("FCA", "FT")
+colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
 rownames(institutos) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA")
 ```
 
@@ -150,7 +163,7 @@ rownames(institutos) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ
 
 # Criação de vetores para separar as áreas do conhecimento
 
-```{r} 
+```{r areas, echo=FALSE, warning=FALSE, message=FALSE } 
 # Aqui estamos criando vetores para dividir os cursos em suas areas de atuacao
 artes = c(22,23,25,26,64)
 bio_camp = c(6,27,45,21,63,58,46,15)
@@ -163,7 +176,7 @@ humanas_camp = c(17,47,16,44,75,30,54,55,19,7,57,56,18,20,38)
 profis = c(200)
 ```
 
-```{r}
+```{r campos, echo=FALSE, warning=FALSE, message=FALSE}
 #temos aqui as tabelas com cada grupo de cursos, sendo 1=Campinas, 2=Limeira
 tbl_exatas1<- subset(mytbl, nivel == "Graduacao" & (codigo == 48 | codigo == 2 | codigo == 8 | codigo == 89 | codigo == 12 | codigo == 13 | codigo == 43 | codigo == 34 | codigo == 49 | codigo == 11 | codigo == 41 | codigo == 108 | codigo == 10 | codigo == 9 | codigo == 39| codigo == 4| codigo == 53| codigo == 40| codigo == 29| codigo == 1| codigo == 28| codigo == 51| codigo == 5| codigo == 50))
 tbl_artes = subset(mytbl, nivel == "Graduacao" & (codigo == 22 | codigo == 23| codigo == 25| codigo == 26| codigo == 64))
@@ -176,7 +189,7 @@ tbl_humanas2 = subset(mytbl, nivel == "Graduacao" &(codigo == 109| codigo == 110
 tbl_profis = subset(mytbl, nivel == "Graduacao" & (codigo == 200))
 ```
 
-```{r}
+```{r area, echo=FALSE, warning=FALSE, message=FALSE}
 humanas = rbind(tbl_artes, tbl_humanas1, tbl_humanas2)
 exatas = rbind(tbl_exatas2, tbl_exatas1)
 biologicas = rbind(tbl_bio1, tbl_bio2, tbl_odonto)
@@ -186,9 +199,9 @@ areasuni[2,] = c(exatas$total, exatas$sim, exatas$nao, exatas$abstencao)
 areasuni[3,] = c(biologicas$total, biologicas$sim, biologicas$nao, biologicas$abstencao)
 ```
 
-```{r graficodebarras}
-bel = c(40,25,3)
-pie(bel, col = c("gray67", "gray28", "gray87"))
+```{r barras, echo=FALSE, warning=FALSE, message=FALSE}
+#bel = c(40,25,3)
+#pie(bel, col = c("gray67", "gray28", "gray87"))
 
 ```
 
@@ -214,7 +227,7 @@ $$
 n = \frac{N}{\frac{(N-1)D}{(PQ) + 1}}
 $$
 
-```{r echo = FALSE}
+```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
 library(xlsx)
 setwd("/Users/Bel Fonseca/Documents/Bel/5ºSemestre/ME524 - Comp (Benilton)/Projeto/votaunicamp/")
 matriculados <-read.xlsx2("vota.xlsx", sheetIndex = 1, header = FALSE)
@@ -228,7 +241,7 @@ colnames(tamamostral) = c("codigo","curso","Qtd matriculados")
 
 ## Gauge Plots
 
-```{r plot_gauge}
+```{r plot_gauge, echo=FALSE, warning=FALSE, message=FALSE}
 tbl0 = subset(mytbl, nivel=='Graduacao')
 tbl0$pnao = round(tbl0$nao/tbl0$total*100, 0)
 gauge = gvisGauge(tbl0[, c('curso', 'pnao')], 'curso', 'nao',
@@ -247,21 +260,35 @@ Obter localizações (lat/lon) por meio do OpenStreet Maps:
 - Olhar o endereço na barra de endereço após o zoom
 - Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
 
-```{r enderecos}
+```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
+library(lattice)
+library(mapview)
+library(sp)
+library(ggplot2)
+
 aux = read.table('institutos.tab', sep='\t', header=TRUE)
 
 fldr <- tempfile()
 dir.create(fldr)
 
+institutos[,1] = as.numeric(institutos[,1])
+institutos[,2] = as.numeric(institutos[,2])
+institutos[,3] = as.numeric(institutos[,3])
+institutos[,4] = as.numeric(institutos[,4])
+colnames(institutos) = c("Total","Sim","Não","Abstenção","Nomes")
+
 pop <- lapply(seq(length(institutos[,1])), function(i) {
+  if(institutos$Total[i]==0){return("Sem Votos")}
   
-  respostas = c(rep("Sim",institutos[i,1]),rep("Não",institutos[i,2]),rep("Abstenção",institutos[i,3]))
-  respostas = as.data.frame(respostas)
+  respostas = c(rep("Sim",institutos[i,2]),rep("Não",institutos[i,3]),rep("Abstenção",institutos[i,4]))
+  df.resp = as.data.frame(respostas)
   
-  categs = if(institutos[i,3]==0) c("Sim","Não") else c("Sim","Não","Abstenção")
+  categs = if(institutos[i,4]==0) c("Sim","Não") else c("Sim","Não","Abstenção")
+  cores=c(Sim="#FE2E2E",Não="#0000FF",Abstenção="#3ADF00")
   
-  p = ggplot(respostas, aes(x=respostas,fill=respostas))+ geom_bar() + xlab("Resposta") +
-    ylab("Número de Resposta") + ggtitle(institutos$Nomes[i]) + scale_x_discrete(limits = categs)
+  p = ggplot(data = df.resp, aes(x=respostas,fill=respostas))+ geom_bar(stat="count") + xlab("Resposta") +
+    ylab("Número de Resposta") + ggtitle(institutos$Nomes[i]) + scale_x_discrete(limits = categs) + 
+    scale_fill_manual(values=cores,guide=FALSE)
 
   svg(filename = paste(fldr, "test.svg", sep = "/"), 
       width = 250 * 0.01334, height = 250 * 0.01334)
@@ -273,56 +300,69 @@ pop <- lapply(seq(length(institutos[,1])), function(i) {
   return(tst)
 })
 
-#pop <- lapply(seq(length(institutos[,1])), function(i) {
-
-  #p = panel.barchart(x=c("Sim","Não","Abstenção"),y=c(institutos[i,2],institutos[i,3],institutos[i,4]))
- # p <- ggplot(institutos) +
-#+   geom_bar(stat="identity") #Colocar o plot da bel
-
- # svg(filename = paste(fldr, "test.svg", sep = "/"), 
-  #    width = 250 * 0.01334, height = 250 * 0.01334)
-  #print(p)
-  #dev.off()
-
-  #tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
-
-  #return(tst)
-#})
-
 ends = aux
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop)
-#ends$instituto
+map = addCircleMarkers(map, lat=aux$lat, lng=aux$lon, popup = pop)
 map
 ```
 
-##Proporção
-```{r , message=FALSE, echo=FALSE, warning=FALSE}
-#Proporção de Não
-pnao = with(mytbl, nao/total)
-mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
-ics = cbind(pmax(pnao-mes, 0), pmin(pnao+mes, 1))
-colnames(ics) = c("lowerpnao", "upperpnao")
-mytbl$pnao = pnao
-mytbl = cbind(mytbl, ics)
-rm(pnao, mes, ics)
+```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
+library(lattice)
+library(mapview)
+library(sp)
+library(ggplot2)
+
+
+endlim = data.frame(matrix(nrow = 2, ncol = 3))
+endlim[1,] = c("FCA", -22.55385, -47.42841)
+endlim[2,] = c( "FT", -22.56201, -47.42397)
+colnames(endlim) = c("instituto", "lat", "lon")
+endlim[,2] = as.numeric(endlim[,2])
+endlim[,3] = as.numeric(endlim[,3])
+
+fldr <- tempfile()
+dir.create(fldr)
+
+
+institutoslim[,1] = as.numeric(institutoslim[,1])
+institutoslim[,2] = as.numeric(institutoslim[,2])
+institutoslim[,3] = as.numeric(institutoslim[,3])
+institutoslim[,4] = as.numeric(institutoslim[,4])
+colnames(institutoslim) = c("Total","Sim","Não","Abstenção","Nomes")
+
+pop <- lapply(seq(length(institutoslim[,1])), function(i) {
+ if(institutoslim$Total[i]==0){return("Sem Votos")}
+  
+  respostas = c(rep("Sim",institutoslim[i,2]),rep("Não",institutoslim[i,3]),rep("Abstenção",institutoslim[i,4]))
+  df.resp = as.data.frame(respostas)
+  
+  categs = if(institutoslim[i,4]==0) c("Sim","Não") else c("Sim","Não","Abstenção")
+  cores=c(Sim="#FE2E2E",Não="#0000FF",Abstenção="#3ADF00")
+  
+  p = ggplot(data = df.resp, aes(x=respostas,fill=respostas))+ geom_bar(stat="count") + xlab("Resposta") +
+    ylab("Número de Resposta") + ggtitle(institutoslim$Nomes[i]) + scale_x_discrete(limits = categs) + 
+    scale_fill_manual(values=cores,guide=FALSE)
+
+  svg(filename = paste(fldr, "test.svg", sep = "/"), 
+      width = 250 * 0.01334, height = 250 * 0.01334)
+  print(p)
+  dev.off()
+
+  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
+
+  return(tst)
+})
+
+map = leaflet()
+map = addTiles(map)
+map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
+map
 ```
-
-
-
-
-
-
-
-
-
-
-
 
 ## Intervalos de Confiança
 
-```{r stats}
+```{r stats, echo=FALSE, warning=FALSE, message=FALSE}
 p = with(mytbl, nao/(total))
 mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
 ics = cbind(pmax(p-mes, 0), pmin(p+mes, 1))
