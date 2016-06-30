@@ -6,10 +6,10 @@ output: html_document
 
 #Introdução
 
-  No atual cenário político e econômico que o Brasil se encontra, greves de diversos setores estão ocupando cada vez mais espaço em busca de melhorias. Na educação não é diferente, uma vez que esta foi afetada com cortes de orçamento. Na Universidade Estadual de Campinas (UNICAMP), diversos alunos decidiram entrar em greve com o intuito de reivindicar cotas raciais e permanência estudantil, por meio da ampliação da moradia e bolsas de auxílio social.  
-  A greve em cada instituto foi deliberada por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão dos estudantes.
-  Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto. No entanto, acreditamos que esses dados possam ser viesados devido a algumas situações onde o aluno prefere não realizar o voto pelo site. Como muitos alunos contrários à greve podem não ter muito interesse em participar das longas assembleias, ou então se sintam intimidados em declarar seu voto perante uma maioria favorável à greve, estes talvez prefiram fazer esta votação online. Em compensação, alunos que votam "sim" podem acreditar ser uma evasão às assembleias e, com isso, possivelmente não votariam desta forma.
-  
+  Em meio à crise em que o Brasil se encontra, a educação foi afetada com cortes de orçamento e, infelizmente, isso inclui as Universidades.     
+Diante disso, o movimento grevista tem tomado conta da Unicamp e, com isso, a greve foi decidida por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão.   
+Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto.
+
 ```{r input, message=FALSE, results='hide', echo=FALSE, warning=FALSE}
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
 library(knitr)
@@ -57,8 +57,6 @@ Temos o intuito de estudar o comportamento da classe dos estudantes em relação
 
 #Metodologia
 
-Para a análise, apresentaremos as proporções e informações obtidas do banco de dados de forma visual e dinâmica. Os métodos utilizados foram a estimação de proporção por *Bootstrap* e análise de *cluster*.
-
 ## Formatação de Dados
 
 Extraímos do site uma tabela com o número de votos de cada curso (sim, não ou abstenho), incluindo os cursos da Unicamp dos campus Limeira e Piracicaba.  
@@ -66,10 +64,10 @@ Abaixo, algumas observações da tabela:
 
 
 ```{r echo=FALSE}
-kable(head(tbl), caption = 'Tabela 1: Dados extraídos do site') #primeiras linhas dos dados do site
+head(tbl) #primeiras linhas dos dados do site
 ```
 
-A Tabela 1 completa pode ser acessada em **Apêndice**.
+A Tabela 1 completa pode ser acessada em *Apêndice*.
 
 ```{r echo=FALSE, message=FALSE}
 #coordenadas de cada isntituto da unicamp campinas
@@ -128,10 +126,10 @@ dados = as.data.frame(dados)
 dados$psim = with(dados, sim/total)
 dados$pnao = with(dados, nao/total)
 dados$pabs = with(dados, abstencao/total)
-kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 2: Proporção de votos por instituto')
+head(dados[,-c(2,3,4,5)])
 ```
 
-A Tabela 2 pode ser encontrada em **Apêndice**.
+A Tabela 2 pode ser encontrada em *Apêndice*.
 
 ##Análises Exploratórias
 
@@ -139,9 +137,7 @@ Podemos fazer algumas análises exploratórias para estudar o comportamento dos 
 Uma das maneiras que encontramos para isso foi mapear o campus da Unicamp em Barão Geraldo a fim de ver qual o posicionamento de cada instituto.   
 Temos abaixo o mapeamento de acordo com a proporção de votos contrários à greve por instituto. Quanto mais vermelho o indicador, menor a proporção, ou seja, mais votos a favor da greve. Quanto mais azul, maior a proporção de votos contra à greve.  
 
-
-
-```{r enderecos, echo=FALSE}
+```{r enderecos, echo=FALSE, eval=FALSE}
 ends = merge(ends, dados)
 
 pal= colorQuantile("RdBu",ends$propn, n=8)
@@ -152,11 +148,9 @@ map
 ```
   
   
-  
-  
 Também podemos estudar a abrangência do site, ou seja, quais institutos de fato votaram e quantos votos temos. O que encontra-se na Figura 2.
 
-```{r grafbar, echo=FALSE, fig.cap="Gráfico do total de votos por instituto", fig.align="center"}
+```{r grafbar, echo=FALSE, fig.cap="Gráfico do total de votos por instituto"}
 library(ggplot2)
 ggplot(dados, aes(reorder(instituto, total), total)) + geom_bar(stat='identity') + coord_flip() + theme_bw() #não esta rodadno
 ```
@@ -166,10 +160,10 @@ Na tabela abaixo temos mais detalhadamente os votos de alguns institutos.
 ```{r, echo=FALSE, fig.cap="Tabela de votos por instituto"}
 dados2 = dados[, c('instituto', 'nao', 'sim', 'abstencao', 'total')]
 names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
-kable(head(dados2), caption = 'Tabela 3: Votos por instituto')
+head(dados2)
 ```
 
-A tabela completa encontra-se em **Apêndice**
+A tabela completa encontra-se em *Apêndice*
 
 ##Estimador Para a Proporção
 
@@ -234,17 +228,16 @@ plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Bray-Cu
 
 #Apêndice
 
-
+Tabela 1: Tabela com os dados extraídos do site
 
 ```{r echo=FALSE}
-kable(tbl, caption = 'Dados extraídos do site') 
+kable(head(tbl), caption = 'TESTE') #primeiras linhas dos dados do site
 ```
+
+Tabela 2:
 
 ```{r echo=FALSE, }
-kable(dados[,-c(2,3,4,5)], caption = 'Tabela 2: Proporção de votos por instituto')
+head(dados[,-c(2,3,4,5)])
 ```
 
-```{r echo=FALSE}
-kable(dados2, caption = 'Tabela 3: Votos por instituto')
-```
 
