@@ -12,11 +12,13 @@ Com intuito de verificar qual a opinião da classe estudantil, foi criado o site
 
 ```{r input, message=FALSE, results='hide', echo=FALSE, warning=FALSE}
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
+library(printr)
 library(vegan)
 library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
+library(formattable)
 page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
 ```
@@ -116,6 +118,7 @@ mytbl$upperpabs=ics[,2]
 
 ```{r, echo=FALSE}
 library(data.table)
+library(formattable)
 mytbl = as.data.table(mytbl)
 dados = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by=instituto]
 dados = as.data.frame(dados)
@@ -152,7 +155,6 @@ ggplot(dados, aes(reorder(instituto, total), total)) + geom_bar(stat='identity')
 Na tabela abaixo temos mais detalhadamente os votos de cada instituto.
 
 ```{r, echo=FALSE, fig.cap="Tabela de votos por instituto"}
-library(formattable)
 dados2 = dados[, c('instituto', 'nao', 'sim', 'abstencao', 'total')]
 names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
 formattable(dados2)
@@ -175,7 +177,7 @@ library(boot)
 res_boot = boot(pop, prop, R=10000)
 ```
 
-Estimamos que a proporção de alunos contrários à greve corresponde a `r round(res_boot,2)*100`%. Lembrando que essa estimativa considera que os alunos votantes são uma amostra aleatória da população.
+Estimamos que a proporção de alunos contrários à greve corresponde a `r round(res_boot$t0,2)*100`%. Lembrando que essa estimativa considera que os alunos votantes são uma amostra aleatória da população.
 
 ##Análise de Cluster
 
