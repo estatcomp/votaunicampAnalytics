@@ -58,8 +58,6 @@ head(mytbl)
 
 ## Institutos
 
-Baseada na divisão de cursos por instututos da dac - graduação, obtemos os votos por institutos.
-
 
 ```{r votoinstitutos, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -116,13 +114,13 @@ ig = subset(mytbl, (nivel == "Graduacao" & (codigo == 54 | codigo == 55 | codigo
 ifgw = subset(mytbl, (nivel == "Graduacao" & (codigo == 108 | codigo == 4 | codigo ==40 | codigo == 51)) | (nivel == "Mestrado" & (codigo == 4)) | (nivel == "Doutorado" & (codigo == 54)))
 
 #criando data.frame - inst.
-institutos = data.frame(matrix(nrow = 19, ncol = 5))
+institutos = data.frame(matrix(nrow = 22, ncol = 5))
 institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
 institutospira = data.frame(matrix(nrow = 1, ncol = 5))
 
 #Institutos Campinas
 institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao),"IMECC")
-#institutos1[2,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao))
+institutos[22,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao), "FCF")
 institutos[17,] = c(sum(fcm$total), sum(fcm$sim), sum(fcm$nao), sum(fcm$abstencao),"FCM")
 institutos[12,] = c(sum(fe$total), sum(fe$sim), sum(fe$nao), sum(fe$abstencao), "FE")
 institutos[19,] = c(sum(fea$total), sum(fea$sim), sum(fea$nao), sum(fea$abstencao), "FEA")
@@ -131,7 +129,7 @@ institutos[15,] = c(sum(fec$total), sum(fec$sim), sum(fec$nao), sum(fec$abstenca
 institutos[10,] = c(sum(feec$total), sum(feec$sim), sum(feec$nao), sum(feec$abstencao), "FEEC")
 institutos[3,] = c(sum(fef$total), sum(fef$sim), sum(fef$nao), sum(fef$abstencao), "FEF")
 institutos[2,] = c(sum(fem$total), sum(fem$sim), sum(fem$nao), sum(fem$abstencao), "FEM")
-#institutos1[11,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao))
+institutos[21,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao), "FENF")
 institutos[11,] = c(sum(feq$total), sum(feq$sim), sum(feq$nao), sum(feq$abstencao), "FEQ")
 institutos[4,] = c(sum(ia$total), sum(ia$sim), sum(ia$nao), sum(ia$abstencao), "IA")
 institutos[9,] = c(sum(ib$total), sum(ib$sim), sum(ib$nao), sum(ib$abstencao), "IB")
@@ -139,7 +137,7 @@ institutos[14,] = c(sum(ic$total), sum(ic$sim), sum(ic$nao), sum(ic$abstencao), 
 institutos[13,] = c(sum(ie$total), sum(ie$sim), sum(ie$nao), sum(ie$abstencao), "IE")
 institutos[5,] = c(sum(iel$total), sum(iel$sim), sum(iel$nao), sum(iel$abstencao), "IEL")
 institutos[6,] = c(sum(ifch$total), sum(ifch$sim), sum(ifch$nao), sum(ifch$abstencao), "IFCH")
-#institutos1[21,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao))
+institutos[20,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao), "PROFIS")
 institutos[8,] = c(sum(iq$total), sum(iq$sim), sum(iq$nao), sum(iq$abstencao), "IQ")
 institutos[18,] = c(sum(ig$total), sum(ig$sim), sum(ig$nao), sum(ig$abstencao), "IG")
 institutos[7,] = c(sum(ifgw$total), sum(ifgw$sim), sum(ifgw$nao), sum(ifgw$abstencao), "IFGW")
@@ -158,7 +156,7 @@ rownames(institutospira) = c("FOP")
 colnames(institutoslim) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
 rownames(institutoslim) = c("FCA", "FT")
 colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
-rownames(institutos) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA")
+rownames(institutos) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF")
 ```
 
 
@@ -254,26 +252,35 @@ gauge = gvisGauge(tbl0[, c('curso', 'pnao')], 'curso', 'nao',
 plot(gauge)
 ```
 
+
+
 ## Obtenção de Dados Geográficos
 
-
-Obter localizações (lat/lon) por meio do OpenStreet Maps:
-
-- Abrir OpenStreet Maps (OSM) em (http://www.openstreetmap.org/#map=16/-22.8173/-47.0677)
-- Dar zoom máximo no instituto de interesse
-- Olhar o endereço na barra de endereço após o zoom
-- Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
-
+# Campus Campinas
 ```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
 ends = read.table('institutos.tab', sep='\t', header=TRUE)
 localizacao_faltantes = data.frame(matrix(nrow = 3, ncol = 3))
 localizacao_faltantes[1,] = c("PROFIS", -22.8174, -47.06847)
-#localizacao_faltantes[1,] = c("FENF", , )
-localizacao_faltantes[1,] = c("FCF", -22.81770, -47.07084)
+localizacao_faltantes[2,] = c("FENF", -22.83080 , -47.06133)
+localizacao_faltantes[3,] = c("FCF", -22.81770, -47.07084)
+localizacao_faltantes[,2] = as.numeric(localizacao_faltantes[,2])
+localizacao_faltantes[,3] = as.numeric(localizacao_faltantes[,3])
+colnames(localizacao_faltantes) = c("instituto","lat","lon")
+ends = rbind(ends,localizacao_faltantes)
 
-#institutos1[21,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao))
-#institutos1[11,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao))
-#institutos1[2,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao))
+#calculando a propoção dos institutos de campinas
+
+institutos[,1] = as.numeric(institutos[,1])
+institutos[,2] = as.numeric(institutos[,2])
+institutos[,3] = as.numeric(institutos[,3])
+institutos[,4] = as.numeric(institutos[,4])
+prop =  data.frame(matrix(nrow = length(institutos$Total), ncol = 3))
+for(i in 1:dim(institutos)[1])
+{ prop[i,] = c((sum(institutos[i,2])/sum(institutos[i,1])), (sum(institutos[i,3])/sum(institutos[i,1])), (sum(institutos[i,4])/sum(institutos[i,1]))) 
+}
+
+
+
 
 fldr <- tempfile()
 dir.create(fldr)
@@ -308,12 +315,16 @@ pop <- lapply(seq(length(institutos[,1])), function(i) {
 
   return(tst)
 })
-ends = aux
+
+
+pal= colorQuantile(c("palegreen1","green2","olivedrab4", "seagreen"),prop$X2)
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop, color = pal(prop$X2))
 map
 ```
+
+# Campus Limeira
 
 ```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
 endlim = data.frame(matrix(nrow = 2, ncol = 3))
@@ -371,6 +382,8 @@ map = addTiles(map)
 map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
 map
 ```
+
+# Campus Piracicaba
 
 ```{r enderecos_pira, echo=FALSE, warning=FALSE, message=FALSE}
 
