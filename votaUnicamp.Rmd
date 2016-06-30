@@ -8,8 +8,7 @@ output: html_document
 
   No atual cenário político e econômico que o Brasil se encontra, greves de diversos setores estão ocupando cada vez mais espaço em busca de melhorias. Na educação não é diferente, uma vez que esta foi afetada com cortes de orçamento. Na Universidade Estadual de Campinas (UNICAMP), diversos alunos decidiram entrar em greve com o intuito de reivindicar cotas raciais e permanência estudantil, por meio da ampliação da moradia e bolsas de auxílio social.  
   A greve em cada instituto foi deliberada por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão dos estudantes.
-  Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto. No entanto, acreditamos que esses dados possam ser viesados devido a algumas situações onde o aluno prefere não realizar o voto pelo site. Como muitos alunos contrários à greve podem não ter muito interesse em participar das longas assembleias, ou então se sintam intimidados em declarar seu voto perante uma maioria favorável à greve, estes talvez prefiram fazer esta votação online. Em compensação, alunos que votam "sim" podem acreditar ser uma evasão às assembleias e, com isso, possivelmente não votariam desta forma.
-  
+  Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto. 
 ```{r input, message=FALSE, results='hide', echo=FALSE, warning=FALSE}
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
 library(knitr)
@@ -51,7 +50,9 @@ rm(gradinst, doutinst, mestinst)
 mytbl = merge(mytbl, inst)
 ```
 
+
 #Objetivos
+
 
 Temos o intuito de estudar o comportamento da classe dos estudantes em relação à greve, como por exemplo, se existe uma relação entre a área de estudo e o voto. Assim, podemos caracterizar o perfil do aluno como favorável ou contrário à mobilização.
 
@@ -137,7 +138,7 @@ A Tabela 2 pode ser encontrada em **Apêndice**.
 
 Podemos fazer algumas análises exploratórias para estudar o comportamento dos dados.   
 Uma das maneiras que encontramos para isso foi mapear o campus da Unicamp em Barão Geraldo a fim de ver qual o posicionamento de cada instituto.   
-Temos abaixo o mapeamento de acordo com a proporção de votos contrários à greve por instituto. Quanto mais vermelho o indicador, menor a proporção, ou seja, mais votos a favor da greve. Quanto mais azul, maior a proporção de votos contra à greve.  
+Temos abaixo o mapeamento de acordo com a proporção de votos contrários à greve por instituto. Quanto mais vermelho o indicador, menor a proporção, ou seja, mais votos a favor da greve. Quanto mais azul, maior a proporção de votos contra à greve.
 
 $\\$
 
@@ -170,7 +171,7 @@ names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
 kable(head(dados2), caption = 'Tabela 3: Votos por instituto')
 ```
 
-A tabela completa encontra-se em **Apêndice**
+A Tabela 3 completa encontra-se em **Apêndice**
 
 ##Estimador Para a Proporção
 
@@ -193,8 +194,8 @@ Estimamos que a proporção de alunos contrários à greve corresponde a `r roun
 
 ##Análise de Cluster
 
-Como alunos, sabemos que existe uma divergência de opinião em função do instituto a que pertence.   
-Sendo assim, é normal questionar-se se existe institutos com mesma opinião. Vamos avaliar essa diferença usando um gráfico de componentes, como segue:
+Como alunos, sabemos que existe uma divergência de opinião entre os institutos. Vamos avaliar essa diferença usando um gráfico de componentes, como se segue:
+
 
 ```{r plot, echo=FALSE, fig.cap="Gráfico de Componentes para Institutos"}
 newtbl = dados2[,c("Não","Sim","Abstenções")]
@@ -205,9 +206,9 @@ fit= prcomp(newtbl)
 biplot(fit)
 ```
 
-Como podemos ver, este gráfico mostra a tendência marjoritaria dos votos por institutos em relação aos vetores referentes as opções de voto. É notável que existem alguns instutos com opiniões semelhantes, por isso cabe um estudo aprofundado do assunto.   
-Nesse caso, a metodologia usada será a análise de *cluster*.  
-Abaixo calculamos as proporções de votos pelas áreas:
+Como podemos ver, o gráfico acima mostra a tendência marjoritária dos votos por institutos em relação aos vetores referentes as opções de voto. Nota-se que existem alguns institutos com opiniões similares, por isso cabe um estudo aprofundado do assunto.   
+Nesse caso, a metodologia usada será a análise de *cluster*, um agrupamento nos institutos com comportamento semelhante.  
+Abaixo calculamos as proporções de votos pelas áreas.
 
 ```{r prop-area, echo=FALSE}
 darea = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by= area]
@@ -215,26 +216,32 @@ darea = as.data.frame(darea)
 darea$psim = with(darea, sim/total)
 darea$pnao = with(darea, nao/total)
 darea$pabs = with(darea, abstencao/total)
+darea
 ```
 
-Ao realizarmos análise de cluster por meio de um dendograma utilizando o Índice de *Bray-Curtis*. Este indicador calcula a similaridade entre os institutos, e pertence ao intervalo $[0,1]$. Quanto mais próximo de 0, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre grupos.
+A análise de *cluster* foi feito por meio de um dendograma.
 
 ```{r dendograma, echo=FALSE, fig.cap="Dendograma de Cluster"}
-#par(mfrow=c(2,1))
-library(vegan)
-teste=vegdist(newtbl, method = "jaccard")
-plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Jaccard", xlab = "Institutos", ylab = "Índice de Jaccard")
-
 teste=vegdist(newtbl, method = "bray")
 plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Bray-Curtis", xlab = "Institutos", ylab = "Índice de Bray-Curtis")
-
+m=mean(c(1:6))
 ```
 
+O dendograma acima ilustra o nível de similaridade no eixo vertical 
+e as diferentes observações são listadas ao longo do eixo horizontal.  
+É possível ver em que nível de similaridade os agrupamentos são formados, 
+e a composição dos agrupamentos da partição final.  
+Tais níveis foram calculados por meio do índice de *Bray-Curtis*. Esse índice, quantitativo, foi usado para quantificar a similaridade entre diferentes institutos. Além disso, pertence ao intervalo $[0,1]$ e, quanto mais próximo de $0$, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre grupos.
 
 #Conclusão
 
-#Apêndice
+A partir dos estudos realizados nesse trabalho, podemos concluir que `r round(res_boot,2)*100`% dos alunos sao contrarios a greve. Contudo, dado a atual situaçao do campus isso nos leva a questionar a representatividade, ora das assembleias estudantis, ora da votaçao dos dados provenientes do site.
+Uma possivel justificativa seria do receio de se posicionar em um ambiente "hostil". Muitos alunos contrários à greve podem não ter muito interesse em participar das longas assembleias, ou então se sintam intimidados em declarar seu voto perante uma maioria favorável à greve, portanto os impulsiona a votar online. Em compensação, alunos que votam "sim" podem acreditar que o site provoque evasão às assembleias e, com isso, possivelmente não votariam desta forma.
 
+
+O código foi produzido de maneira reprodutiva, ou seja, a medida que o número de votos aumente, os resultados serão atualizados simultaneamente.
+
+#Apêndice
 
 
 ```{r echo=FALSE}
