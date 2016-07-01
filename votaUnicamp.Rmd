@@ -1,32 +1,41 @@
 ---
 title: "Vota Unicamp!"
-author: "Benilton S Carvalho"
+author: Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
+  Michely Wu Hsieh e Natalia Rodrigues da Silva
 output: html_document
 ---
 
-## Setup
+###Introdução  e objetivo
+    As universidades estaduais paulistas tem vivido momentos de grande tensão desde que teve inicio uma greve geral dos estudantes que têm como objetivo revindicar pautas como a implementação de cotas etnico-raciais, a ampliação da moradia estudantil e a negociação a respeito dos cortes orçamentarios anunciados pelo governo do estado. Desde o dia 10/05 as intalações da reitoria e da pró-reitoria das UNICAMP foram ocupadas por estudantes e assim permanecem a atual data, mesmo após mandados judiciais de desocupação e ameaças de reintegrção de posse por parte da Policia Militar.
+    Além do movimento geral de greve e da ocupação existem movimentos grevistas dentro de cada um dos institutos. A decisão a respeito do apoio, ou não a greve nessa instância é, então, feita através de assembléias, que são reuniões organizadas pelo centro acadêmico de cada instituto, os quais são formados por alunos do mesmo.
+    O problema começa quando estudantes e docentes passam a questionar a representatibilidade das assembléias já que, devido as atividades e cronogramas acadêmicos a serem cumpridos, muitos dos estudantes contrários a greve não abrem mão de seus afazeres para comparecerem a tais reuniões, o que faz com que estas contem com um número reduzido de alunos que, em sua maioria, votam a favor.
+    Diante desse problema o site "votaunicamp" foi criado com a intenção de conhecer a verdadeira opinião dos estudantes da universidade Estadual de Campinas em relação a pauta da greve estudantil através de uma votação online. A metodologia do site é segura por permitir que cada aluno vote uma unica vez, descartando, então, o risco de que a votação seja fraudada. Na pesquisa os votos são classificados em: "Sim","Não","Abstenção". Além disso, os alunos podem justificar seus votos. 
+    O projeto final de ME524 tem como objetivo fazer uma análise descritiva dos dados presentes no site "votaunicamp". Para fazer tal estudo utilizaremos como ferramentas gráficos e tabelas obtidos a partir dos dados presentes no site.
 
-```{r input, message=FALSE}
+```{r input, message=FALSE, echo=FALSE}
+## Setup
 Sys.setlocale(locale='UTF-8')
 library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
-page = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
+library(pracma)
+page = read_html('https://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
-head(tbl)
+names(tbl)=c("Curso","Total","Sim","Abstenções","Não")
+tbl$Curso=repair_encoding(tbl$Curso)
+#head(tbl)
 ```
 
+```{r format, echo=FALSE}
 ## Formatação de Dados
-
-```{r format}
 mytbl = data.frame(codigo=as.integer(str_extract(tbl$Curso, "^\\d+")),
-                   nivel=NA,
-                   curso=gsub("^(\\d+) - (.*)$", "\\2", tbl$Curso),
-                   total=tbl$Total,
-                   sim=as.integer(str_extract(tbl$Sim, "^\\d+")),
-                   nao=as.integer(str_extract(tbl$Não, "^\\d+")),
-                   abstencao=as.integer(str_extract(tbl$Abstenções, "^\\d+")))
+nivel=NA,
+curso=gsub("^(\\d+) - (.*)$", "\\2", tbl$Curso),
+total=tbl$Total,
+sim=as.integer(str_extract(tbl$Sim, "^\\d+")),
+nao=as.integer(str_extract(tbl$Não, "^\\d+")),
+abstencao=as.integer(str_extract(tbl$Abstenções, "^\\d+")))
 nivel = str_extract(mytbl$curso, "(Dou|Mes)[a-z]+")
 nivel[grepl("Mes", nivel)] = "Mestrado"
 nivel[grepl("Dou", nivel)] = "Doutorado"
@@ -34,7 +43,107 @@ nivel[is.na(nivel)] = "Graduacao"
 mytbl$nivel = nivel
 rm(nivel)
 mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
-head(mytbl)
+#head(mytbl)
+```
+
+##Tabela de Dados Original
+
+Essa tabela apresenta todos os dados presentes no site dividos em sete categorias: 
+Código do curso, nível do curso, nome do curso, total de votos, número de sim, número de não e número de abstenção.
+
+```{r tabela de dados, echo=FALSE}
+library(DT)
+datatable(mytbl, options = list(pageLength = 10))
+```
+
+##Formatação dos dados
+
+```{r separacao_areas, echo=FALSE}
+library(dplyr)
+graduacao=filter(mytbl, nivel=="Graduacao")
+#*#ARTES,
+artes=filter(graduacao,codigo=="26"|codigo=="25"|codigo=="64"|codigo=="23"|codigo=="22")
+#*#PROGRAMAS, ESPECIAIS
+pespeciais=filter(graduacao,codigo=="200")
+#*#BIOLOGICAS,
+biologicas=filter(graduacao,codigo=="6"|codigo=="100"|codigo=="27"|codigo=="45"|codigo=="21"|codigo=="63"|codigo=="58"|codigo=="46"|codigo=="15"|codigo=="107"|codigo=="14")
+#*#HUMANAS,
+humanas=filter(graduacao,codigo=="109"| codigo=="110"| codigo=="17"| codigo=="47"| codigo=="16"|codigo=="44"| codigo=="75"|codigo=="30"| codigo=="54"| codigo=="55"|codigo=="19"|codigo=="7"|codigo=="57"|codigo=="56"|codigo=="18"|codigo=="20"|codigo=="38")
+##*EXATAS,
+exatas=filter(graduacao,codigo=="48"|codigo=="42"|codigo=="36"|codigo=="83"|codigo=="73"|codigo=="87"|codigo=="8"|codigo=="89"|codigo=="12"|codigo=="13"|codigo=="43"|codigo=="34"|codigo=="49"|codigo=="101"|codigo=="102"|codigo=="88"|codigo=="11"|codigo=="41"|codigo=="108"|codigo=="10"|codigo=="9"|codigo=="39"|codigo=="2"|codigo=="4"|codigo=="53"|codigo=="40"|codigo=="29"|codigo=="1"|codigo=="28"|codigo=="51"|codigo=="5"|codigo=="50"|codigo=="94")
+```
+
+```{r separando os institutos, echo=FALSE}
+library(dplyr)
+IMECC = filter(graduacao,codigo=="1"|codigo=="2"|codigo=="28"|codigo=="29"|codigo=="51"|codigo=="31"|codigo=="79")
+FEM = filter(graduacao,codigo=="10"|codigo=="49"|codigo=="98"|codigo=='60'|codigo=='92'|codigo=='72'|codigo=="39")
+FCA = filter(graduacao,codigo=="100"|codigo=="107"|codigo=="101"|codigo=="102"|codigo=="33"|codigo=="54"|codigo=="91"|codigo=="52")
+IFGW = filter(graduacao,codigo=="4"|codigo=="108"|codigo=="40"|codigo=="54")
+IFCH = filter(graduacao,codigo=="19"|codigo=="30"|codigo=="44"|codigo=="16"|codigo=="28"|codigo=="25"|codigo=="66"|codigo=="94"|codigo=="74"|codigo=="69"|codigo=="103"|codigo=="27"|codigo=="36"|codigo=="37"|codigo=="75"|codigo=="24"|codigo=="80"|codigo=="38")
+FEEC = filter(graduacao,codigo=="11"|codigo=="41"|codigo=="34"|codigo=="61")
+FEC = filter(graduacao,codigo=="12"|codigo=="32"|codigo=="62"|codigo=="89")
+FOP = filter(graduacao,codigo=="14"|codigo=="16"|codigo=="73"|codigo=="20"|codigo=="19"|codigo=="64"|codigo=="18"|codigo=="67"|codigo=="23"|codigo=="71"|codigo=="70"|codigo=="69")
+FEA = filter(graduacao,codigo=="13"|codigo=="43"|codigo=="81"|codigo=="34"|codigo=="6"|codigo=="7"|codigo=="5"|codigo=="47"|codigo=="56"|codigo=="57"|codigo=="55")
+FCM = filter(graduacao,codigo=="15"|codigo=="21"|codigo=="58"|codigo=="89"|codigo=="8"|codigo=="75"|codigo=="97"|codigo=="23"|codigo=="104"|codigo=="90"|codigo=="87"|codigo=="36"|codigo=="91"|codigo=="100"|codigo=="49"|codigo=="58"|codigo=="35"|codigo=="42"|codigo=="74"|codigo=="50"|codigo=="44"|codigo=="90"|codigo=="48"|codigo=="59")
+IE = filter(graduacao,codigo=="17"|codigo=="47"|codigo=="21"|codigo=="67"|codigo=="53")
+IEL = filter(graduacao,codigo=="7"|codigo=="57"|codigo=="18"|codigo=="75"|codigo=="68"|codigo=="93"|codigo=="57"|codigo=="81"|codigo=="40")
+IA = filter(graduacao,codigo=="26"|codigo=="25"|codigo=="64"|codigo=="23"|codigo=="22"|codigo=="105"|codigo=="106"|codigo=="2"|codigo=="22"|codigo=="83"|codigo=="65"|codigo=="61"|codigo=="60"|codigo=="63"|codigo=="62")
+FEF =filter(graduacao,codigo=="27"|codigo=="45"|codigo=="78"|codigo=="28")
+IC= filter(graduacao,codigo=="42"|codigo=="53"|codigo=="3"|codigo=="35")
+FEQ = filter(graduacao,codigo=="39"|codigo=="9"|codigo=="59")
+IB = filter(graduacao,codigo=="6"|codigo=="46"|codigo=="101"|codigo=="14"|codigo=="10"|codigo=="9"|codigo=="12"|codigo=="13"|codigo=="11")
+IQ = filter(graduacao, codigo=="5"|codigo=="50"|codigo=="55")
+IG = filter(graduacao,codigo=="53"|codigo=="54"|codigo=="55"|codigo=="26"|codigo=="76"|codigo=="24"|codigo=="95"|codigo=="79"|codigo=="41")
+FEAGRI = filter(graduacao, codigo=="8"|codigo=="58")
+FE = filter(graduacao,codigo=="20"|codigo=="38"|codigo=="70"|codigo=="102"|codigo=="86")
+PROFIS = filter(graduacao, codigo=="200")
+
+```
+
+```{r adicionando novas colunas, echo=FALSE}
+#*#adicionando coluna de área
+library(dplyr)
+exatas<-mutate(exatas,Area="Exatas")
+biologicas<-mutate(biologicas,Area="Biológicas")
+humanas<-mutate(humanas,Area="Humanas")
+artes<-mutate(artes,Area="Artes")
+pespeciais<-mutate(pespeciais,Area="Programas Especiais")
+
+tabelageral=rbind(exatas,biologicas,humanas,artes,pespeciais)
+
+##adicionando coluna instituto
+IMECC<-mutate(IMECC,Instituto="IMECC")
+FEM<-mutate(FEM,Instituto="FEM")
+FCA<-mutate(FCA,Instituto="IMECC")
+IFGW<-mutate(IFGW,Instituto="IFGW")
+IFCH<-mutate(IFCH,Instituto="IFCH")
+FEEC<-mutate(FEEC,Instituto="FEEC")
+FEC<-mutate(FEC,Instituto="FEC")
+FOP<-mutate(FOP,Instituto="FOP")
+FEA<-mutate(FEA,Instituto="FEA")
+FCM<-mutate(FCM,Instituto="FCM")
+IE<-mutate(IE,Instituto="IE")
+IA<-mutate(IA,Instituto="IEL")
+FEF<-mutate(FEF,Instituto="FEF")
+IC<-mutate(IC,Instituto="IC")
+FEQ<-mutate(FEQ,Instituto="FEQ")
+IB<-mutate(IB,Instituto="IB")
+IQ<-mutate(IQ,Instituto="IQ")
+IG<-mutate(IG,Instituto="IG")
+FEAGRI<-mutate(FEAGRI,Instituto="FEAGRI")
+FE<-mutate(FE,Instituto="FE")
+PROFIS<-mutate(PROFIS,Instituto="PROFIS")
+
+tabelageral=rbind(IMECC,FCA,IFGW,IFCH,FEEC,FEC,FOP,FEA,FCM,IE,IA,FEF,IC,FEQ,IB,IQ,IG,FEAGRI,FE,PROFIS)
+
+#*#Adicionando, uma coluna de proporção de sim e outra de não
+tabelageral<-mutate(tabelageral,"Proporção de Sim"=(tabelageral$sim/tabelageral$total))
+tabelageral<-mutate(tabelageral,"Proporção de Não"=(tabelageral$nao/tabelageral$total))
+
+##Exibindo a tabela geral
+library(DT)
+datatable(tabelageral, options = list(pageLength = 10))
+
 ```
 
 ## Gauge Plots
