@@ -58,6 +58,8 @@ datatable(mytbl, options = list(pageLength = 10))
 
 ##Formatação dos dados
 
+##Análises para Graduação
+
 ```{r separacao_areas, echo=FALSE}
 library(dplyr)
 graduacao=filter(mytbl, nivel=="Graduacao")
@@ -145,6 +147,67 @@ library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 
 ```
+
+#Análise dos Totais de votos
+
+###Gráficos de Barras por Áreas
+Primeiramente, graficamos os dados por área para melhor visualização. O objetivo é saber se a área do curso de cada aluno que respondeu a pesquisa influencia na sua opinião a respeito da greve.
+
+
+####Exatas
+```{r,, echo=FALSE}
+barplot(c(sum(exatas$sim),sum(exatas$nao),sum(exatas$abstencao)),legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de exatas")
+```
+
+####Humanas
+```{r, echo=FALSE}
+barplot(c(sum(humanas$sim),sum(humanas$nao),sum(humanas$abstencao)),legend=colnames(humanas[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de humanas")
+```
+
+####Biológicas
+```{r, echo=FALSE}
+barplot(c(sum(biologicas$sim),sum(biologicas$nao),sum(biologicas$abstencao)),legend=colnames(biologicas[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de biológicas")
+```
+
+####Artes
+```{r, echo=FALSE}
+barplot(c(sum(artes$sim),sum(artes$nao),sum(artes$abstencao)),legend=colnames(artes[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de artes")
+```
+
+####Programas Especiais
+```{r, echo=FALSE}
+barplot(c(sum(pespeciais$sim),sum(pespeciais$nao),sum(pespeciais$abstencao)),legend=colnames(pespeciais[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de programas especiais")
+```
+
+Analisando os gráficos é possível perceber que em geral, as áreas de exatas, biológicas e programas especiais são contra a greve, no entanto, as áreas de humanas e artes se mostram a favor da greve. #calcular a proporção e analisar qual é maior.
+
+
+##Análise de Proporções
+
+####Proporções por Área
+
+####Proporções por Instituto
+
+
+#Análises para Mestrado
+
+##Análise de Proporções
+
+####Proporções por Área
+
+####Proporções por Instituto
+
+
+#Análises para Doutorado
+
+##Análise de Proporções
+
+####Proporções por Área
+
+####Proporções por Instituto
+
+
+
 
 ## Gauge Plots
 
