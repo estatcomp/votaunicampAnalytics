@@ -19,7 +19,7 @@ if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(category = "LC_ALL", locale
 
 library(ggplot2)
 library(lattice)
-library(mapview)
+#library(mapview)
 library(sp)
 library(stringr)
 library(rvest)
@@ -246,6 +246,7 @@ d3heatmap(porptotal, col=rev(brewer.pal(9, "BuGn")))
 ```
 
 
+
 ## Campus Campinas
 ```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -304,6 +305,7 @@ map
 ```
 
 
+
 ## Campus Limeira
 
 ```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
@@ -355,6 +357,7 @@ map = addTiles(map)
 map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
 map
 ```
+
 
 
 ## Campus Piracicaba
@@ -413,6 +416,7 @@ map
 
 
 
+
 ## Intervalos de Confiança
 
 ```{r stats, echo=FALSE, warning=FALSE, message=FALSE}
@@ -425,12 +429,14 @@ mytbl = cbind(mytbl, ics)
 ```
 
 
+
 ## Tabelas interativa
 
 ```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
 library(DT)
 
-instituto.por.numero <- read.csv("~/instituto por numero.csv", header=FALSE, sep=";")
+#instituto.por.numero <- read.csv("~/instituto por numero.csv", header=FALSE, sep=";")
+load("instituto_por_nome.rda")
 
 instituto.por.numero <- instituto.por.numero[,1:4]
 
@@ -464,6 +470,45 @@ datatable(tabelafinal, options = list(pageLength = 5))
 ```
 
 
+
+
+##Tamanho da amostra
+  
+  Se quisermos encontrar o tamanho amostral $n$ necessário em um instituto para que a probabilidade da nossa estimativa diferir absolutamente do verdade valor por um erro escolhido $B$ seja de $\alpha = 0.05$, chegariamos em
+
+$$n = \dfrac{N}{4(N-1)D + 1}$$
+  
+  onde $N$ é a quantidade total de alunos no instituto e $D = \frac{B^2}{z_{\alpha}^2}$, sendo $z_{\alpha} = `r round(qnorm(1-0.05),2)`$.
+
+```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
+n_amostral = function(N,B){
+  round(N/(4*(N-1)*(B^2/qnorm(1-0.05)^2)+1),0)
+}
+
+load("instituto_por_nome.rda")
+colnames(instituto.por.numero) = c("Instituto", "Área", "Código", "NoMatriculados")
+
+inst = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF", "FCA", "FT", "FOP")
+
+tam_amostral = data.frame(rep(0,25), row.names = inst)
+colnames(tam_amostral) = "Tamanho Amostral"
+
+for(i in 1:length(inst)){
+  tam_amostral[i,] = n_amostral(sum(instituto.por.numero[which(instituto.por.numero$Instituto == inst[i]),]$NoMatriculados), 0.03)
+}
+
+library(knitr)
+kable(tam_amostral)
+```
+
+
+```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
+
+nTotal = n_amostral(sum(instituto.por.numero$NoMatriculados),0.03)
+
+```
+
+Caso quiséssemos saber uma opinião geral da Unicamp e não separada por instituto, podemos encontrar o tamanho amostral necessário para o mesmo erro e mesmo nível de confiança considerados anteriormente. Isso nos levaria para um tamanho amostral de $$`r round(nTotal,0)`$$
 
 ## Comparações
 
@@ -505,6 +550,7 @@ y = c(rep(1,sum(NaoExatas$nao)), rep(0,sum(NaoExatas$total)-sum(NaoExatas$nao)))
 ```
 
 Como temos um valor-p muito baixo, ou seja, menor que o nível de significância escolhido, rejeitamos a hipótese de que as proporções são iguais, confirmando assim o que já era esperado anteriormente. 
+
 
 
 
