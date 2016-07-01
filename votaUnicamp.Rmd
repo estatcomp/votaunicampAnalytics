@@ -25,6 +25,7 @@ library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
+library(plotly)
 
 #pageatual0 = read_html('http://votaunicamp.herokuapp.com/results/')
 #tblatual = html_table(page)[[2]]
@@ -160,6 +161,8 @@ colnames(institutoslim) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
 rownames(institutoslim) = c("FCA", "FT")
 colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
 rownames(institutos) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF")
+
+todosinstitutos = rbind(institutos, institutoslim, institutospira)
 ```
 
 ```{r areas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE } 
@@ -587,5 +590,31 @@ Pode ser observado a forte presença de divergência entre cursos de áreas dife
 
 
 
+
+
+
+
+## contribuição de cada instituto
+```{r porcentagem, echo=FALSE, warning=FALSE, message=FALSE}
+
+matriculados = data.frame(rep(0,25), row.names = todosinstitutos$Nomes)
+
+for(i in 1:length(todosinstitutos$Nomes)){
+  matriculados[i,] = sum(instituto.por.numero[which(instituto.por.numero$Instituto == todosinstitutos$Nomes[i]),]$NoMatriculados)
+}
+todosinstitutos[,1] = as.numeric(todosinstitutos[,1]) 
+propvot = data.frame(rep(0,25), rep(0,25))
+propvot[,1] = todosinstitutos[,5]
+for(i in 1:length(todosinstitutos$Nomes)){
+  propvot[i,2] = round(100*todosinstitutos[i,1]/matriculados[i,1],2)
+}
+colnames(propvot) = c("Institutos", "porcentagem")
+propvot = propvot[order(-propvot[,2], propvot[,1]),]
+
+Instituto = propvot[,1]
+Porcentagem = propvot[,2]
+p <- plot_ly( x = Instituto, y = Porcentagem, name = "SF Zoo",type = "bar")
+p
+```
 
 
