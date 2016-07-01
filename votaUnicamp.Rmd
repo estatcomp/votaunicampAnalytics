@@ -477,13 +477,15 @@ datatable(tabelafinal, options = list(pageLength = 5))
 
 ##Tamanho da amostra
   
-  Se quisermos encontrar o tamanho amostral $n$ necessário em um instituto para que a probabilidade da nossa estimativa diferir absolutamente do verdade valor por um erro escolhido $B$ seja de $\alpha = 0.05$, chegariamos em
+  Se quisermos encontrar o tamanho amostral $n$ necessário na Unicamp para que a probabilidade da nossa estimativa diferir absolutamente do verdadeiro valor por um erro escolhido $B = 0,03$ seja de $\alpha = 0.05$, chegariamos usando o que sabemos de probabilidade em
 
 $$n = \dfrac{N}{4(N-1)D + 1}$$
   
-  onde $N$ é a quantidade total de alunos no instituto e $D = \frac{B^2}{z_{\alpha}^2}$, sendo $z_{\alpha} = `r round(qnorm(1-0.05),2)`$.
+onde $N$ é a quantidade total de alunos e $D = \frac{B^2}{z_{\alpha}^2}$, sendo $z_{\alpha} = `r round(qnorm(1-0.05),2)`$.
 
-```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
+
+```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
+
 n_amostral = function(N,B){
   round(N/(4*(N-1)*(B^2/qnorm(1-0.05)^2)+1),0)
 }
@@ -492,6 +494,15 @@ load("instituto_por_nome.rda")
 colnames(instituto.por.numero) = c("Instituto", "Área", "Código", "NoMatriculados")
 
 inst = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF", "FCA", "FT", "FOP")
+
+nTotal = n_amostral(sum(instituto.por.numero$NoMatriculados),0.03)
+```
+
+Sendo assim, o tamanho amostral necessário para a Unicamp toda seria de $$`r round(nTotal,0)`$$
+ 
+Se o interesse for um estudo por instituto, podemos ver na tabela abaixo qual o tamanho amostral necessário, com as mesmas condições anteriores, para cada um dos institutos da Unicamp
+
+```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
 
 tam_amostral = data.frame(rep(0,25), row.names = inst)
 colnames(tam_amostral) = "Tamanho Amostral"
@@ -503,16 +514,6 @@ for(i in 1:length(inst)){
 library(knitr)
 kable(tam_amostral)
 ```
-
-
-```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
-
-nTotal = n_amostral(sum(instituto.por.numero$NoMatriculados),0.03)
-
-```
-
-Caso quiséssemos saber uma opinião geral da Unicamp e não separada por instituto, podemos encontrar o tamanho amostral necessário para o mesmo erro e mesmo nível de confiança considerados anteriormente. Isso nos levaria para um tamanho amostral de $$`r round(nTotal,0)`$$
-
 ## Comparações
 
 Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
