@@ -19,6 +19,9 @@ library(rvest)
 library(googleVis)
 library(leaflet)
 library(formattable)
+library(data.table)
+library(formattable)
+library(ggplot2)
 page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
 ```
@@ -53,12 +56,13 @@ mytbl = merge(mytbl, inst)
 
 #Objetivos
 
-
 Temos o intuito de estudar o comportamento da classe dos estudantes em relação à greve, como por exemplo, se existe uma relação entre a área de estudo e o voto. Assim, podemos caracterizar o perfil do aluno como favorável ou contrário à mobilização.
 
 #Metodologia
 
-Para a análise, apresentaremos as proporções e informações obtidas do banco de dados de forma visual e dinâmica. Os métodos utilizados foram a estimação de proporção por *Bootstrap* e análise de *cluster*.
+Para a análise, apresentaremos as proporções e informações obtidas do banco de dados de forma visual e dinâmica. Utilizamos diversos estimadores para a proporção de votos. Contudo, o métodos utilizado para estimar a proporção geral da Unicamp foi *Bootstrap*. Ele foi escolhido em vista da acuracia de sua estimação.  
+
+Também estudamos o comportamento dos institutos através de análise de *cluster*. *Cluster* é um termo em inglês utilizado para caracterizar um grupo com características semelhantes. Em nosso caso, estudaremos os institutos afim de identificar se existe alguma similaridade de votos entre eles.
 
 ## Formatação de Dados
 
@@ -72,17 +76,8 @@ kable(head(tbl), caption = 'Tabela 1: Dados extraídos do site') #primeiras linh
 
 A Tabela 1 completa pode ser acessada em **Apêndice**.
 
-```{r echo=FALSE, message=FALSE}
-#coordenadas de cada isntituto da unicamp campinas
-ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC', 'FEA', 'FCM', 'IFCH','IEL', 'IA', 'IC', 'IE', 'IG', 'IQ', 'FE', 'FEAGRI', 'FEQ', 'PROFIS', 'FCF'),
-           lat=c(-22.81583,-22.81657,-22.81935,-22.81938,-22.81476,-22.82132,-22.81596,-22.82063,-22.83063,-22.81546, -22.81537, -22.81531, -22.81488, -22.81480, -22.81328, -22.81889, -22.81658, -22.81927, -22.81989, -22.81749, -22.81770),
-           lon=c(-47.06769,-47.06698,-47.06953,-47.06592,-47.07333,-47.06587,-47.06383,-47.06746,-47.06199,-47.06838,-47.06909, -47.07009, -47.06484, -47.06590, -47.06871, -47.06779, -47.06566, -47.06042,-47.06511, -47.06847, -47.07084 )) 
-```
 
-
-
-##Proporções
-
+##Análises Exploratórias
 
 ```{r , message=FALSE, echo=FALSE, warning=FALSE}
 #Proporção de Não
@@ -118,46 +113,19 @@ mytbl$lowerpabs=ics[,1]
 mytbl$upperpabs=ics[,2]
 ```
 
-###Proporções por instituto
 
-```{r, echo=FALSE}
-library(data.table)
-library(formattable)
+Inicialmente podemos conhecer nossa amostra. Faremos isso graficando qual é a origem marjoritaria de nossos votos. Na figura 1 temos um gráfico de barras que nos permite ver quais são os institutos com mais votos e aqueles com menos votos. O que também pode nos trazer informação sobre a homogeneidade de nossa amostra e sua representatividade.
+
+```{r grafbar, echo=FALSE}
 mytbl = as.data.table(mytbl)
 dados = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by=instituto]
 dados = as.data.frame(dados)
 dados$psim = with(dados, sim/total)
 dados$pnao = with(dados, nao/total)
 dados$pabs = with(dados, abstencao/total)
-kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 2: Proporção de votos por instituto')
 ```
 
-A Tabela 2 pode ser encontrada em **Apêndice**.
-
-##Análises Exploratórias
-
-Podemos fazer algumas análises exploratórias para estudar o comportamento dos dados.   
-Uma das maneiras que encontramos para isso foi mapear o campus da Unicamp em Barão Geraldo a fim de ver qual o posicionamento de cada instituto.   
-Temos abaixo o mapeamento de acordo com a proporção de votos contrários à greve por instituto. Quanto mais vermelho o indicador, menor a proporção, ou seja, mais votos a favor da greve. Quanto mais azul, maior a proporção de votos contra à greve.
-
-$\\$
-
-```{r enderecos, echo=FALSE}
-ends = merge(ends, dados)
-pal= colorQuantile("RdBu",ends$propn, n=8)
-map = leaflet()
-map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, color = pal(ends$pnao))
-map
-```
-  
-$\\$
-  
-  
-Também podemos estudar a abrangência do site, ou seja, quais institutos de fato votaram e quantos votos temos. O que encontra-se na Figura 2.
-
-```{r grafbar, echo=FALSE, fig.cap="Gráfico do total de votos por instituto", fig.align="center"}
-library(ggplot2)
+```{r echo=FALSE, fig.cap="Figura 1: Total de votos por instituto", fig.align="center"}
 Institutos=reorder(dados$instituto, dados$total)
 Total=dados$total
 ggplot(dados, aes(Institutos, Total)) + geom_bar(stat='identity') + coord_flip() + theme_bw()
@@ -171,7 +139,34 @@ names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
 kable(head(dados2), caption = 'Tabela 3: Votos por instituto')
 ```
 
-A Tabela 3 completa encontra-se em **Apêndice**
+A Tabela 2 completa encontra-se em **Apêndice**  
+
+Para conhecer um pouco das informações que os dados fornecem, calcularemos estatísticas primárias, como a proporção de votos sim, não e abstenho de cada curso e seus respectivos intervalos de confiança.  
+
+
+```{r TENTATIVA, echo=FALSE, eval=FALSE}
+attach(mytbl)
+nomes=c(pnao,lowerpnao, upperpnao, psim, lowerpsim, upperpsim, pabs, lowerpabs, upperpabs)
+kable(mytbl[,], caption = "Tabela 2: Proporções de votos por curso")
+```
+
+Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembléias do instituto como um todo, é interessante analisar a proporção de votos contrários para cada um deles.  
+Ao considerar cursos que não são ministrados em Campinas, consideramos os institutos como sendo a própria faculdade, por exemplo, o instituto de Odontologia no campus de Piracicaba é a FOP, os cursos em Limeira pertencem ou à FT ou à FCA, que são as duas unidades da Unicamp na cidade.  
+
+```{r, echo=FALSE}
+kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 2: Proporção de votos por instituto')
+```
+
+A Tabela 2 pode ser encontrada em **Apêndice**.
+
+```{r echo=FALSE, message=FALSE}
+#coordenadas de cada instituto da unicamp campinas
+ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC', 'FEA', 'FCM', 'IFCH','IEL', 'IA', 'IC', 'IE', 'IG', 'IQ', 'FE', 'FEAGRI', 'FEQ', 'PROFIS', 'FCF'),
+           lat=c(-22.81583,-22.81657,-22.81935,-22.81938,-22.81476,-22.82132,-22.81596,-22.82063,-22.83063,-22.81546, -22.81537, -22.81531, -22.81488, -22.81480, -22.81328, -22.81889, -22.81658, -22.81927, -22.81989, -22.81749, -22.81770),
+           lon=c(-47.06769,-47.06698,-47.06953,-47.06592,-47.07333,-47.06587,-47.06383,-47.06746,-47.06199,-47.06838,-47.06909, -47.07009, -47.06484, -47.06590, -47.06871, -47.06779, -47.06566, -47.06042,-47.06511, -47.06847, -47.07084 )) 
+```
+
+  
 
 ##Estimador Para a Proporção
 
@@ -235,11 +230,27 @@ Tais níveis foram calculados por meio do índice de *Bray-Curtis*. Esse índice
 
 #Conclusão
 
-A partir dos estudos realizados nesse trabalho, podemos concluir que `r round(res_boot,2)*100`% dos alunos sao contrarios a greve. Contudo, dado a atual situaçao do campus isso nos leva a questionar a representatividade, ora das assembleias estudantis, ora da votaçao dos dados provenientes do site.
-Uma possivel justificativa seria do receio de se posicionar em um ambiente "hostil". Muitos alunos contrários à greve podem não ter muito interesse em participar das longas assembleias, ou então se sintam intimidados em declarar seu voto perante uma maioria favorável à greve, portanto os impulsiona a votar online. Em compensação, alunos que votam "sim" podem acreditar que o site provoque evasão às assembleias e, com isso, possivelmente não votariam desta forma.
+A partir dos estudos realizados nesse trabalho, podemos concluir 
+que r round(res_boot,2)*100% dos alunos são contrarios a greve. 
+Contudo, dado a atual situação do campus isso nos leva a questionar 
+a representatividade, ora das assembleias estudantis, ora da votação 
+dos dados provenientes do site. 
+Uma possível justificativa seria do receio de se posicionar em um ambiente "hostil". 
+Muitos alunos contrários à greve podem não ter muito interesse em participar das longas assembleias, 
+ou então se sintam intimidados em declarar seu voto perante uma maioria favorável 
+à greve, portanto os impulsiona a votar online. Em compensação, alunos que 
+votam "sim" podem acreditar que o site provoque evasão às 
+assembleias e, com isso, possivelmente não votariam desta forma.  
+No entanto, os dados da votação online, foram analizados não levando em consideração as suposições
+anteriores. O código foi produzido de maneira reprodutiva, ou seja, a medida que o 
+número de votos aumente, os resultados serão atualizados simultaneamente.
+Realizamos uma séries de análises por meio de intervalos de confiança, gráficos e 
+estimamos proporções.  Pudemos notar, pelos gráficos, que a distribuição dos votos por 
+instituto não é uniforme.  
+Existem alguns institutos com poucos votos e com isso o seu intervalo de confiança é muito comprido, dessa maneira, pouco podemos concluir sobre a opinião
+desses institutos.
 
 
-O código foi produzido de maneira reprodutiva, ou seja, a medida que o número de votos aumente, os resultados serão atualizados simultaneamente.
 
 #Apêndice
 
