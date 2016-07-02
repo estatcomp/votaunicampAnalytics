@@ -6,8 +6,11 @@ output: html_document
 # Introdução
 
   A um pouco mais de um mês estudantes impulsionados por problemas que as universidades estaduais paulistas (USP, UNESP e UNICAMP) enfrentam, sejam eles, má administração, corte financeiros, permanência estudantil, entraram em greve para reinvindicar algumas pautas que julgam necessárias.
+  
   Abordando especificamente a UNICAMP, apesar de existir um movimento geral dos alunos no campus, cada instituto tem autonomia sobre as suas salas de aulas, e matérias ministradas por eles. Perante a este fato, a greve de alunos de cada instituto é decidida por meio de assembléias estudantis, organizada, normalmente, pelos centros acadêmicos. Entretando, as tomadas de decisões baseadas nos resultados das assembléias são questionáveis devido a sua falta de representatividade. 
+  
   Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/”, no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto. 
+  
   A partir desse site, o objetivo do trabalho é verificar se realmente o número de alunos a favor da greve é maior que o número de alunos contrarios a ela. Além do mais, podemos fazer comparações entre os diversos institutos, ver quais são a favor, contra ou neutros em relação a greve. 
 
 # Obtenção dos dados
@@ -49,7 +52,7 @@ nivel[is.na(nivel)] = "Graduacao"
 mytbl$nivel = nivel
 rm(nivel)
 mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
-head(mytbl)
+#head(mytbl)
 ```
 
 # Análises
@@ -144,7 +147,9 @@ p3
   Isto pode ser comprovado por análises estatísticas. (fazer teste de hipótese)
 
   Os cursos, além de serem agrupados nestas 3 grandes áreas, também são agrupados por institutos. Por exemplo, o Instituto da Computação (IC) é composto pelos cursos de Ciência da Computação, e Engenharia de Computação. Ao todo a UNICAMP possui 25 institutos, sendo 22 no *Campus de Campinas*, 2 no *Campus de Limeira* e apenas 1 no *Campus de Piracicaba*(Odontologia). 
+  
   O gráfico a seguir mostra através das cores a proporção de votos 'Não' em cada instituto, no campus de Campinas, o qual se concentra a maioria dos institutos. A cor mais escura representa uma maior proporção de "não".
+  
   Além disso, ao clicar em cada instituto, é possível vizualizar a quantidade de votos a favor, contra, ou abstenção em relação a greve. 
 
 **Campus Campinas**
@@ -198,6 +203,7 @@ map = addTiles(map)
 map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop, color = pal(prop[1:22,2]), opacity = 1)
 map
 ```
+
 
   Com o gráfico acima, pode-se notar que institutos que apresentam cores similares, possuem uma "semelhança" na opinião sobre a greve. Ou seja, institutos que apresentam uma cor azul escuro, são contra a greve. 
 
@@ -256,6 +262,9 @@ map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
 map
 ```
 
+ 
+
+
 **Campus Piracicaba - FOP**
 
 ```{r enderecos_pira, echo=FALSE, warning=FALSE, message=FALSE}
@@ -304,24 +313,7 @@ map
 ```
 
 
-  Dado que cada curso pertence a um instituto, podemos vizualizar os votos por curso dentro de cada instituto, e de cada área com a tabela a seguir. Por exemplo, quando filtramos pelo instituto *IMECC*, observamos que contém 4 cursos, todos da área de exatas, e conseguimos observar os votos *"sim", "não"*, e de *"abstenção"* de cada curso.
-
-```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
-
-tabelafinal = minhatab[,c(8,9,3,4,5,6,7)]
-tabelafinal = tabelafinal[,c(-8)]
-colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
-
-datatable(tabelafinal, options = list(pageLength = 5))
-
-```
-
-### não sei o titulo
-
-Podemos estimar a proporção de alunos contra a greve através de técnicas estatíticas, como por exemplo, *Boostrap*. Para isto, consideramos que os dados obtidos no site são uma amostra aleatória de todos alunos da Unicamp. Com esta técnica, encontramos que **porcentagem** são contra a greve. 
-## fazer o estimador de boodstrap
-
-## explicar  - associado a proporção, temos o ic. não sei se querem colocar. 
+A proporção por instituto é mostrado na tabela a seguir, juntamente com seu intervalo de confiança. O intervalo de confinança mostra que se reproduzirmos esta pesquisa, usando a mesma metodologia, 100 vezes, em média 95 dos intervalos calculados conteriam a verdadeira proporção. 
 
 ```{r stats, echo=FALSE, warning=FALSE, message=FALSE}
 p = todosinstitutos$PNÂO
@@ -336,15 +328,52 @@ rownames(tabic) = c(1:25)
 datatable(tabic, options = list(pageLength = 5))
 ```
 
-## não sei escrever também, explicar.
 
- Se quisermos encontrar o tamanho amostral $n$ necessário na Unicamp para que a probabilidade da nossa estimativa diferir absolutamente do verdadeiro valor por um erro escolhido $B = 0,03$ seja de $\alpha = 0.05$
+Como cada instituto é formado por um conjunto de cursos diferentes, com a tabela a seguir é fácil vizualizar os votos por curso dentro de cada instituto, e de cada área com a tabela a seguir. Por exemplo, quando filtramos pelo instituto *IMECC*, observamos que contém 4 cursos, todos da área de exatas, e conseguimos observar os votos *"sim", "não"*, e de *"abstenção"* de cada curso.
 
-**teoria**
 
-$$n = \dfrac{N}{4(N-1)D + 1}$$
+```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
+
+tabelafinal = minhatab[,c(8,9,3,4,5,6,7)]
+tabelafinal = tabelafinal[,c(-8)]
+colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
+
+datatable(tabelafinal, options = list(pageLength = 5))
+
+```
+
+
+
+### não sei o titulo
+
+## Bootstrap
+
+```{r bootstrap, echo=FALSE, warning=FALSE, message=FALSE}
+
+#B = 10000
+#boot_prop = vector('numeric', B)
+#for(b in 1:B){
+  #indices = sample(nrow(todosinstitutos), rep = TRUE)
+ # boot_prop[b] = sum(as.numeric(todosinstitutos[indices,]$Nao))/sum(as.numeric(todosinstitutos[indices,]$Total))
+#}
+#(theta = mean(boot_prop))
+
+library(boot)
+
+res = boot(todosinstitutos, function(dd,i)  sum(as.numeric(dd[i,]$Não))/sum(as.numeric(dd[i,]$Total)), R = 10000)
+```
+
+  Uma boa técnica estatística para estimar um parâmetro populacional é o Bootstrap, que considera diversas reamostras da amostra original e calcula a média dessas reamostras para dar uma boa estimativa para o que deseja ser estudado. 
   
-onde $N$ é a quantidade total de alunos e $D = \frac{B^2}{z_{\alpha}^2}$, sendo $z_{\alpha} = `r round(qnorm(1-0.05),2)`$.
+  Em nosso estudo, consideramos que os dados obtidos no site são uma amostra aleatória de todos alunos da Unicamp e queremos estimar a proporção de alunos que são contra a greve. 
+ 
+  Aplicando a técnica *Bootstrap*, obtemos que `r round(res$t0,2)*100 `% dos alunos da unicamp são contra a greve. 
+  
+
+## não sei escrever também, explicar.
+Em uma pesquisa, é comum definirmos uma margem de erro , e um nível de confiança. A margem de erro, é a diferença absoluta máxima entre o valor verdadeiro(populacional) e a estimativa calculada. E o nível de confiança, por exemplo de 95%, expressa que se eu repetir a minha pesquisa de maneira similar, 100 vezes, 95 vezes a proporção que busco estará dentro do intervalo.  
+
+Com isto, fixando um erro - $B = 0,03$ e um nível de significância - $\alpha = 0.05$ podemos encontrar o tamanho amostral $n$ necessário na Unicamp. 
 
 
 ```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
@@ -371,70 +400,5 @@ for(i in 1:length(nomesinstitutos)){
 datatable(tam_amostral, options = list(pageLength = 5))
 ```
 
-
-## Comparações
-
-Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
-
-```{r exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE }
-NaoExatas = subset(mytbl, codigo == 26 | codigo == 25 | codigo == 64 | codigo == 23 | codigo == 22 | codigo == 6 |
-                     codigo == 100 | codigo == 27 | codigo == 45 | codigo == 21 | codigo == 63 | codigo == 58 |
-                     codigo == 46 | codigo == 15 | codigo == 107 | codigo == 14 |
-                     codigo == 109 | codigo == 110 | codigo == 17 | codigo == 47 |
-                     codigo == 16 | codigo == 44 | codigo == 75 | codigo == 30 | codigo == 54 | codigo == 55 |
-                     codigo == 19 | codigo == 7 | codigo == 57 | codigo == 56 | codigo == 18 | codigo == 20 | codigo == 38)
-
-
-Exatas = subset(mytbl, codigo != 26 & codigo != 25 & codigo != 64 & codigo != 23 & codigo != 22 & codigo != 6 &
-                   codigo != 100 & codigo != 27 & codigo != 45 & codigo != 21 & codigo != 63 & codigo != 58 &
-                     codigo != 46 & codigo != 15 & codigo != 107 & codigo != 14 &
-                     codigo != 109 & codigo != 110 & codigo != 17 & codigo != 47 &
-                     codigo != 16 & codigo != 44 & codigo != 75 & codigo != 30 & codigo != 54 & codigo != 55 &
-                     codigo != 19 & codigo != 7 & codigo != 57 & codigo != 56 & codigo != 18 & codigo != 20 & codigo != 38)
-```
-
-Podemos ver que de fato as proporções são diferentes: 
-
-```{r prop_exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
-props = c(p_NaoExatas = sum(NaoExatas$nao)/sum(NaoExatas$total),
-p_Exatas = sum(Exatas$nao)/sum(Exatas$total))
-names(props) = c("Não Exatas", "Exatas")
-props
-```
-
-  Mas precisamos formalizar isso, usando um teste de hipótese, onde temos como hipótese nula "As proporções são iguais" e hipótese alternativa "As proporções são diferentes". O nível de significância escolhido será de $\alpha = 0.01$. Temos então o seguinte teste:
-
-```{r teste_dif_exatas, eval=FALSE}
-x = c(rep(1,sum(Exatas$nao)), rep(0,sum(Exatas$total)-sum(Exatas$nao)))
-y = c(rep(1,sum(NaoExatas$nao)), rep(0,sum(NaoExatas$total)-sum(NaoExatas$nao)))
-
-(teste_dif_exatas_nao_exatas = t.test(x,y))
-```
-
-Como temos um valor-p muito baixo, ou seja, menor que o nível de significância escolhido, rejeitamos a hipótese de que as proporções são iguais, confirmando assim o que já era esperado anteriormente. 
-
-## Bootstrap
-
-Uma boa técnica estatística para estimar um parâmetro populacional é o Bootstrap, que considera diversas reamostras da amostra original e calcula a média dessas reamostras para dar uma boa estimativa para o que quer ser estudado.
-
-Nesse caso, queremos estimar a proporção de pessoas que são contra a greve. Para isso, usamos a técnica de Bootstrap, conseguindo os seguintes resultados:
-
-```{r bootstrap, echo=FALSE, warning=FALSE, message=FALSE}
-
-#B = 10000
-#boot_prop = vector('numeric', B)
-#for(b in 1:B){
-  #indices = sample(nrow(todosinstitutos), rep = TRUE)
- # boot_prop[b] = sum(as.numeric(todosinstitutos[indices,]$Nao))/sum(as.numeric(todosinstitutos[indices,]$Total))
-#}
-#(theta = mean(boot_prop))
-
-library(boot)
-
-res = boot(todosinstitutos, function(dd,i)  sum(as.numeric(dd[i,]$Nao))/sum(as.numeric(dd[i,]$Total)), R = 10000)
-res
-```
-
-
-
 # Conclusão
+
