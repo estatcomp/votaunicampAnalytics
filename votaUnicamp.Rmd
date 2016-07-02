@@ -137,7 +137,7 @@ ggplot(dados, aes(Institutos, Total)) + geom_bar(stat='identity') + coord_flip()
 
 Na Tabela 2 temos mais detalhadamente os votos de alguns institutos.  
 
-```{r, echo=FALSE, fig.cap="Tabela 2: Votos por instituto"}
+```{r, echo=FALSE}
 dados2 = dados[, c('instituto', 'nao', 'sim', 'abstencao', 'total')]
 names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
 kable(head(dados2), caption = 'Tabela 2: Votos por instituto')
@@ -192,26 +192,13 @@ prop=function(pop, indices){
 library(boot)
 res_boot = boot(pop, prop, R=10000)
 ```
-
-Estimamos que a proporção de alunos contrários à greve corresponde a `r round(res_boot$t0,2)*100`%. Lembrando que essa estimativa considera que os alunos votantes são uma amostra aleatória da população.
+  
+  
+Estimamos então que a proporção de alunos contrários à greve corresponde à `r round(res_boot$t0,2)*100`%.  
 
 ##Análise de Cluster
 
-Como alunos, sabemos que existe uma divergência de opinião entre os institutos. Vamos avaliar essa diferença usando um gráfico de componentes, como se segue:
-
-
-```{r plot, echo=FALSE, fig.cap="Gráfico de Componentes para Institutos"}
-newtbl = dados2[,c("Não","Sim","Abstenções")]
-newtbl = as.data.frame(newtbl)
-dados2$Instituto = as.character(dados2$Instituto)
-rownames(newtbl)= dados2[[1]]
-fit= prcomp(newtbl)
-biplot(fit)
-```
-
-Como podemos ver, o gráfico acima mostra a tendência marjoritária dos votos por institutos em relação aos vetores referentes as opções de voto. Nota-se que existem alguns institutos com opiniões similares, por isso cabe um estudo aprofundado do assunto.   
-Nesse caso, a metodologia usada será a análise de *cluster*, um agrupamento nos institutos com comportamento semelhante.  
-Abaixo calculamos as proporções de votos pelas áreas.
+Baseando-se em um conhecimento prévio do ambiente acadêmico e, principalmente, comportamental, sabemos que alguns institutos tem opinão semelhante. Acredita-se que o maior envolvimento de alunos que tem como área de estudo Ciências Humanas, por exemplo, sejam mais favoráveis à greve, inclusive pelo enfoque de seus cursos. O que pode ser comprovado ao calcularmos as proporções de votos por área de estudo presentes na Tabela 5.  
 
 ```{r prop-area, echo=FALSE}
 darea = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by= area]
@@ -221,6 +208,23 @@ darea$pnao = with(darea, nao/total)
 darea$pabs = with(darea, abstencao/total)
 darea
 ```
+
+
+Portanto, é natural questionar-se se existem alguns institutos com comportamentos semelhantes. Podemos analisar isso graficamente, ao realizarmos um gráfico de componentes. Tal análise gráfica pode ser vista na Figura 2.
+
+```{r plot, echo=FALSE, fig.cap="Figura 2: Gráfico de Componentes para Institutos"}
+newtbl = dados2[,c("Não","Sim","Abstenções")]
+newtbl = as.data.frame(newtbl)
+dados2$Instituto = as.character(dados2$Instituto)
+rownames(newtbl)= dados2[[1]]
+fit= prcomp(newtbl)
+biplot(fit)
+```
+  
+  
+Como podemos ver, o gráfico acima mostra a tendência dos votos por institutos em relação aos vetores que representam as opções de voto. Nota-se que existem alguns institutos aglomerados, o que indica semelhança de proporções e, por isso, cabe um estudo aprofundado do assunto.  
+
+Nesse caso, a metodologia usada será a análise de *cluster*, um agrupamento nos institutos com comportamento semelhante.  
 
 A análise de *cluster* foi feito por meio de um dendograma.
 
