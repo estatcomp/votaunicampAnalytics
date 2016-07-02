@@ -374,9 +374,6 @@ datatable(tam_amostral, options = list(pageLength = 5))
 
 ## Comparações
 
-
-
-
 Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
 
 ```{r exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE }
@@ -415,5 +412,29 @@ y = c(rep(1,sum(NaoExatas$nao)), rep(0,sum(NaoExatas$total)-sum(NaoExatas$nao)))
 ```
 
 Como temos um valor-p muito baixo, ou seja, menor que o nível de significância escolhido, rejeitamos a hipótese de que as proporções são iguais, confirmando assim o que já era esperado anteriormente. 
+
+## Bootstrap
+
+Uma boa técnica estatística para estimar um parâmetro populacional é o Bootstrap, que considera diversas reamostras da amostra original e calcula a média dessas reamostras para dar uma boa estimativa para o que quer ser estudado.
+
+Nesse caso, queremos estimar a proporção de pessoas que são contra a greve. Para isso, usamos a técnica de Bootstrap, conseguindo os seguintes resultados:
+
+```{r bootstrap, echo=FALSE, warning=FALSE, message=FALSE}
+
+#B = 10000
+#boot_prop = vector('numeric', B)
+#for(b in 1:B){
+  #indices = sample(nrow(todosinstitutos), rep = TRUE)
+ # boot_prop[b] = sum(as.numeric(todosinstitutos[indices,]$Nao))/sum(as.numeric(todosinstitutos[indices,]$Total))
+#}
+#(theta = mean(boot_prop))
+
+library(boot)
+
+res = boot(todosinstitutos, function(dd,i)  sum(as.numeric(dd[i,]$Nao))/sum(as.numeric(dd[i,]$Total)), R = 10000)
+res
+```
+
+
 
 # Conclusão
