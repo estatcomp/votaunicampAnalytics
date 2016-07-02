@@ -16,7 +16,6 @@ Estes cortes na educação, em específico nas universidades, geraram revoltas d
 ```{r input, message=FALSE, echo = FALSE, warning=FALSE, message=FALSE}
 ##setup
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(category = "LC_ALL", locale = "English_United States.1252")
-
 library(ggplot2)
 library(lattice)
 #library(mapview)
@@ -26,18 +25,13 @@ library(rvest)
 library(googleVis)
 library(leaflet)
 library(plotly)
-
-#pageatual0 = read_html('http://votaunicamp.herokuapp.com/results/')
-#tblatual = html_table(page)[[2]]
-#head(tblatual)
-
+library(DT)
 page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
 #head(tbl)
 ```
 
 ```{r format, echo=FALSE, warning=FALSE, message=FALSE}
-
 ##formatação dos dados
 colnames(tbl)= c("Cursos", "Total", "Sim","Abstenções", "Não")
 mytbl = data.frame(codigo=as.integer(str_extract(tbl$Curso, "^\\d+")),
@@ -57,194 +51,63 @@ mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
 head(mytbl)
 ```
 
-
-
-
 # Análises
 
-
 ```{r votoinstitutos, echo=FALSE, warning=FALSE, message=FALSE}
-
 ## Separando os dados por institutos 
+load("instituto_por_nome.rda")
+colnames(instituto.por.numero) = c("Instituto", "Área", "Código", "NoMatriculados")
+minhatab = subset(mytbl, nivel == "Graduacao")
+minhatab = cbind(minhatab, c = rep(0, dim(minhatab)[1]), c = rep(0, dim(minhatab)[1]) )
+for(i in 1:length(minhatab$codigo)) {
+  for(j in 1:length(instituto.por.numero$Instituto) ){
+    if(minhatab[i,1]==instituto.por.numero[j,3]){
+      minhatab[i,8] = levels(instituto.por.numero[j,2])[instituto.por.numero[j,2]]
+      minhatab[i,9] = levels(instituto.por.numero[j,1])[instituto.por.numero[j,1]]
+    }
+  }
+}
+colnames(minhatab) = c("Código","Nível","Curso","Total","Sim","Não","Abstenção","Área","Instituto")
+nomesinstitutos = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF", "FCA", "FT", "FOP")
+todosinstitutos = data.frame(matrix(nrow=25, ncol=4))
+for(i in 1:length(minhatab$Código))
+{ todosinstitutos[i,1] = sum(minhatab[which(minhatab[,9]== nomesinstitutos[i]),]$Total)
+  todosinstitutos[i,2] = sum(minhatab[which(minhatab[,9]== nomesinstitutos[i]),]$Sim)
+  todosinstitutos[i,3] = sum(minhatab[which(minhatab[,9]== nomesinstitutos[i]),]$Não)
+  todosinstitutos[i,4] = sum(minhatab[which(minhatab[,9]== nomesinstitutos[i]),]$Abstenção)
+}
 
-imecc = subset(mytbl, (nivel == "Graduacao" & (codigo == 2 | codigo == 28 | codigo ==29 | codigo == 1))) #|(nivel == "Mestrado" & (codigo == 2 | codigo == 1 | codigo ==29)) | (nivel == "Doutorado" & (codigo == 31 | codigo == 51 | codigo ==79)))
+todosinstitutos = todosinstitutos[1:25,]
+todosinstitutos = cbind(todosinstitutos, nomesinstitutos)
+colnames(todosinstitutos) = c("Total", "Sim", "Não", "Abstenção", "Instituto")
+rownames(todosinstitutos) = nomesinstitutos
 
-fca = subset(mytbl, (nivel == "Graduacao" & (codigo == 109 | codigo == 110 | codigo == 100 | codigo == 101 | codigo == 102 | codigo == 107))) #| (nivel == "Mestrado" & (codigo == 31 | codigo == 51 | codigo ==79)) | (nivel == "Doutorado" & (codigo == 33)))
-
-fcf = subset(mytbl, nivel == "Graduacao" & (codigo == 63))
-
-fcm = subset(mytbl, (nivel == "Graduacao" & (codigo == 58 | codigo == 15))) #| (nivel == "Doutorado" &(codigo == 89 | codigo == 8 | codigo == 75 | codigo == 97 | codigo == 23 | codigo == 104 | codigo == 90 | codigo == 87 | codigo == 36 |codigo == 91)) | (nivel == "Mestrado" &(codigo == 49 | codigo == 58 | codigo == 35 | codigo == 42 | codigo == 74 | codigo == 51 | codigo == 50 | codigo == 44 | codigo == 90 |codigo == 48)))
-
-fe = subset(mytbl, (nivel == "Graduacao" & (codigo == 56 | codigo == 20 | codigo ==38)))# | (nivel =="Mestrado" & (codigo == 20 | codigo ==86)) | (nivel == "Doutorado" & (codigo == 70 | codigo == 102)))
-  
-fea = subset(mytbl, (nivel == "Graduacao" & (codigo == 13 | codigo == 43))) # | (nivel == "Mestrado" & (codigo == 47 | codigo == 56 | codigo == 57 | codigo == 55)) | (nivel == "Doutorado" & (codigo == 81 | codigo == 34 | codigo == 6 | codigo == 7 | codigo == 5)))
-
-feagri = subset(mytbl, (nivel == "Graduacao" & (codigo == 8))) #| (nivel == "Mestrado" & (codigo == 8)) | (nivel == "Doutorado" & (codigo == 58)))
-
-fec = subset(mytbl, (nivel == "Graduacao" & (codigo == 48 | codigo == 12))) # | (nivel == "Mestrado" & (codigo == 89 | codigo == 12)) | (nivel == "Doutorado" & (codigo == 32 | codigo == 62)))
-
-feec = subset(mytbl, (nivel == "Graduacao" & (codigo == 11 | codigo == 41))) # | (nivel == "Mestrado" & (codigo == 11)) | (nivel == "Doutorado" & (codigo == 61)))
-
-fef = subset(mytbl, (nivel == "Graduacao" & (codigo == 27 | codigo == 45))) # | (nivel == "Mestrado" & (codigo == 28)) | (nivel == "Doutorado" & (codigo == 78)))
-
-fem = subset(mytbl, (nivel == "Graduacao" & (codigo == 49 | codigo == 10))) #|(nivel == "Mestrado" & (codigo == 72 | codigo == 10 | codigo == 39)) | (nivel == "Doutorado" & (codigo == 98 | codigo == 60 | codigo == 92)))
-
-fenf = subset(mytbl, (nivel == "Graduacao" & (codigo == 21))) # | (nivel == "Mestrado" & (codigo == 59)) | (nivel == "Doutorado" & (codigo == 100)))
-
-feq = subset(mytbl, (nivel == "Graduacao" & (codigo == 9 | codigo == 39))) #| (nivel == "Mestrado" & (codigo == 9)) | (nivel == "Doutorado" & (codigo == 59)))
-
-fop = subset(mytbl, (nivel == "Graduacao" & (codigo == 14))) #| (nivel == "Mestrado" & (codigo == 67 | codigo == 23 | codigo == 71 | codigo == 70 | codigo == 14 | codigo == 69)) | (nivel == "Doutorado" & (codigo == 16 | codigo == 73 | codigo == 20 | codigo == 19 | codigo == 64 | codigo == 18)))
-
-ft = subset(mytbl, (nivel == "Graduacao" & (codigo == 36 | codigo == 83 | codigo ==73 | codigo == 87 | codigo == 89 | codigo == 88 | codigo == 94))) # | (nivel == "Mestrado" & (codigo == 82)) | (nivel == "Doutorado" & (codigo == 35)))
-
-ia = subset(mytbl, (nivel == "Graduacao" & (codigo == 26 | codigo == 25 | codigo ==64 | codigo == 23 | codigo == 22))) # | (nivel == "Mestrado" & (codigo == 87 | codigo == 88 | codigo == 30 | codigo == 73)) | (nivel == "Doutorado" & (codigo == 105 | codigo == 106 | codigo == 2 | codigo == 22)))
-
-ib = subset(mytbl, (nivel == "Graduacao" & (codigo == 6 | codigo == 46))) # | (nivel == "Mestrado" & (codigo == 83 | codigo == 65 | codigo == 61 | codigo ==60 | codigo == 63 | codigo == 64 | codigo == 62)) | (nivel == "Doutorado" & (codigo == 101 | codigo == 14 | codigo == 10 | codigo ==9 | codigo == 12 | codigo == 13 | codigo == 11)))
-
-ic = subset(mytbl, (nivel == "Graduacao" & (codigo == 42 | codigo == 34 ))) # | (nivel == "Mestrado" & (codigo == 3 )) | (nivel == "Doutorado" & (codigo == 53 )) )
-
-ie = subset(mytbl, (nivel == "Graduacao" & (codigo == 17 | codigo == 47))) # | (nivel == "Mestrado" & (codigo == 53 | codigo == 17)) | (nivel == "Doutorado" & (codigo == 21 | codigo == 67)))
-
-iel = subset(mytbl, (nivel == "Graduacao" & (codigo == 75 | codigo == 7 | codigo ==57 | codigo == 18))) # | (nivel == "Mestrado" & (codigo == 81 | codigo == 18 | codigo == 40 | codigo == 7)) | (nivel == "Doutorado" & (codigo == 68 | codigo == 93 | codigo == 57)))
-
-ifch = subset(mytbl, (nivel == "Graduacao" & (codigo == 16 | codigo == 44 | codigo == 30 | codigo == 19))) # | (nivel == "Mestrado" & (codigo == 36 | codigo == 37 | codigo == 75 | codigo == 24 | codigo == 19 | codigo == 80 | codigo == 38)) | (nivel == "Doutorado" & (codigo == 28 | codigo == 25 | codigo == 30 | codigo == 66 | codigo == 94 | codigo == 74 | codigo == 69 | codigo == 103 | codigo == 27)))
-
-profis = subset(mytbl, nivel == "Graduacao" & (codigo == 200))
-
-iq = subset(mytbl, (nivel == "Graduacao" & (codigo == 5 | codigo == 50))) # | (nivel == "Mestrado" & (codigo == 5)) | (nivel == "Doutorado" & (codigo == 55)))
-
-ig = subset(mytbl, (nivel == "Graduacao" & (codigo == 54 | codigo == 55 | codigo ==53))) # | (nivel == "Mestrado" & (codigo == 54 | codigo == 26 | codigo == 79 | codigo == 41)) | (nivel == "Doutorado" & (codigo == 26 | codigo == 76 | codigo == 24 | codigo ==95)))
-
-ifgw = subset(mytbl, (nivel == "Graduacao" & (codigo == 108 | codigo == 4 | codigo ==40 | codigo == 51))) # | (nivel == "Mestrado" & (codigo == 4)) | (nivel == "Doutorado" & (codigo == 54)))
-
-#criando data.frame - inst.
-institutos = data.frame(matrix(nrow = 22, ncol = 5))
-institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
-institutospira = data.frame(matrix(nrow = 1, ncol = 5))
-
-#Institutos Campinas
-institutos[1,] = c(sum(imecc$total), sum(imecc$sim), sum(imecc$nao), sum(imecc$abstencao),"IMECC")
-institutos[22,] = c(sum(fcf$total), sum(fcf$sim), sum(fcf$nao), sum(fcf$abstencao), "FCF")
-institutos[17,] = c(sum(fcm$total), sum(fcm$sim), sum(fcm$nao), sum(fcm$abstencao),"FCM")
-institutos[12,] = c(sum(fe$total), sum(fe$sim), sum(fe$nao), sum(fe$abstencao), "FE")
-institutos[19,] = c(sum(fea$total), sum(fea$sim), sum(fea$nao), sum(fea$abstencao), "FEA")
-institutos[16,] = c(sum(feagri$total), sum(feagri$sim), sum(feagri$nao), sum(feagri$abstencao), "FEAGRI")
-institutos[15,] = c(sum(fec$total), sum(fec$sim), sum(fec$nao), sum(fec$abstencao), "FEC")
-institutos[10,] = c(sum(feec$total), sum(feec$sim), sum(feec$nao), sum(feec$abstencao), "FEEC")
-institutos[3,] = c(sum(fef$total), sum(fef$sim), sum(fef$nao), sum(fef$abstencao), "FEF")
-institutos[2,] = c(sum(fem$total), sum(fem$sim), sum(fem$nao), sum(fem$abstencao), "FEM")
-institutos[21,] = c(sum(fenf$total), sum(fenf$sim), sum(fenf$nao), sum(fenf$abstencao), "FENF")
-institutos[11,] = c(sum(feq$total), sum(feq$sim), sum(feq$nao), sum(feq$abstencao), "FEQ")
-institutos[4,] = c(sum(ia$total), sum(ia$sim), sum(ia$nao), sum(ia$abstencao), "IA")
-institutos[9,] = c(sum(ib$total), sum(ib$sim), sum(ib$nao), sum(ib$abstencao), "IB")
-institutos[14,] = c(sum(ic$total), sum(ic$sim), sum(ic$nao), sum(ic$abstencao), "IC")
-institutos[13,] = c(sum(ie$total), sum(ie$sim), sum(ie$nao), sum(ie$abstencao), "IE")
-institutos[5,] = c(sum(iel$total), sum(iel$sim), sum(iel$nao), sum(iel$abstencao), "IEL")
-institutos[6,] = c(sum(ifch$total), sum(ifch$sim), sum(ifch$nao), sum(ifch$abstencao), "IFCH")
-institutos[20,] = c(sum(profis$total), sum(profis$sim), sum(profis$nao), sum(profis$abstencao), "PROFIS")
-institutos[8,] = c(sum(iq$total), sum(iq$sim), sum(iq$nao), sum(iq$abstencao), "IQ")
-institutos[18,] = c(sum(ig$total), sum(ig$sim), sum(ig$nao), sum(ig$abstencao), "IG")
-institutos[7,] = c(sum(ifgw$total), sum(ifgw$sim), sum(ifgw$nao), sum(ifgw$abstencao), "IFGW")
-
-
-#Institutos Limeira
-institutoslim[1,] = c(sum(fca$total), sum(fca$sim), sum(fca$nao), sum(fca$abstencao), "FCA")
-institutoslim[2,] = c(sum(ft$total), sum(ft$sim), sum(ft$nao), sum(ft$abstencao), "FT")
-
-#Institutos Piracicaba
-institutospira[1,] = c(sum(fop$total), sum(fop$sim), sum(fop$nao), sum(fop$abstencao), "FOP")
-
-#Nomes por institutos
-colnames(institutospira) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
-rownames(institutospira) = c("FOP")
-colnames(institutoslim) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
-rownames(institutoslim) = c("FCA", "FT")
-colnames(institutos) = c("Total", "Sim", "Nao", "Abstencao", "Nomes")
-rownames(institutos) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF")
-
-todosinstitutos = rbind(institutos, institutoslim, institutospira)
 ```
 
-```{r areas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE } 
-# Aqui estamos criando vetores para dividir os cursos em suas areas de atuacao
-artes = c(22,23,25,26,64)
-bio_camp = c(6,27,45,21,63,58,46,15)
-bio_lim = c(100,107)
-odonto = c(14)
-exatas_lim = c(36,83,73,87,94,101,102,88)
-exatas_camp = c(48,42,8,89,12,13,43,34,49,11,41,108,10,9,39,2,4,53,40,29,1,28,51,5,50)
-humanas_lim = c(109,110)
-humanas_camp = c(17,47,16,44,75,30,54,55,19,7,57,56,18,20,38)
-profis = c(200)
-```
 
-```{r campos, echo=FALSE, warning=FALSE, message=FALSE}
-#temos aqui as tabelas com cada grupo de cursos, sendo 1=Campinas, 2=Limeira
-tbl_exatas1<- subset(mytbl, nivel == "Graduacao" & (codigo == 48 | codigo == 2 | codigo == 8 | codigo == 89 | codigo == 12 | codigo == 13 | codigo == 43 | codigo == 34 | codigo == 49 | codigo == 11 | codigo == 41 | codigo == 108 | codigo == 10 | codigo == 9 | codigo == 39| codigo == 4| codigo == 53| codigo == 40| codigo == 29| codigo == 1| codigo == 28| codigo == 51| codigo == 5| codigo == 50))
-tbl_artes = subset(mytbl, nivel == "Graduacao" & (codigo == 22 | codigo == 23| codigo == 25| codigo == 26| codigo == 64))
-tbl_bio1 = subset(mytbl, nivel == "Graduacao" & (codigo == 6 | codigo == 27| codigo == 45| codigo == 21| codigo == 63| codigo == 58| codigo == 46| codigo == 15))
-tbl_bio2 = subset(mytbl, nivel == "Graduacao" & (codigo == 100 |codigo == 107))
-tbl_odonto = subset (mytbl, nivel == "Graduacao" &( codigo == 14))
-tbl_exatas2 = subset(mytbl, nivel == "Graduacao" &(codigo == 36| codigo == 83| codigo == 73| codigo == 87| codigo ==94| codigo == 101| codigo == 102| codigo == 88))
-tbl_humanas1 = subset(mytbl, nivel == "Graduacao" & (codigo == 17| codigo == 47| codigo == 16| codigo == 44| codigo == 75| codigo == 30| codigo == 54| codigo == 55| codigo == 19| codigo == 7| codigo == 57| codigo == 56| codigo == 18| codigo == 20| codigo == 38 ))
-tbl_humanas2 = subset(mytbl, nivel == "Graduacao" &(codigo == 109| codigo == 110))
-tbl_profis = subset(mytbl, nivel == "Graduacao" & (codigo == 200))
-```
 
-```{r area, echo=FALSE, warning=FALSE, message=FALSE}
-humanas = rbind(tbl_artes, tbl_humanas1, tbl_humanas2)
-exatas = rbind(tbl_exatas2, tbl_exatas1)
-biologicas = rbind(tbl_bio1, tbl_bio2, tbl_odonto)
-areasuni = data.frame(matrix(nrow = 3, ncol = 4))
-areasuni[1,] = c(humanas$total, humanas$sim, humanas$nao, humanas$abstencao)
-areasuni[2,] = c(exatas$total, exatas$sim, exatas$nao, exatas$abstencao)
-areasuni[3,] = c(biologicas$total, biologicas$sim, biologicas$nao, biologicas$abstencao)
-```
+
+
 
 ## proporção por area
 ```{r proporção, echo=FALSE, warning=FALSE, message=FALSE }
-#calculando a propoção dos institutos de campinas
-institutos[,1] = as.numeric(institutos[,1])
-institutos[,2] = as.numeric(institutos[,2])
-institutos[,3] = as.numeric(institutos[,3])
-institutos[,4] = as.numeric(institutos[,4])
-propcamp =  data.frame(matrix(nrow = length(institutos$Total), ncol = 3))
-for(i in 1:dim(institutos)[1])
-{ propcamp[i,] = c(100*(sum(institutos[i,2])/sum(institutos[i,1])), 100*(sum(institutos[i,3])/sum(institutos[i,1])), 100*(sum(institutos[i,4])/sum(institutos[i,1]))) 
+#na tabela todosinstitutos, últimos - limeira(FCA, FT) e piracicaba(FOP)
+prop =  data.frame(matrix(nrow = length(todosinstitutos$Total), ncol = 3))
+for(i in 1:dim(todosinstitutos)[1])
+{ prop[i,] = c(100*todosinstitutos[i,2]/todosinstitutos[i,1], 100*todosinstitutos[i,3]/todosinstitutos[i,1], 100*todosinstitutos[i,4]/todosinstitutos[i,1])
 }
 
-#calculando a propoção dos institutos de limeira
-institutoslim[,1] = as.numeric(institutoslim[,1])
-institutoslim[,2] = as.numeric(institutoslim[,2])
-institutoslim[,3] = as.numeric(institutoslim[,3])
-institutoslim[,4] = as.numeric(institutoslim[,4])
-proplim =  data.frame(matrix(nrow = length(institutoslim$Total), ncol = 3))
-for(i in 1:dim(institutoslim)[1])
-{ proplim[i,] = c(100*(sum(institutoslim[i,2])/sum(institutoslim[i,1])), 100*(sum(institutoslim[i,3])/sum(institutoslim[i,1])), 100*(sum(institutoslim[i,4])/sum(institutoslim[i,1]))) 
-}
-
-#calculando a propoção dos institutos de piracicaba
-institutospira[,1] = as.numeric(institutospira[,1])
-institutospira[,2] = as.numeric(institutospira[,2])
-institutospira[,3] = as.numeric(institutospira[,3])
-institutospira[,4] = as.numeric(institutospira[,4])
-proppira =  data.frame(matrix(nrow = length(institutospira$Total), ncol = 3))
-proppira[1,] = c((100*(sum(institutospira[1,2])/sum(institutospira[1,1]))), 100*(sum(institutospira[1,3])/sum(institutospira[1,1])), 100*(sum(institutospira[1,4])/sum(institutospira[1,1]))) 
-
-
-rownames(proppira) = c("FOP")
-rownames(proplim) = c("FCA", "FT")
-rownames(propcamp) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF")
-porptotal = rbind(propcamp, proplim, proppira)
-porptotal = round(porptotal, 2)
-colnames(porptotal) = c("SIM", "NÂO", "ABSTENÇÂO")
-porptotal[,1] = as.numeric(porptotal[,1])
-porptotal[,2] = as.numeric(porptotal[,2])
-porptotal[,3] = as.numeric(porptotal[,3])
-porptotal = porptotal[-21,-3]
-library(d3heatmap)
-library(RColorBrewer)
-d3heatmap(porptotal, col=rev(brewer.pal(9, "BuGn")))
+rownames(prop) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF","FCA", "FT","FOP")
+colnames(prop) = c("SIM", "NÂO", "ABSTENÇÂO")
+prop[,1] = as.numeric(prop[,1])
+prop[,2] = as.numeric(prop[,2])
+prop[,3] = as.numeric(prop[,3])
+prop = round(prop,2)
+## Arrumar quando for 0
+##proptotal = prop[-21,-3]
+##library(d3heatmap)
+##library(RColorBrewer)
+##d3heatmap(porptotal, col=rev(brewer.pal(9, "BuGn")))
 
 ```
 
@@ -252,7 +115,7 @@ d3heatmap(porptotal, col=rev(brewer.pal(9, "BuGn")))
 
 ## Campus Campinas
 ```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
-
+#acrescentando alguns institutos
 ends = read.table('institutos.tab', sep='\t', header=TRUE)
 localizacao_faltantes = data.frame(matrix(nrow = 3, ncol = 3))
 localizacao_faltantes[1,] = c("PROFIS", -22.8174, -47.06847)
@@ -268,22 +131,16 @@ ends = rbind(ends,localizacao_faltantes)
 fldr <- tempfile()
 dir.create(fldr)
 
-institutos[,1] = as.numeric(institutos[,1])
-institutos[,2] = as.numeric(institutos[,2])
-institutos[,3] = as.numeric(institutos[,3])
-institutos[,4] = as.numeric(institutos[,4])
-colnames(institutos) = c("Total","Sim","Não","Abstenção","Nomes")
-
-pop <- lapply(seq(length(institutos[,1])), function(i) {
- if(institutos$Total[i]==0){return("Sem Votos")}
+pop <- lapply(seq(length(todosinstitutos[1:22,1])), function(i) {
+ if(todosinstitutos$Total[i]==0){return("Sem Votos")}
   
   dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
-  dados[1,2]<-institutos[i,2]
-  dados[2,2]<-institutos[i,3]
-  dados[3,2]<-institutos[i,4]
+  dados[1,2]<-todosinstitutos[i,2]
+  dados[2,2]<-todosinstitutos[i,3]
+  dados[3,2]<-todosinstitutos[i,4]
   
   p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
-    ggtitle(rownames((institutos[i,])))+xlab("")+ theme(legend.position="none")+
+    ggtitle(rownames((todosinstitutos[i,])))+xlab("")+ theme(legend.position="none")+
     scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
     geom_text(aes(label=Total), vjust=0.2,
               position = position_dodge(0.9), size=3.5)
@@ -300,10 +157,10 @@ pop <- lapply(seq(length(institutos[,1])), function(i) {
 
 ##gerando o mapa
 
-pal= colorQuantile("BuGn",propcamp$X2,n=5)
+pal= colorQuantile("BuGn",prop[1:22,2],n=5)
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop, color = pal(propcamp$X2), opacity = 1)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop, color = pal(prop[1:22,2]), opacity = 1)
 map
 ```
 
@@ -312,45 +169,46 @@ map
 ## Campus Limeira
 
 ```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
+#criando a localização de limeira
 endlim = data.frame(matrix(nrow = 2, ncol = 3))
 endlim[1,] = c("FCA", -22.55385, -47.42841)
 endlim[2,] = c( "FT", -22.56201, -47.42397)
 colnames(endlim) = c("instituto", "lat", "lon")
 endlim[,2] = as.numeric(endlim[,2])
 endlim[,3] = as.numeric(endlim[,3])
+#institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
+institutoslim = todosinstitutos[c(23,24),]
 
 ##função para gerar os gráficos que serão add no mapa
 fldr <- tempfile()
 dir.create(fldr)
 
-institutoslim[,1] = as.numeric(institutoslim[,1])
-institutoslim[,2] = as.numeric(institutoslim[,2])
-institutoslim[,3] = as.numeric(institutoslim[,3])
-institutoslim[,4] = as.numeric(institutoslim[,4])
-colnames(institutoslim) = c("Total","Sim","Não","Abstenção","Nomes")
-
-pop <- lapply(seq(length(institutoslim[,1])), function(i) {
- if(institutoslim$Total[i]==0){return("Sem Votos")}
+pop <- lapply(seq(length(institutoslim$Total)), function(i) {
+  
+  if(institutoslim$Total[i]==0){return("Sem Votos")}
   
   dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
   dados[1,2]<-institutoslim[i,2]
   dados[2,2]<-institutoslim[i,3]
   dados[3,2]<-institutoslim[i,4]
-  
   p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
     ggtitle(rownames((institutoslim[i,])))+xlab("")+ theme(legend.position="none")+
     scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
     geom_text(aes(label=Total), vjust=0.2,
               position = position_dodge(0.9), size=3.5)
+   
   
   svg(filename = paste(fldr, "test.svg", sep = "/"), 
       width = 250 * 0.01334, height = 250 * 0.01334)
-  print(p)
-  dev.off()
+   
+   print(p)
+   dev.off()
+  
 
   tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
 
   return(tst)
+  
 })
 
 ##gerando o mapa
@@ -373,27 +231,21 @@ colnames(endpira) = c("instituto", "lat", "lon")
 endpira[,2] = as.numeric(endpira[,2])
 endpira[,3] = as.numeric(endpira[,3])
 
+institutospira = todosinstitutos[25,]
 # função para gerar os gráficos que serão add no mapa
 fldr <- tempfile()
 dir.create(fldr)
 
-
-institutospira[,1] = as.numeric(institutospira[,1])
-institutospira[,2] = as.numeric(institutospira[,2])
-institutospira[,3] = as.numeric(institutospira[,3])
-institutospira[,4] = as.numeric(institutospira[,4])
-colnames(institutospira) = c("Total","Sim","Não","Abstenção","Nomes")
-
-pop <- lapply(seq(length(institutos[,1])), function(i) {
- if(institutos$Total[i]==0){return("Sem Votos")}
+pop <- lapply(seq(length(institutospira$Total)), function(i) {
+  if(todosinstitutos$Total[i]==0){return("Sem Votos")}
   
   dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
-  dados[1,2]<-institutos[i,2]
-  dados[2,2]<-institutos[i,3]
-  dados[3,2]<-institutos[i,4]
+  dados[1,2]<-institutospira[i,2]
+  dados[2,2]<-institutospira[i,3]
+  dados[3,2]<-institutospira[i,4]
   
   p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
-    ggtitle(rownames((institutos[i,])))+xlab("")+ theme(legend.position="none")+
+    ggtitle(rownames((institutospira[i,])))+xlab("")+ theme(legend.position="none")+
     scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
     geom_text(aes(label=Total), vjust=0.2,
               position = position_dodge(0.9), size=3.5)
@@ -436,35 +288,8 @@ mytbl = cbind(mytbl, ics)
 ## Tabelas interativa
 
 ```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
-library(DT)
 
-#instituto.por.numero <- read.csv("~/instituto por numero.csv", header=FALSE, sep=";")
-load("instituto_por_nome.rda")
-
-instituto.por.numero <- instituto.por.numero[,1:4]
-
-humanas = rbind(tbl_artes, tbl_humanas1, tbl_humanas2)
-exatas = rbind(tbl_exatas2, tbl_exatas1)
-biologicas = rbind(tbl_bio1, tbl_bio2, tbl_odonto)
-
-
-humanasnome = c("Humanas")
-exatasnome = c("Exatas")
-biologicasnome = c("Biológicas")
-humanas12 = cbind(humanas, humanasnome)
-exatas12 = cbind(exatas, exatasnome)
-biologicas12 = cbind(biologicas, biologicasnome)
-colnames(humanas12) = c("codigo", "nivel", "curso", "total", "sim", "nao", "abstencao", "area")
-colnames(biologicas12) = c("codigo", "nivel", "curso", "total", "sim", "nao", "abstencao", "area")
-colnames(exatas12) = c("codigo", "nivel", "curso", "total", "sim", "nao", "abstencao", "area")
-tabelafinal = rbind(humanas12, exatas12, biologicas12)
-
-
-for(i in 1:dim(tabelafinal)[1])
-{ tabelafinal[i,2] = levels(instituto.por.numero[,1])[instituto.por.numero[which(tabelafinal[i,1] == instituto.por.numero[,3]),1]]
-}
-
-tabelafinal$codigo = tabelafinal$area
+tabelafinal = minhatab[,c(8,9,3,4,5,6,7)]
 tabelafinal = tabelafinal[,c(-8)]
 colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
 
@@ -485,16 +310,9 @@ onde $N$ é a quantidade total de alunos e $D = \frac{B^2}{z_{\alpha}^2}$, sendo
 
 
 ```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
-
 n_amostral = function(N,B){
   round(N/(4*(N-1)*(B^2/qnorm(1-0.05)^2)+1),0)
 }
-
-load("instituto_por_nome.rda")
-colnames(instituto.por.numero) = c("Instituto", "Área", "Código", "NoMatriculados")
-
-inst = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF", "FCA", "FT", "FOP")
-
 nTotal = n_amostral(sum(instituto.por.numero$NoMatriculados),0.03)
 ```
 
@@ -503,22 +321,56 @@ Sendo assim, o tamanho amostral necessário para a Unicamp toda seria de $$`r ro
 Se o interesse for um estudo por instituto, podemos ver na tabela abaixo qual o tamanho amostral necessário, com as mesmas condições anteriores, para cada um dos institutos da Unicamp
 
 ```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
-
-tam_amostral = data.frame(rep(0,25), row.names = inst)
+tam_amostral = data.frame(rep(0,25), row.names = nomesinstitutos)
 colnames(tam_amostral) = "Tamanho Amostral"
 
-for(i in 1:length(inst)){
-  tam_amostral[i,] = n_amostral(sum(instituto.por.numero[which(instituto.por.numero$Instituto == inst[i]),]$NoMatriculados), 0.03)
+for(i in 1:length(nomesinstitutos)){
+  tam_amostral[i,] = n_amostral(sum(instituto.por.numero[which(instituto.por.numero$Instituto == nomesinstitutos[i]),]$NoMatriculados), 0.03)
 }
 
 library(knitr)
 kable(tam_amostral)
 ```
+
+
 ## Comparações
+
+```{r comparação de área, echo=FALSE, warning=FALSE, message=FALSE}
+areas = data.frame(matrix(nrow=4, ncol=7))
+nomesareas = c("Exatas", "Biológicas", "Humanas", "Profis")
+rownames(areas) = nomesareas
+colnames(areas) = c("Total", "Sim", "Não", "Abstenção", "PSim", "PNão", "PAbstenção")
+for(i in 1:length(minhatab$Código))
+{ areas[i,1] = sum(minhatab[which(minhatab[,8]== nomesareas[i]),]$Total)
+  areas[i,2] = sum(minhatab[which(minhatab[,8]== nomesareas[i]),]$Sim)
+  areas[i,3] = sum(minhatab[which(minhatab[,8]== nomesareas[i]),]$Não)
+  areas[i,4] = sum(minhatab[which(minhatab[,8]== nomesareas[i]),]$Abstenção)
+}
+areas = areas[1:4,]
+areas[,1] = as.numeric(areas[,1])
+areas[,2] = as.numeric(areas[,2])
+areas[,3] = as.numeric(areas[,3])
+
+for(i in 1:length(areas$Total))
+{ areas[i,5] = 100*areas[i,2]/areas[i,1]
+  areas[i,6] = 100*areas[i,3]/areas[i,1]
+  areas[i,7] = 100*areas[i,4]/areas[i,1]
+}
+areas[,5] = as.numeric(areas[,5])
+areas[,6] = as.numeric(areas[,6])
+areas[,7] = as.numeric(areas[,7])
+areas[,c(5,6,7)] = round(areas[,c(5,6,7)],2)
+
+p <- plot_ly( x =nomesareas , y =areas[1:3,5], name = "Sim", type = "bar")
+p2 <- add_trace (p, x =nomesareas , y =areas[1:3,6], name = "Não", type = "bar" )
+p3 <- add_trace(p2, x =nomesareas , y =areas[1:3,7], name = "Abstenção", type = "bar" )
+p3
+```
+
 
 Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
 
-```{r exatas_naoexatas}
+```{r exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE }
 NaoExatas = subset(mytbl, codigo == 26 | codigo == 25 | codigo == 64 | codigo == 23 | codigo == 22 | codigo == 6 |
                      codigo == 100 | codigo == 27 | codigo == 45 | codigo == 21 | codigo == 63 | codigo == 58 |
                      codigo == 46 | codigo == 15 | codigo == 107 | codigo == 14 |
@@ -537,14 +389,14 @@ Exatas = subset(mytbl, codigo != 26 & codigo != 25 & codigo != 64 & codigo != 23
 
 Podemos ver que de fato as proporções são diferentes: 
 
-```{r prop_exatas_naoexatas}
+```{r prop_exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE}
 props = c(p_NaoExatas = sum(NaoExatas$nao)/sum(NaoExatas$total),
 p_Exatas = sum(Exatas$nao)/sum(Exatas$total))
 names(props) = c("Não Exatas", "Exatas")
 props
 ```
 
-Mas precisamos formalizar isso, usando um teste de hipótese, onde temos como hipótese nula "As proporções são iguais" e hipótese alternativa "As proporções são diferentes". O nível de significância escolhido será de $\alpha = 0.01$. Temos então o seguinte teste:
+  Mas precisamos formalizar isso, usando um teste de hipótese, onde temos como hipótese nula "As proporções são iguais" e hipótese alternativa "As proporções são diferentes". O nível de significância escolhido será de $\alpha = 0.01$. Temos então o seguinte teste:
 
 ```{r teste_dif_exatas}
 x = c(rep(1,sum(Exatas$nao)), rep(0,sum(Exatas$total)-sum(Exatas$nao)))
@@ -565,7 +417,7 @@ Foi realizado testes para a igualdade de proporção de votos **contra** para to
 
 Devido à escassez de dados para cada curso, se o teste para diferença de proporção foi significativo, significa que a diferença entre as proprções destes pares foi grande.
 
-```{r hypoteses}
+```{r hypoteses, echo=FALSE, warning=FALSE, message=FALSE}
 a=1
 cursos = matrix(nrow=100, ncol=2)
 for (i in (1:(dim(mytbl)[1]-1))){
@@ -577,7 +429,7 @@ for (i in (1:(dim(mytbl)[1]-1))){
     }
   }
 }
-(cursos = cursos[1:58,])
+cursos = cursos[1:58,]
 ```
 
 Pode-se observar que existe uma polaridade forte na universidade:  `r dim(cursos)[1]` pares de cursos entre todos que foram testados para igualdade de proporção de votos **contra**, falharam, concluindo que estes pares de cursos tiveram opiniões divergentes em relação à greve.
@@ -585,28 +437,17 @@ Pode-se observar que existe uma polaridade forte na universidade:  `r dim(cursos
 Pode ser observado a forte presença de divergência entre cursos de áreas diferentes (biológicas, exatas e humanas), onde o conflito entre cursos de áreas iguais é bem mais fraco, porém ainda existem, com enfoque no curso "Licenciatura em Física", onde este curso, de exatas, conflituou com outros cursos de exatas com frequência considerável.
 
 
-
-
-
-
-
-
-
-
-
-
 ## contribuição de cada instituto
 ```{r porcentagem, echo=FALSE, warning=FALSE, message=FALSE}
 
 matriculados = data.frame(rep(0,25), row.names = todosinstitutos$Nomes)
 
-for(i in 1:length(todosinstitutos$Nomes)){
-  matriculados[i,] = sum(instituto.por.numero[which(instituto.por.numero$Instituto == todosinstitutos$Nomes[i]),]$NoMatriculados)
+for(i in 1:length(todosinstitutos$Total)){
+  matriculados[i,] = sum(instituto.por.numero[which(instituto.por.numero$Instituto == todosinstitutos$Instituto[i]),]$NoMatriculados)
 }
-todosinstitutos[,1] = as.numeric(todosinstitutos[,1]) 
 propvot = data.frame(rep(0,25), rep(0,25))
 propvot[,1] = todosinstitutos[,5]
-for(i in 1:length(todosinstitutos$Nomes)){
+for(i in 1:length(todosinstitutos$Instituto)){
   propvot[i,2] = round(100*todosinstitutos[i,1]/matriculados[i,1],2)
 }
 colnames(propvot) = c("Institutos", "porcentagem")
