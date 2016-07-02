@@ -57,7 +57,7 @@ mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
 
 # Análises
 
-## Análise Descritiva
+## Análise Descritiva e Exploratória dos dados
 
 ```{r votoinstitutos, echo=FALSE, warning=FALSE, message=FALSE}
 ## Separando os dados por institutos 
@@ -342,10 +342,11 @@ colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abs
 datatable(tabelafinal, options = list(pageLength = 5))
 
 ```
+##Analises estatísticas
 
+Após conhecermos melhor o comportamento dos dados, é de interesse aplicar o nosso conhecimento estatístico para fazer testes, IC, entre outros, para que com isso possamos contribuir para uma melhor compreesão e sugestões afim de resolver nosso problema sobre a votação da greve.
 
-
-### não sei o titulo
+#Comparando o perfil das áreas de conhecimento
 
 Existe um pensamento de que a opinião dos alunos de diferentes áreas são diferentes entre si. Por exemplo, os alunos de Exatas tem uma opinião diferente frente a greve dos alunos de Biológicas e Humanas, e Biológicas e Humanas também diferem entre si. Mas será que esse pensamento realmente acontece? Podemos testar isso usando a teorica estatística de Teste de Hipóteses. 
 
@@ -425,7 +426,8 @@ Nesse caso, temos a mesma decisão para o caso de Exatas x Humanas. Ou seja, as 
 
 Por fim, então, temos evidências que sugerem que as proporções de Exatas e Biológicas são iguais, enquanto que ambas diferem da proporção dos cursos de Humanas.
 
-## Bootstrap ??? titulo??
+Vamos agora estimar a proporção dos votos através do Bootstrap
+## Bootstrap 
 
 ```{r bootstrap, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -449,7 +451,7 @@ res = boot(todosinstitutos, function(dd,i)  sum(as.numeric(dd[i,]$Não))/sum(as.
   Aplicando a técnica *Bootstrap*, obtemos que `r round(res$t0,2)*100 `% dos alunos da unicamp são contra a greve. 
   
 
-## titulo ?
+#Tamanho da amotra
 
 Em uma pesquisa, é comum definirmos uma margem de erro , e um nível de confiança. A margem de erro, é a diferença absoluta máxima entre o valor verdadeiro(populacional) e a estimativa calculada. E o nível de confiança, por exemplo de 95%, expressa que se eu repetir a minha pesquisa de maneira similar, 100 vezes, 95 vezes a proporção que busco estará dentro do intervalo.  
 
