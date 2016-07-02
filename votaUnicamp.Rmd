@@ -346,7 +346,7 @@ datatable(tabelafinal, options = list(pageLength = 5))
 
 ### não sei o titulo
 
-## Bootstrap
+## Bootstrap ??? titulo??
 
 ```{r bootstrap, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -370,7 +370,8 @@ res = boot(todosinstitutos, function(dd,i)  sum(as.numeric(dd[i,]$Não))/sum(as.
   Aplicando a técnica *Bootstrap*, obtemos que `r round(res$t0,2)*100 `% dos alunos da unicamp são contra a greve. 
   
 
-## não sei escrever também, explicar.
+## titulo ?
+
 Em uma pesquisa, é comum definirmos uma margem de erro , e um nível de confiança. A margem de erro, é a diferença absoluta máxima entre o valor verdadeiro(populacional) e a estimativa calculada. E o nível de confiança, por exemplo de 95%, expressa que se eu repetir a minha pesquisa de maneira similar, 100 vezes, 95 vezes a proporção que busco estará dentro do intervalo.  
 
 Com isto, fixando um erro - $B = 0,03$ e um nível de significância - $\alpha = 0.05$ podemos encontrar o tamanho amostral $n$ necessário na Unicamp. 
