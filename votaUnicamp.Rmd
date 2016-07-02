@@ -145,8 +145,7 @@ p3
 ```
 
   Com o gráfico pode-se notar que, aparentemente, a única área na qual a maioria dos alunos é a favor da greve é a **Humanas**. 
-  Isto pode ser comprovado por análises estatísticas. (fazer teste de hipótese)
-
+  Isto pode ser comprovado por análises estatísticas, que iremos fazer mais pra frente através de Teste de Hipóteses.
   Os cursos, além de serem agrupados nestas 3 grandes áreas, também são agrupados por institutos. Por exemplo, o Instituto da Computação (IC) é composto pelos cursos de Ciência da Computação, e Engenharia de Computação. Ao todo a UNICAMP possui 25 institutos, sendo 22 no *Campus de Campinas*, 2 no *Campus de Limeira* e apenas 1 no *Campus de Piracicaba*(Odontologia). 
   
   O gráfico a seguir mostra através das cores a proporção de votos 'Não' em cada instituto, no campus de Campinas, o qual se concentra a maioria dos institutos. A cor mais escura representa uma maior proporção de "não".
@@ -363,7 +362,7 @@ p_Exatas = areas[1,3]/areas[1,1]
 p_Humanas = areas[3,3]/areas[3,1]
 ```
 
-Comparando Exatas e Biológicas, temos as seguintes proporções para cada área
+Comparando Exatas e Biológicas, temos as seguintes proporções para cada área:
 
 ```{r p_exatas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
 props = c(p_Biologicas,p_Exatas)
@@ -384,7 +383,7 @@ Como nesse caso temos um valor-p maior que o nível de significância, temos mai
 
 ### Exatas x Humanas
 
-Aqui, as proporções individuais são
+Aqui, as proporções individuais são:
 
 ```{r p_exatas_humanas,  echo=FALSE, warning=FALSE, message=FALSE}
 props = c(p_Humanas,p_Exatas)
@@ -392,7 +391,7 @@ names(props) = c("Humanas", "Exatas")
 props
 ```
 
-E o teste nos leva ao seguinte resultado
+E o teste nos leva ao seguinte resultado:
 
 ```{r exatas_humanas,  echo=FALSE, warning=FALSE, message=FALSE}
 x = c(rep(1,areas[1,3]), rep(0,areas[1,1]-areas[1,3]))
@@ -405,7 +404,7 @@ Ou seja, um valor-p muito pequeno, que significa que as proporções entre exata
 
 ### Biológicas x Humanas
 
-Por fim, comparando as Biológicas e as Humanas, temos as proporções
+Por fim, comparando as Biológicas e as Humanas, temos as proporções:
 
 ```{r p_humanas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
 props = c(p_Biologicas,p_Humanas)
@@ -413,7 +412,7 @@ names(props) = c("Biológicas", "Humanas")
 props
 ```
 
-E o teste
+E o teste:
 
 ```{r humanas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
 x = c(rep(1,areas[3,3]), rep(0,areas[3,1]-areas[3,3]))
@@ -426,8 +425,9 @@ Nesse caso, temos a mesma decisão para o caso de Exatas x Humanas. Ou seja, as 
 
 Por fim, então, temos evidências que sugerem que as proporções de Exatas e Biológicas são iguais, enquanto que ambas diferem da proporção dos cursos de Humanas.
 
-Vamos agora estimar a proporção dos votos através do Bootstrap
-## Bootstrap 
+Vamos agora estimar a proporção dos votos através do Bootstrap.
+
+### Bootstrap 
 
 ```{r bootstrap, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -451,9 +451,9 @@ res = boot(todosinstitutos, function(dd,i)  sum(as.numeric(dd[i,]$Não))/sum(as.
   Aplicando a técnica *Bootstrap*, obtemos que `r round(res$t0,2)*100 `% dos alunos da unicamp são contra a greve. 
   
 
-#Tamanho da amotra
+### Tamanho da amotra
 
-Em uma pesquisa, é comum definirmos uma margem de erro , e um nível de confiança. A margem de erro, é a diferença absoluta máxima entre o valor verdadeiro(populacional) e a estimativa calculada. E o nível de confiança, por exemplo de 95%, expressa que se eu repetir a minha pesquisa de maneira similar, 100 vezes, 95 vezes a proporção que busco estará dentro do intervalo.  
+Em uma pesquisa, é comum definirmos uma margem de erro, e um nível de confiança. A margem de erro, é a diferença absoluta máxima entre o valor verdadeiro(populacional) e a estimativa calculada. E o nível de confiança, por exemplo de 95%, expressa que se eu repetir a minha pesquisa de maneira similar, 100 vezes, 95 vezes a proporção que busco estará dentro do intervalo.  
 
 Com isto, fixando um erro - $B = 0,03$ e um nível de significância - $\alpha = 0.05$ podemos encontrar o tamanho amostral $n$ necessário na Unicamp. 
 
@@ -484,3 +484,6 @@ datatable(tam_amostral, options = list(pageLength = 5))
 
 # Conclusão
 
+Após fazer analises e conhecer melhor os dados, pudemos ver através do teste de hipoteses que possívelmente a proportação para alunos de Exatas e Biológicas são iguais, enquanto que ambas são diferentes da proporção dos cursos de Humanas. Vimos também o comportamento dos votos no momento por instituto
+As assembleias dos institutos tem o seu o quórum mínimo de participantes, no IMECC por exemplo, o quórum para ínicio da assembleia se baseia no número de associados ao CAMECC, nos outros intitutos deve ser analogo, mas caso não for temos como base o número de alunos matriculados, vimos nas nossas analises que o ideal seria o número do n sugerido acima para que possamos ter uma boa representatividade na tomada de decisão, sendo para a este projeto ou em assembleias, o ideal é chegarmos nesse número de votantes para estatísticamente termos uma pesquisa efetiva que mostre o perfil de voto dos institutos.
+Este semestre foi bem atípico pelo fato desta greve e outros acontecimento, sendo uma ótima iniciativa está pesquisa para que a comunidade da UNICAMP tenha respostas mais plausíveis sobre a representatividade das votações, questionamento este muito feito. Sendo assim vamos continuar inventivando amigos e desconhecido através das redes sociais para continuar votando e termos as respostas que queremos.
