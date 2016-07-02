@@ -11,7 +11,7 @@ output: html_document
   
   Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/”, no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto. 
   
-  A partir desse site, o objetivo do trabalho é verificar se realmente o número de alunos a favor da greve é maior que o número de alunos contrarios a ela. Além do mais, podemos fazer comparações entre os diversos institutos, ver quais são a favor, contra ou neutros em relação a greve. 
+  A partir desse site, o objetivo do trabalho é analisar a opinião dos alunos de graduação da Unicamp, verificar se realmente o número de alunos a favor da greve é maior que o número de alunos contrarios a ela. Além do mais, podemos fazer comparações entre os diversos institutos, ver quais são a favor, contra ou neutros em relação a greve. 
 
 # Obtenção dos dados
 
@@ -30,6 +30,7 @@ library(googleVis)
 library(leaflet)
 library(plotly)
 library(DT)
+library(formattable)
 page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
 #head(tbl)
@@ -107,7 +108,9 @@ todosinstitutos = cbind(todosinstitutos, prop)
 todosinstitutos = todosinstitutos[,c(5,1,2,3,4,6,7,8)]
 ```
 
-  A maioria dos Estudantes na hora de escolher o curso para seu futuro profissional pensam, primeiramente, nas três grandes áreas, **BIOLÓGICAS, EXATAS E HUMANAS** para depois escolher o curso. As pessoas também, de maneira geral, tem em mente esteriótipos diferentes dos estudantes destas 3 áreas. Perante a estes fatos, é interessante analisar a opnião dos estudantes por área. 
+  A maioria dos Estudantes na hora de escolher o curso para seu futuro profissional pensam, primeiramente, nas três grandes áreas, **BIOLÓGICAS, EXATAS E HUMANAS** para depois escolher o curso. 
+  
+  Existe um pensamento de que a opinião dos alunos de diferentes áreas são diferentes entre si. Por exemplo, os alunos de Exatas tem uma opinião diferente frente a greve dos alunos de Biológicas e Humanas, e Biológicas e Humanas também diferem entre si. Mas será que esse pensamento realmente acontece? 
 
   Sendo assim, a seguir temos o gráfico que mostra a proporção dos votos por área.
 
@@ -145,7 +148,9 @@ p3
 ```
 
   Com o gráfico pode-se notar que, aparentemente, a única área na qual a maioria dos alunos é a favor da greve é a **Humanas**. 
+  
   Isto pode ser comprovado por análises estatísticas, que iremos fazer mais pra frente através de Teste de Hipóteses.
+  
   Os cursos, além de serem agrupados nestas 3 grandes áreas, também são agrupados por institutos. Por exemplo, o Instituto da Computação (IC) é composto pelos cursos de Ciência da Computação, e Engenharia de Computação. Ao todo a UNICAMP possui 25 institutos, sendo 22 no *Campus de Campinas*, 2 no *Campus de Limeira* e apenas 1 no *Campus de Piracicaba*(Odontologia). 
   
   O gráfico a seguir mostra através das cores a proporção de votos 'Não' em cada instituto, no campus de Campinas, o qual se concentra a maioria dos institutos. A cor mais escura representa uma maior proporção de "não".
@@ -331,7 +336,6 @@ datatable(tabic, options = list(pageLength = 5))
 
 Como cada instituto é formado por um conjunto de cursos diferentes, com a tabela a seguir é fácil vizualizar os votos por curso dentro de cada instituto, e de cada área com a tabela a seguir. Por exemplo, quando filtramos pelo instituto *IMECC*, observamos que contém 4 cursos, todos da área de exatas, e conseguimos observar os votos *"sim", "não"*, e de *"abstenção"* de cada curso.
 
-
 ```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
 
 tabelafinal = minhatab[,c(8,9,3,4,5,6,7)]
@@ -339,16 +343,16 @@ tabelafinal = tabelafinal[,c(-8)]
 colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
 
 datatable(tabelafinal, options = list(pageLength = 5))
-
 ```
-##Analises estatísticas
 
-Após conhecermos melhor o comportamento dos dados, é de interesse aplicar o nosso conhecimento estatístico para fazer testes, IC, entre outros, para que com isso possamos contribuir para uma melhor compreesão e sugestões afim de resolver nosso problema sobre a votação da greve.
+## Analises estatísticas
+
+Após conhecermos melhor o comportamento dos dados, é de interesse aplicar o nosso conhecimento estatístico para fazer testes, IC, entre outros; para que com isso possamos contribuir para uma melhor compreesão e sugestões afim de resolver nosso problema sobre a votação da greve.
 
 #Comparando o perfil das áreas de conhecimento
 
-Existe um pensamento de que a opinião dos alunos de diferentes áreas são diferentes entre si. Por exemplo, os alunos de Exatas tem uma opinião diferente frente a greve dos alunos de Biológicas e Humanas, e Biológicas e Humanas também diferem entre si. Mas será que esse pensamento realmente acontece? Podemos testar isso usando a teorica estatística de Teste de Hipóteses. 
-
+ Como já dito anteriormente, há um questionamento se estudantes das três áreas - biológicas, exatas e humanas - possuem uma mesma opinião frente a greve. Já vimos que, aparentemente, a única área que difere das demais é a *Humanas*. Para comprovar, realizamos um teste estatístico, o teste de hipótese.
+ 
 Num teste de hipóteses, definimos duas hipóteses, chamadas $H_0$ ou hipótese nula e $H_a$ ou hipótese alternativa e queremos buscar evidências a favor de uma das hipóteses. Porém, como tudo na estatística, temos um erro associado. Podemos por exemplo rejeitar $H_0$ quando ela é verdadeira. Mas, podemos controlar esse erro, fixando a probabilidade de ele acontecer a um certo valor, chamado nível de significância ($\alpha$). Nesse caso, usaremos $\alpha = 0.05$. 
 
 Após realizar o teste, obtemos um valor chamado de valor-p, que nos ajuda a tomar decisão. Se o valor-p for menor que $\alpha$, rejeitamos a hipótese nula e ficamos com a alternativa. Caso contrário, ficamos com a hipótese nula.
@@ -365,19 +369,21 @@ p_Humanas = areas[3,3]/areas[3,1]
 Comparando Exatas e Biológicas, temos as seguintes proporções para cada área:
 
 ```{r p_exatas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
-props = c(p_Biologicas,p_Exatas)
-names(props) = c("Biológicas", "Exatas")
-props
+props = data.frame(matrix(ncol = 2, nrow = 1) )
+props[1,] = c(p_Biologicas,p_Exatas)
+colnames(props) = c("Biológicas", "Exatas")
+formattable(props)
 ```
-
-E realizando o teste, obtemos o seguinte:
 
 ```{r exatas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
 x = c(rep(1,areas[1,3]), rep(0,areas[1,1]-areas[1,3]))
 y = c(rep(1,areas[2,3]), rep(0,areas[2,1]-areas[2,3]))
 
-(teste_dif_exatas_nao_exatas = t.test(x,y))
+teste_dif_exatas_nao_exatas = t.test(x,y)
 ```
+
+
+E realizando o teste, obtemos um p-valor de `r teste_dif_exatas_nao_exatas$p.value`. 
 
 Como nesse caso temos um valor-p maior que o nível de significância, temos mais evidência a favor da hipótese de que as proporções são iguais nesse caso.
 
@@ -386,19 +392,21 @@ Como nesse caso temos um valor-p maior que o nível de significância, temos mai
 Aqui, as proporções individuais são:
 
 ```{r p_exatas_humanas,  echo=FALSE, warning=FALSE, message=FALSE}
-props = c(p_Humanas,p_Exatas)
-names(props) = c("Humanas", "Exatas")
-props
+props = data.frame(matrix(ncol = 2, nrow = 1) )
+props[1,] = c(p_Humanas,p_Exatas)
+colnames(props) = c("Humanas", "Exatas")
+formattable(props)
 ```
 
-E o teste nos leva ao seguinte resultado:
 
 ```{r exatas_humanas,  echo=FALSE, warning=FALSE, message=FALSE}
 x = c(rep(1,areas[1,3]), rep(0,areas[1,1]-areas[1,3]))
 y = c(rep(1,areas[3,3]), rep(0,areas[3,1]-areas[3,3]))
 
-(teste_dif_exatas_nao_exatas = t.test(x,y))
+teste_dif_exatas_nao_exatas = t.test(x,y)
 ```
+
+E o teste nos leva ao seguinte resultado: p-valor = `r teste_dif_exatas_nao_exatas$p.value`
 
 Ou seja, um valor-p muito pequeno, que significa que as proporções entre exatas e humanas são de fato diferentes.
 
@@ -407,19 +415,21 @@ Ou seja, um valor-p muito pequeno, que significa que as proporções entre exata
 Por fim, comparando as Biológicas e as Humanas, temos as proporções:
 
 ```{r p_humanas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
-props = c(p_Biologicas,p_Humanas)
-names(props) = c("Biológicas", "Humanas")
-props
+props = data.frame(matrix(ncol = 2, nrow = 1) )
+props[1,] = c(p_Biologicas,p_Humanas)
+colnames(props) = c("Biológicas", "Humanas")
+formattable(props)
 ```
-
-E o teste:
 
 ```{r humanas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
 x = c(rep(1,areas[3,3]), rep(0,areas[3,1]-areas[3,3]))
 y = c(rep(1,areas[2,3]), rep(0,areas[2,1]-areas[2,3]))
 
-(teste_dif_exatas_nao_exatas = t.test(x,y))
+teste_dif_exatas_nao_exatas = t.test(x,y)
 ```
+
+
+E novamente com o teste, obtemos um p-valor = `r teste_dif_exatas_nao_exatas$p.value`
 
 Nesse caso, temos a mesma decisão para o caso de Exatas x Humanas. Ou seja, as Biológicas também diferem das Humanas.
 
@@ -484,6 +494,8 @@ datatable(tam_amostral, options = list(pageLength = 5))
 
 # Conclusão
 
-Após fazer analises e conhecer melhor os dados, pudemos ver através do teste de hipoteses que possívelmente a proportação para alunos de Exatas e Biológicas são iguais, enquanto que ambas são diferentes da proporção dos cursos de Humanas. Vimos também o comportamento dos votos no momento por instituto
-As assembleias dos institutos tem o seu o quórum mínimo de participantes, no IMECC por exemplo, o quórum para ínicio da assembleia se baseia no número de associados ao CAMECC, nos outros intitutos deve ser analogo, mas caso não for temos como base o número de alunos matriculados, vimos nas nossas analises que o ideal seria o número do n sugerido acima para que possamos ter uma boa representatividade na tomada de decisão, sendo para a este projeto ou em assembleias, o ideal é chegarmos nesse número de votantes para estatísticamente termos uma pesquisa efetiva que mostre o perfil de voto dos institutos.
-Este semestre foi bem atípico pelo fato desta greve e outros acontecimento, sendo uma ótima iniciativa está pesquisa para que a comunidade da UNICAMP tenha respostas mais plausíveis sobre a representatividade das votações, questionamento este muito feito. Sendo assim vamos continuar inventivando amigos e desconhecido através das redes sociais para continuar votando e termos as respostas que queremos.
+As opiniões dos alunos de graduação da Unicamp, podem ser análisadas filtrando por curso, instituto e até mesmo por área. Com as análises, podemos concluir que a proporção de *Não* entre os alunos dos cursos de Exatas e Biológicas são iguais, enquanto que ambas diferem da proporção dos cursos de Humanas.
+
+Com as análises, também obtivemos o número necessário de votos dentro de cada instituto para ter, por exemplo, uma boa estimativa da proporção de *Não*. Podendo assim, dizer que as assembléias estudantis representam de fato os alunos de seu instituto.  
+
+Também concluímos, que a greve e outros acontecimentos fizeram deste semestre, um semestre atípico na universidade. Devido a este fato, percebemos que pesquisa de opnião feita através do site é de extrema importância para a comunidade da UNICAMP. Tanto para obter a opinião dos alunos sobre a greve, quanto para ter respotas sobre a representatividade das votações, questionamento muito levantado. 
