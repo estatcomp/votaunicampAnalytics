@@ -5,13 +5,14 @@ output: html_document
 
 # Introdução
 
-  A um pouco mais de um mês estudantes impulsionados por problemas que as universidades estaduais paulistas (USP, UNESP e UNICAMP) enfrentam, seja ele, má administração, corte financeiros, permanência estudantil, entraram em greve para reinvindicar suas pautas.
+  A um pouco mais de um mês estudantes impulsionados por problemas que as universidades estaduais paulistas (USP, UNESP e UNICAMP) enfrentam, sejam eles, má administração, corte financeiros, permanência estudantil, entraram em greve para reinvindicar algumas pautas que julgam necessárias.
+  Abordando especificamente a UNICAMP, apesar de existir um movimento geral dos alunos no campus, cada instituto tem autonomia sobre as suas salas de aulas, e matérias ministradas por eles. Perante a este fato, a greve de alunos de cada instituto é decidida por meio de assembléias estudantis, organizada, normalmente, pelos centros acadêmicos. Entretando, as tomadas de decisões baseadas nos resultados das assembléias são questionáveis devido a sua falta de representatividade. 
+  Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/”, no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto. 
+  A partir desse site, o objetivo do trabalho é verificar se realmente o número de alunos a favor da greve é maior que o número de alunos contrarios a ela. Além do mais, podemos fazer comparações entre os diversos institutos, ver quais são a favor, contra ou neutros em relação a greve. 
 
-  O país, hoje, vive uma crise, a qual gerou inúmeros cortes, inclusive na educação. 
-Estes cortes na educação, em específico nas universidades, geraram revoltas dos estudantes, o que impulsinou o movimento grevista dos alunos dentro das três maiores universidades do Brasil, USP, UNESP e UNICAMP. 
-  Na UNICAMP, apesar de existir um movimento geral, cada instituto tem uma certa autonomia sobre as salas de aulas, e matérias ministradas por eles. Perante a este fato, a greve de alunos de cada instituto é decidida por meio de assembléias estudantis, organizada, normalmente, pelo centro acadêmico. Entretando, as tomadas de decisões baseadas nos resultados das assembléias são questionadas devido a sua falta representatividade. 
-  Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site "https://votaunicamp.herokuapp.com/", no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto se desejarem. 
-  
+# Obtenção dos dados
+
+Os dados para realizar as análises sobre a greve da Unicamp, as opiniões dos alunos, foram obtidos através do site já citado. Estas análises, podem sofrer alteração de um dia para outro, uma vez que os dados são obtidos diretamente do site, ou seja, de forma dinâmica. O número de votos pode aumentar, mudando assim as análises.  
 
 ```{r input, message=FALSE, echo = FALSE, warning=FALSE, message=FALSE}
 ##setup
@@ -53,6 +54,8 @@ head(mytbl)
 
 # Análises
 
+## Análise Descritiva
+
 ```{r votoinstitutos, echo=FALSE, warning=FALSE, message=FALSE}
 ## Separando os dados por institutos 
 load("instituto_por_nome.rda")
@@ -84,256 +87,26 @@ rownames(todosinstitutos) = nomesinstitutos
 
 ```
 
-
-
-
-
-
-## proporção por area
 ```{r proporção, echo=FALSE, warning=FALSE, message=FALSE }
 #na tabela todosinstitutos, últimos - limeira(FCA, FT) e piracicaba(FOP)
 prop =  data.frame(matrix(nrow = length(todosinstitutos$Total), ncol = 3))
 for(i in 1:dim(todosinstitutos)[1])
-{ prop[i,] = c(100*todosinstitutos[i,2]/todosinstitutos[i,1], 100*todosinstitutos[i,3]/todosinstitutos[i,1], 100*todosinstitutos[i,4]/todosinstitutos[i,1])
+{ prop[i,] = c(todosinstitutos[i,2]/todosinstitutos[i,1], todosinstitutos[i,3]/todosinstitutos[i,1], todosinstitutos[i,4]/todosinstitutos[i,1])
 }
 
 rownames(prop) = c("IMECC", "FEM", "FEF", "IA", "IEL", "IFCH", "IFGW", "IQ", "IB", "FEEC", "FEQ", "FE", "IE", "IC", "FEC", "FEAGRI", "FCM", "IG", "FEA", "PROFIS", "FENF", "FCF","FCA", "FT","FOP")
-colnames(prop) = c("SIM", "NÂO", "ABSTENÇÂO")
+colnames(prop) = c("PSIM", "PNÂO", "PABSTENÇÂO")
 prop[,1] = as.numeric(prop[,1])
 prop[,2] = as.numeric(prop[,2])
 prop[,3] = as.numeric(prop[,3])
 prop = round(prop,2)
-## Arrumar quando for 0
-##proptotal = prop[-21,-3]
-##library(d3heatmap)
-##library(RColorBrewer)
-##d3heatmap(porptotal, col=rev(brewer.pal(9, "BuGn")))
-
+todosinstitutos = cbind(todosinstitutos, prop)
+todosinstitutos = todosinstitutos[,c(5,1,2,3,4,6,7,8)]
 ```
 
+  A maioria dos Estudantes na hora de escolher o curso para seu futuro profissional pensam, primeiramente, nas três grandes áreas, **BIOLÓGICAS, EXATAS E HUMANAS** para depois escolher o curso. As pessoas também, de maneira geral, tem em mente esteriótipos diferentes dos estudantes destas 3 áreas. Perante a estes fatos, é interessante analisar a opnião dos estudantes por área. 
 
-
-## Campus Campinas
-```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
-#acrescentando alguns institutos
-ends = read.table('institutos.tab', sep='\t', header=TRUE)
-localizacao_faltantes = data.frame(matrix(nrow = 3, ncol = 3))
-localizacao_faltantes[1,] = c("PROFIS", -22.8174, -47.06847)
-localizacao_faltantes[2,] = c("FENF", -22.83080 , -47.06133)
-localizacao_faltantes[3,] = c("FCF", -22.81770, -47.07084)
-localizacao_faltantes[,2] = as.numeric(localizacao_faltantes[,2])
-localizacao_faltantes[,3] = as.numeric(localizacao_faltantes[,3])
-colnames(localizacao_faltantes) = c("instituto","lat","lon")
-ends = rbind(ends,localizacao_faltantes)
-
-#função para gerar o gráfico que serão add no mapa
-
-fldr <- tempfile()
-dir.create(fldr)
-
-pop <- lapply(seq(length(todosinstitutos[1:22,1])), function(i) {
- if(todosinstitutos$Total[i]==0){return("Sem Votos")}
-  
-  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
-  dados[1,2]<-todosinstitutos[i,2]
-  dados[2,2]<-todosinstitutos[i,3]
-  dados[3,2]<-todosinstitutos[i,4]
-  
-  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
-    ggtitle(rownames((todosinstitutos[i,])))+xlab("")+ theme(legend.position="none")+
-    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
-    geom_text(aes(label=Total), vjust=0.2,
-              position = position_dodge(0.9), size=3.5)
-  
-  svg(filename = paste(fldr, "test.svg", sep = "/"), 
-      width = 250 * 0.01334, height = 250 * 0.01334)
-  print(p)
-  dev.off()
-
-  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
-
-  return(tst)
-})
-
-##gerando o mapa
-
-pal= colorQuantile("BuGn",prop[1:22,2],n=5)
-map = leaflet()
-map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop, color = pal(prop[1:22,2]), opacity = 1)
-map
-```
-
-
-
-## Campus Limeira
-
-```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
-#criando a localização de limeira
-endlim = data.frame(matrix(nrow = 2, ncol = 3))
-endlim[1,] = c("FCA", -22.55385, -47.42841)
-endlim[2,] = c( "FT", -22.56201, -47.42397)
-colnames(endlim) = c("instituto", "lat", "lon")
-endlim[,2] = as.numeric(endlim[,2])
-endlim[,3] = as.numeric(endlim[,3])
-#institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
-institutoslim = todosinstitutos[c(23,24),]
-
-##função para gerar os gráficos que serão add no mapa
-fldr <- tempfile()
-dir.create(fldr)
-
-pop <- lapply(seq(length(institutoslim$Total)), function(i) {
-  
-  if(institutoslim$Total[i]==0){return("Sem Votos")}
-  
-  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
-  dados[1,2]<-institutoslim[i,2]
-  dados[2,2]<-institutoslim[i,3]
-  dados[3,2]<-institutoslim[i,4]
-  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
-    ggtitle(rownames((institutoslim[i,])))+xlab("")+ theme(legend.position="none")+
-    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
-    geom_text(aes(label=Total), vjust=0.2,
-              position = position_dodge(0.9), size=3.5)
-   
-  
-  svg(filename = paste(fldr, "test.svg", sep = "/"), 
-      width = 250 * 0.01334, height = 250 * 0.01334)
-   
-   print(p)
-   dev.off()
-  
-
-  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
-
-  return(tst)
-  
-})
-
-##gerando o mapa
-
-map = leaflet()
-map = addTiles(map)
-map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
-map
-```
-
-
-
-## Campus Piracicaba
-
-```{r enderecos_pira, echo=FALSE, warning=FALSE, message=FALSE}
-
-endpira = data.frame(matrix(nrow = 1, ncol = 3))
-endpira[1,] = c("FOP", -22.70154, -47.64767)
-colnames(endpira) = c("instituto", "lat", "lon")
-endpira[,2] = as.numeric(endpira[,2])
-endpira[,3] = as.numeric(endpira[,3])
-
-institutospira = todosinstitutos[25,]
-# função para gerar os gráficos que serão add no mapa
-fldr <- tempfile()
-dir.create(fldr)
-
-pop <- lapply(seq(length(institutospira$Total)), function(i) {
-  if(todosinstitutos$Total[i]==0){return("Sem Votos")}
-  
-  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
-  dados[1,2]<-institutospira[i,2]
-  dados[2,2]<-institutospira[i,3]
-  dados[3,2]<-institutospira[i,4]
-  
-  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
-    ggtitle(rownames((institutospira[i,])))+xlab("")+ theme(legend.position="none")+
-    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
-    geom_text(aes(label=Total), vjust=0.2,
-              position = position_dodge(0.9), size=3.5)
-  
-  svg(filename = paste(fldr, "test.svg", sep = "/"), 
-      width = 250 * 0.01334, height = 250 * 0.01334)
-  print(p)
-  dev.off()
-
-  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
-
-  return(tst)
-})
-
-## gerando o mapa
-map = leaflet()
-map = addTiles(map)
-map = addCircleMarkers(map, lat=endpira$lat, lng=endpira$lon, popup = pop)
-map
-```
-
-
-
-
-
-
-## Intervalos de Confiança
-
-```{r stats, echo=FALSE, warning=FALSE, message=FALSE}
-p = with(mytbl, nao/(total))
-mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
-ics = cbind(pmax(p-mes, 0), pmin(p+mes, 1))
-colnames(ics) = c("lower", "upper")
-mytbl$p = p
-mytbl = cbind(mytbl, ics)
-```
-
-
-
-## Tabelas interativa
-
-```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
-
-tabelafinal = minhatab[,c(8,9,3,4,5,6,7)]
-tabelafinal = tabelafinal[,c(-8)]
-colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
-
-datatable(tabelafinal, options = list(pageLength = 5))
-
-```
-
-
-
-
-##Tamanho da amostra
-  
-  Se quisermos encontrar o tamanho amostral $n$ necessário na Unicamp para que a probabilidade da nossa estimativa diferir absolutamente do verdadeiro valor por um erro escolhido $B = 0,03$ seja de $\alpha = 0.05$, chegariamos usando o que sabemos de probabilidade em
-
-$$n = \dfrac{N}{4(N-1)D + 1}$$
-  
-onde $N$ é a quantidade total de alunos e $D = \frac{B^2}{z_{\alpha}^2}$, sendo $z_{\alpha} = `r round(qnorm(1-0.05),2)`$.
-
-
-```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
-n_amostral = function(N,B){
-  round(N/(4*(N-1)*(B^2/qnorm(1-0.05)^2)+1),0)
-}
-nTotal = n_amostral(sum(instituto.por.numero$NoMatriculados),0.03)
-```
-
-Sendo assim, o tamanho amostral necessário para a Unicamp toda seria de $$`r round(nTotal,0)`$$
- 
-Se o interesse for um estudo por instituto, podemos ver na tabela abaixo qual o tamanho amostral necessário, com as mesmas condições anteriores, para cada um dos institutos da Unicamp
-
-```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
-tam_amostral = data.frame(rep(0,25), row.names = nomesinstitutos)
-colnames(tam_amostral) = "Tamanho Amostral"
-
-for(i in 1:length(nomesinstitutos)){
-  tam_amostral[i,] = n_amostral(sum(instituto.por.numero[which(instituto.por.numero$Instituto == nomesinstitutos[i]),]$NoMatriculados), 0.03)
-}
-
-library(knitr)
-kable(tam_amostral)
-```
-
-
-## Comparações
+  Sendo assim, a seguir temos o gráfico que mostra a proporção dos votos por área.
 
 ```{r comparação de área, echo=FALSE, warning=FALSE, message=FALSE}
 areas = data.frame(matrix(nrow=4, ncol=7))
@@ -367,10 +140,246 @@ p3 <- add_trace(p2, x =nomesareas , y =areas[1:3,7], name = "Abstenção", type 
 p3
 ```
 
+  Com o gráfico pode-se notar que, aparentemente, a única área na qual a maioria dos alunos é a favor da greve é a **Humanas**. 
+  Isto pode ser comprovado por análises estatísticas. (fazer teste de hipótese)
+
+  Os cursos, além de serem agrupados nestas 3 grandes áreas, também são agrupados por institutos. Por exemplo, o Instituto da Computação (IC) é composto pelos cursos de Ciência da Computação, e Engenharia de Computação. Ao todo a UNICAMP possui 25 institutos, sendo 22 no *Campus de Campinas*, 2 no *Campus de Limeira* e apenas 1 no *Campus de Piracicaba*(Odontologia). 
+  O gráfico a seguir mostra através das cores a proporção de votos 'Não' em cada instituto, no campus de Campinas, o qual se concentra a maioria dos institutos. A cor mais escura representa uma maior proporção de "não".
+  Além disso, ao clicar em cada instituto, é possível vizualizar a quantidade de votos a favor, contra, ou abstenção em relação a greve. 
+
+**Campus Campinas**
+
+```{r enderecos_campinas, echo=FALSE, warning=FALSE, message=FALSE}
+#acrescentando alguns institutos
+ends = read.table('institutos.tab', sep='\t', header=TRUE)
+localizacao_faltantes = data.frame(matrix(nrow = 3, ncol = 3))
+localizacao_faltantes[1,] = c("PROFIS", -22.8174, -47.06847)
+localizacao_faltantes[2,] = c("FENF", -22.83080 , -47.06133)
+localizacao_faltantes[3,] = c("FCF", -22.81770, -47.07084)
+localizacao_faltantes[,2] = as.numeric(localizacao_faltantes[,2])
+localizacao_faltantes[,3] = as.numeric(localizacao_faltantes[,3])
+colnames(localizacao_faltantes) = c("instituto","lat","lon")
+ends = rbind(ends,localizacao_faltantes)
+
+#função para gerar o gráfico que serão add no mapa
+
+fldr <- tempfile()
+dir.create(fldr)
+
+pop <- lapply(seq(length(todosinstitutos[1:22,1])), function(i) {
+ if(todosinstitutos$Total[i]==0){return("Sem Votos")}
+  
+  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
+  dados[1,2]<-todosinstitutos[i,3]
+  dados[2,2]<-todosinstitutos[i,4]
+  dados[3,2]<-todosinstitutos[i,5]
+  
+  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
+    ggtitle(rownames((todosinstitutos[i,])))+xlab("")+ theme(legend.position="none")+
+    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
+    geom_text(aes(label=Total), vjust=0.2,
+              position = position_dodge(0.9), size=3.5)
+  
+  svg(filename = paste(fldr, "test.svg", sep = "/"), 
+      width = 250 * 0.01334, height = 250 * 0.01334)
+  print(p)
+  dev.off()
+
+  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
+
+  return(tst)
+})
+
+##gerando o mapa
+
+pal= colorQuantile(c("lightblue","darkblue"),prop[1:22,2],n=5)
+map = leaflet()
+map = addTiles(map)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = pop, color = pal(prop[1:22,2]), opacity = 1)
+map
+```
+
+  Com o gráfico acima, pode-se notar que institutos que apresentam cores similares, possuem uma "semelhança" na opinião sobre a greve. Ou seja, institutos que apresentam uma cor azul escuro, são contra a greve. 
+
+  
+  Os gráficos abaixo, assim como o anterior, ao clicar em cima do instituto, também mostram a quantidade de votos "sim", "Não", e "Abstenção". 
+
+**Campus Limeira - "FCA" e "FT"**
+
+```{r enderecos_limeira, echo=FALSE, warning=FALSE, message=FALSE}
+#criando a localização de limeira
+endlim = data.frame(matrix(nrow = 2, ncol = 3))
+endlim[1,] = c("FCA", -22.55385, -47.42841)
+endlim[2,] = c( "FT", -22.56201, -47.42397)
+colnames(endlim) = c("instituto", "lat", "lon")
+endlim[,2] = as.numeric(endlim[,2])
+endlim[,3] = as.numeric(endlim[,3])
+#institutoslim = data.frame(matrix(nrow = 2, ncol = 5))
+institutoslim = todosinstitutos[c(23,24),]
+
+##função para gerar os gráficos que serão add no mapa
+fldr <- tempfile()
+dir.create(fldr)
+
+pop <- lapply(seq(length(institutoslim$Total)), function(i) {
+  
+  if(institutoslim$Total[i]==0){return("Sem Votos")}
+  
+  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
+  dados[1,2]<-institutoslim[i,3]
+  dados[2,2]<-institutoslim[i,4]
+  dados[3,2]<-institutoslim[i,5]
+  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
+    ggtitle(rownames((institutoslim[i,])))+xlab("")+ theme(legend.position="none")+
+    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
+    geom_text(aes(label=Total), vjust=0.2,
+              position = position_dodge(0.9), size=3.5)
+   
+  
+  svg(filename = paste(fldr, "test.svg", sep = "/"), 
+      width = 250 * 0.01334, height = 250 * 0.01334)
+   
+   print(p)
+   dev.off()
+  
+
+  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
+
+  return(tst)
+  
+})
+
+##gerando o mapa
+map = leaflet()
+map = addTiles(map)
+map = addCircleMarkers(map, lat=endlim$lat, lng=endlim$lon, popup = pop)
+map
+```
+
+**Campus Piracicaba - FOP**
+
+```{r enderecos_pira, echo=FALSE, warning=FALSE, message=FALSE}
+
+endpira = data.frame(matrix(nrow = 1, ncol = 3))
+endpira[1,] = c("FOP", -22.70154, -47.64767)
+colnames(endpira) = c("instituto", "lat", "lon")
+endpira[,2] = as.numeric(endpira[,2])
+endpira[,3] = as.numeric(endpira[,3])
+
+institutospira = todosinstitutos[25,]
+# função para gerar os gráficos que serão add no mapa
+fldr <- tempfile()
+dir.create(fldr)
+
+pop <- lapply(seq(length(institutospira$Total)), function(i) {
+  if(institutospira$Total[i]==0){return("Sem Votos")}
+  
+  dados <- data.frame(Tipo=c("Sim","Não","Abstenções"),Total=c(0,0,0))
+  dados[1,2]<-institutospira[i,3]
+  dados[2,2]<-institutospira[i,4]
+  dados[3,2]<-institutospira[i,5]
+  
+  p = ggplot(data = dados, aes(x=Tipo,y=Total, fill=Tipo))+ geom_bar(stat="identity")+
+    ggtitle(rownames((institutospira[i,])))+xlab("")+ theme(legend.position="none")+
+    scale_x_discrete(limits=c("Sim", "Não", "Abstenções"))+
+    geom_text(aes(label=Total), vjust=0.2,
+              position = position_dodge(0.9), size=3.5)
+  
+  svg(filename = paste(fldr, "test.svg", sep = "/"), 
+      width = 250 * 0.01334, height = 250 * 0.01334)
+  print(p)
+  dev.off()
+
+  tst <- paste(readLines(paste(fldr, "test.svg", sep = "/")), collapse = "")
+
+  return(tst)
+})
+
+## gerando o mapa
+#pal= colorQuantile("BuGn",prop[25,2],n=5)
+map = leaflet()
+map = addTiles(map)
+map = addCircleMarkers(map, lat=endpira$lat, lng=endpira$lon, popup = pop)
+map
+```
+
+
+  Dado que cada curso pertence a um instituto, podemos vizualizar os votos por curso dentro de cada instituto, e de cada área com a tabela a seguir. Por exemplo, quando filtramos pelo instituto *IMECC*, observamos que contém 4 cursos, todos da área de exatas, e conseguimos observar os votos *"sim", "não"*, e de *"abstenção"* de cada curso.
+
+```{r tabelainterativa, echo=FALSE, warning=FALSE, message=FALSE}
+
+tabelafinal = minhatab[,c(8,9,3,4,5,6,7)]
+tabelafinal = tabelafinal[,c(-8)]
+colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abstenção")
+
+datatable(tabelafinal, options = list(pageLength = 5))
+
+```
+
+### não sei o titulo
+
+Podemos estimar a proporção de alunos contra a greve através de técnicas estatíticas, como por exemplo, *Boostrap*. Para isto, consideramos que os dados obtidos no site são uma amostra aleatória de todos alunos da Unicamp. Com esta técnica, encontramos que **porcentagem** são contra a greve. 
+## fazer o estimador de boodstrap
+
+## explicar  - associado a proporção, temos o ic. não sei se querem colocar. 
+
+```{r stats, echo=FALSE, warning=FALSE, message=FALSE}
+p = todosinstitutos$PNÂO
+mes = qnorm(.975)*sqrt(1/(4*todosinstitutos$Total))
+ics = cbind(pmax(p-mes, 0), pmin(p+mes, 1))
+colnames(ics) = c("lower", "upper")
+tabic = cbind(todosinstitutos[,c(1,7)], ics)
+tabic[,c(3,4)] = round(tabic[,c(3,4)],4)
+tabic[,2] = round(tabic[,2],2)
+colnames(tabic) = c("Institutos", "Proporção de Não", "Limite Inferior" , "Limite Superior")
+rownames(tabic) = c(1:25)
+datatable(tabic, options = list(pageLength = 5))
+```
+
+## não sei escrever também, explicar.
+
+ Se quisermos encontrar o tamanho amostral $n$ necessário na Unicamp para que a probabilidade da nossa estimativa diferir absolutamente do verdadeiro valor por um erro escolhido $B = 0,03$ seja de $\alpha = 0.05$
+
+**teoria**
+
+$$n = \dfrac{N}{4(N-1)D + 1}$$
+  
+onde $N$ é a quantidade total de alunos e $D = \frac{B^2}{z_{\alpha}^2}$, sendo $z_{\alpha} = `r round(qnorm(1-0.05),2)`$.
+
+
+```{r n_total, echo=FALSE, warning=FALSE, message=FALSE}
+n_amostral = function(N,B){
+  round(N/(4*(N-1)*(B^2/qnorm(1-0.05)^2)+1),0)
+}
+nTotal = n_amostral(sum(instituto.por.numero$NoMatriculados),0.03)
+```
+
+Sendo assim, o tamanho amostral necessário para a Unicamp toda seria de $$`r round(nTotal,0)`$$
+ 
+Agora, se o interesse for um estudo por instituto, podemos ver na tabela abaixo qual o tamanho amostral necessário, com as mesmas condições anteriores, e a quantidade de votos obtidas na pesquisa por instituto. 
+
+```{r tamanhoamostral, echo=FALSE, warning=FALSE, message=FALSE}
+tam_amostral = data.frame(matrix(ncol = 2, nrow = length(nomesinstitutos)))
+colnames(tam_amostral) = c("Qtd. teórica de votos", "Qtd. de votos da pesquisa")
+rownames(tam_amostral) = nomesinstitutos
+
+for(i in 1:length(nomesinstitutos)){
+  tam_amostral[i,] = n_amostral(sum(instituto.por.numero[which(instituto.por.numero$Instituto == nomesinstitutos[i]),]$NoMatriculados), 0.03)
+  tam_amostral[i,2] = todosinstitutos[i,2]
+}
+
+datatable(tam_amostral, options = list(pageLength = 5))
+```
+
+
+## Comparações
+
+
+
 
 Existe um pensamento de que a opinião dos alunos de exatas difere dos alunos que não estão em um curso de exatas. Devido a isso, resolvemos separar nossos dados entre dois outros conjuntos de dados, um com os alunos que não são de exatas e outro somente com os alunos de exatas.
 
-```{r exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE }
+```{r exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE }
 NaoExatas = subset(mytbl, codigo == 26 | codigo == 25 | codigo == 64 | codigo == 23 | codigo == 22 | codigo == 6 |
                      codigo == 100 | codigo == 27 | codigo == 45 | codigo == 21 | codigo == 63 | codigo == 58 |
                      codigo == 46 | codigo == 15 | codigo == 107 | codigo == 14 |
@@ -389,7 +398,7 @@ Exatas = subset(mytbl, codigo != 26 & codigo != 25 & codigo != 64 & codigo != 23
 
 Podemos ver que de fato as proporções são diferentes: 
 
-```{r prop_exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE}
+```{r prop_exatas_naoexatas, echo=FALSE, warning=FALSE, message=FALSE, eval=FALSE}
 props = c(p_NaoExatas = sum(NaoExatas$nao)/sum(NaoExatas$total),
 p_Exatas = sum(Exatas$nao)/sum(Exatas$total))
 names(props) = c("Não Exatas", "Exatas")
@@ -398,7 +407,7 @@ props
 
   Mas precisamos formalizar isso, usando um teste de hipótese, onde temos como hipótese nula "As proporções são iguais" e hipótese alternativa "As proporções são diferentes". O nível de significância escolhido será de $\alpha = 0.01$. Temos então o seguinte teste:
 
-```{r teste_dif_exatas}
+```{r teste_dif_exatas, eval=FALSE}
 x = c(rep(1,sum(Exatas$nao)), rep(0,sum(Exatas$total)-sum(Exatas$nao)))
 y = c(rep(1,sum(NaoExatas$nao)), rep(0,sum(NaoExatas$total)-sum(NaoExatas$nao)))
 
@@ -407,56 +416,4 @@ y = c(rep(1,sum(NaoExatas$nao)), rep(0,sum(NaoExatas$total)-sum(NaoExatas$nao)))
 
 Como temos um valor-p muito baixo, ou seja, menor que o nível de significância escolhido, rejeitamos a hipótese de que as proporções são iguais, confirmando assim o que já era esperado anteriormente. 
 
-
-
-
-## Testes de hipótese
-
-Foi realizado testes para a igualdade de proporção de votos **contra** para todos pares de cursos do banco de dados, utilizando como critério os intervalos de confiança de 95% para a proporção em cada curso. Pares de cursos que não foi encontrada interseção significam que, com 95% de certeza, estes pares tem opiniões diferentes em relação à greve: as proporções têm diferenças significativas, mostrando assim uma mentalidade ortodoxa entre os pares selecionados.
-
-
-Devido à escassez de dados para cada curso, se o teste para diferença de proporção foi significativo, significa que a diferença entre as proprções destes pares foi grande.
-
-```{r hypoteses, echo=FALSE, warning=FALSE, message=FALSE}
-a=1
-cursos = matrix(nrow=100, ncol=2)
-for (i in (1:(dim(mytbl)[1]-1))){
-  for(j in ((i+1):(dim(mytbl)[1]))){
-    if(mytbl$upper[i]<mytbl$lower[j] | mytbl$lower[i]>mytbl$upper[j]){
-        cursos[a, 1] = paste(mytbl$curso[i], mytbl$nivel[i], sep = " ")
-        cursos[a, 2] = paste(mytbl$curso[j], mytbl$nivel[j], sep = " ")
-        a = a + 1
-    }
-  }
-}
-cursos = cursos[1:58,]
-```
-
-Pode-se observar que existe uma polaridade forte na universidade:  `r dim(cursos)[1]` pares de cursos entre todos que foram testados para igualdade de proporção de votos **contra**, falharam, concluindo que estes pares de cursos tiveram opiniões divergentes em relação à greve.
-
-Pode ser observado a forte presença de divergência entre cursos de áreas diferentes (biológicas, exatas e humanas), onde o conflito entre cursos de áreas iguais é bem mais fraco, porém ainda existem, com enfoque no curso "Licenciatura em Física", onde este curso, de exatas, conflituou com outros cursos de exatas com frequência considerável.
-
-
-## contribuição de cada instituto
-```{r porcentagem, echo=FALSE, warning=FALSE, message=FALSE}
-
-matriculados = data.frame(rep(0,25), row.names = todosinstitutos$Nomes)
-
-for(i in 1:length(todosinstitutos$Total)){
-  matriculados[i,] = sum(instituto.por.numero[which(instituto.por.numero$Instituto == todosinstitutos$Instituto[i]),]$NoMatriculados)
-}
-propvot = data.frame(rep(0,25), rep(0,25))
-propvot[,1] = todosinstitutos[,5]
-for(i in 1:length(todosinstitutos$Instituto)){
-  propvot[i,2] = round(100*todosinstitutos[i,1]/matriculados[i,1],2)
-}
-colnames(propvot) = c("Institutos", "porcentagem")
-propvot = propvot[order(-propvot[,2], propvot[,1]),]
-
-Instituto = propvot[,1]
-Porcentagem = propvot[,2]
-p <- plot_ly( x = Instituto, y = Porcentagem, name = "SF Zoo",type = "bar")
-p
-```
-
-
+# Conclusão
