@@ -112,6 +112,7 @@ todosinstitutos = todosinstitutos[,c(5,1,2,3,4,6,7,8)]
   Sendo assim, a seguir temos o gráfico que mostra a proporção dos votos por área.
 
 ```{r comparação de área, echo=FALSE, warning=FALSE, message=FALSE}
+minhatab[which((minhatab$Área != "Exatas") & (minhatab$Área != "Humanas") & (minhatab$Área != "Profis")),]$Área = "Biológicas"
 areas = data.frame(matrix(nrow=4, ncol=7))
 nomesareas = c("Exatas", "Biológicas", "Humanas", "Profis")
 rownames(areas) = nomesareas
@@ -345,6 +346,84 @@ datatable(tabelafinal, options = list(pageLength = 5))
 
 
 ### não sei o titulo
+
+Existe um pensamento de que a opinião dos alunos de diferentes áreas são diferentes entre si. Por exemplo, os alunos de Exatas tem uma opinião diferente frente a greve dos alunos de Biológicas e Humanas, e Biológicas e Humanas também diferem entre si. Mas será que esse pensamento realmente acontece? Podemos testar isso usando a teorica estatística de Teste de Hipóteses. 
+
+Num teste de hipóteses, definimos duas hipóteses, chamadas $H_0$ ou hipótese nula e $H_a$ ou hipótese alternativa e queremos buscar evidências a favor de uma das hipóteses. Porém, como tudo na estatística, temos um erro associado. Podemos por exemplo rejeitar $H_0$ quando ela é verdadeira. Mas, podemos controlar esse erro, fixando a probabilidade de ele acontecer a um certo valor, chamado nível de significância ($\alpha$). Nesse caso, usaremos $\alpha = 0.05$. 
+
+Após realizar o teste, obtemos um valor chamado de valor-p, que nos ajuda a tomar decisão. Se o valor-p for menor que $\alpha$, rejeitamos a hipótese nula e ficamos com a alternativa. Caso contrário, ficamos com a hipótese nula.
+
+
+### Exatas x Biológicas
+
+```{r proporcoesAreas,  echo=FALSE, warning=FALSE, message=FALSE}
+p_Biologicas = areas[2,3]/areas[2,1]
+p_Exatas = areas[1,3]/areas[1,1]
+p_Humanas = areas[3,3]/areas[3,1]
+```
+
+Comparando Exatas e Biológicas, temos as seguintes proporções para cada área
+
+```{r p_exatas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
+props = c(p_Biologicas,p_Exatas)
+names(props) = c("Biológicas", "Exatas")
+props
+```
+
+E realizando o teste, obtemos o seguinte:
+
+```{r exatas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
+x = c(rep(1,areas[1,3]), rep(0,areas[1,1]-areas[1,3]))
+y = c(rep(1,areas[2,3]), rep(0,areas[2,1]-areas[2,3]))
+
+(teste_dif_exatas_nao_exatas = t.test(x,y))
+```
+
+Como nesse caso temos um valor-p maior que o nível de significância, temos mais evidência a favor da hipótese de que as proporções são iguais nesse caso.
+
+### Exatas x Humanas
+
+Aqui, as proporções individuais são
+
+```{r p_exatas_humanas,  echo=FALSE, warning=FALSE, message=FALSE}
+props = c(p_Humanas,p_Exatas)
+names(props) = c("Humanas", "Exatas")
+props
+```
+
+E o teste nos leva ao seguinte resultado
+
+```{r exatas_humanas,  echo=FALSE, warning=FALSE, message=FALSE}
+x = c(rep(1,areas[1,3]), rep(0,areas[1,1]-areas[1,3]))
+y = c(rep(1,areas[3,3]), rep(0,areas[3,1]-areas[3,3]))
+
+(teste_dif_exatas_nao_exatas = t.test(x,y))
+```
+
+Ou seja, um valor-p muito pequeno, que significa que as proporções entre exatas e humanas são de fato diferentes.
+
+### Biológicas x Humanas
+
+Por fim, comparando as Biológicas e as Humanas, temos as proporções
+
+```{r p_humanas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
+props = c(p_Biologicas,p_Humanas)
+names(props) = c("Biológicas", "Humanas")
+props
+```
+
+E o teste
+
+```{r humanas_biologicas,  echo=FALSE, warning=FALSE, message=FALSE}
+x = c(rep(1,areas[3,3]), rep(0,areas[3,1]-areas[3,3]))
+y = c(rep(1,areas[2,3]), rep(0,areas[2,1]-areas[2,3]))
+
+(teste_dif_exatas_nao_exatas = t.test(x,y))
+```
+
+Nesse caso, temos a mesma decisão para o caso de Exatas x Humanas. Ou seja, as Biológicas também diferem das Humanas.
+
+Por fim, então, temos evidências que sugerem que as proporções de Exatas e Biológicas são iguais, enquanto que ambas diferem da proporção dos cursos de Humanas.
 
 ## Bootstrap ??? titulo??
 
