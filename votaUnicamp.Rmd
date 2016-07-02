@@ -62,7 +62,7 @@ Temos o intuito de estudar o comportamento da classe dos estudantes em relação
 
 Para a análise, apresentaremos as proporções e informações obtidas do banco de dados de forma visual e dinâmica. Utilizamos diversos estimadores para a proporção de votos. Contudo, o métodos utilizado para estimar a proporção geral da Unicamp foi *Bootstrap*. Ele foi escolhido em vista da acuracia de sua estimação.  
 
-Também estudamos o comportamento dos institutos através de análise de *cluster*. *Cluster* é um termo em inglês utilizado para caracterizar um grupo com características semelhantes. Em nosso caso, estudaremos os institutos afim de identificar se existe alguma similaridade de votos entre eles.
+Também estudamos o comportamento dos institutos através de análise de *cluster*. *Cluster* é um termo em inglês utilizado para denominar um grupo com características semelhantes. Em nosso caso, estudaremos os institutos afim de identificar se existe alguma similaridade de votos entre eles.
 
 ## Formatação de Dados
 
@@ -81,12 +81,13 @@ A Tabela 1 completa pode ser acessada em **Apêndice**.
 
 ```{r , message=FALSE, echo=FALSE, warning=FALSE}
 #Proporção de Não
+tbl2 = mytbl[,c(2,3)]
 pnao = with(mytbl, nao/total)
 mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
 ics = cbind(pmax(pnao-mes, 0), pmin(pnao+mes, 1))
-colnames(ics) = c("lowerpnao", "upperpnao")
-mytbl$pnao = pnao
-mytbl = cbind(mytbl, ics)
+tbl2$Nao = pnao
+tbl2$lowerpnao=ics[,1]
+tbl2$upperpnao=ics[,2]
 rm(pnao, mes, ics)
 ```
 
@@ -96,9 +97,9 @@ rm(pnao, mes, ics)
 psim = with(mytbl, sim/total)
 mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
 ics = cbind(pmax(psim-mes, 0), pmin(psim+mes, 1))
-mytbl$psim=psim
-mytbl$lowerpsim=ics[,1]
-mytbl$upperpsim=ics[,2]
+tbl2$Sim=psim
+tbl2$lowerpsim=ics[,1]
+tbl2$upperpsim=ics[,2]
 rm(psim, mes, ics)
 ```
 
@@ -108,13 +109,14 @@ rm(psim, mes, ics)
 pabs = with(mytbl, abstencao/total)
 mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
 ics = cbind(pmax(pabs-mes, 0), pmin(pabs+mes, 1))
-mytbl$pabs=pabs
-mytbl$lowerpabs=ics[,1]
-mytbl$upperpabs=ics[,2]
+tbl2$Abtenho=pabs
+tbl2$lowerpabs=ics[,1]
+tbl2$upperpabs=ics[,2]
+names(tbl2)=c("Nível", "Curso", "Não", "Inf Não", "Sup Não", "Sim", "Inf Sim", "Sup Sim", "Abstenho", "Inf Abstenho", "Sup Abstenho")
 ```
 
 
-Inicialmente podemos conhecer nossa amostra. Faremos isso graficando qual é a origem marjoritaria de nossos votos. Na figura 1 temos um gráfico de barras que nos permite ver quais são os institutos com mais votos e aqueles com menos votos. O que também pode nos trazer informação sobre a homogeneidade de nossa amostra e sua representatividade.
+Inicialmente podemos conhecer a origem dos votos através de um gráfico de barras. A figura 1 nos permite ver quais são os institutos com mais votos, o que também pode nos trazer informação sobre a homogeneidade de nossa amostra e sua representatividade.
 
 ```{r grafbar, echo=FALSE}
 mytbl = as.data.table(mytbl)
@@ -131,24 +133,23 @@ Total=dados$total
 ggplot(dados, aes(Institutos, Total)) + geom_bar(stat='identity') + coord_flip() + theme_bw()
 ```
 
-Na tabela abaixo temos mais detalhadamente os votos de alguns institutos.
+Na Tabela 2 temos mais detalhadamente os votos de alguns institutos.  
 
-```{r, echo=FALSE, fig.cap="Tabela de votos por instituto"}
+```{r, echo=FALSE, fig.cap="Tabela 2: Votos por instituto"}
 dados2 = dados[, c('instituto', 'nao', 'sim', 'abstencao', 'total')]
 names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
-kable(head(dados2), caption = 'Tabela 3: Votos por instituto')
+kable(head(dados2), caption = 'Tabela 2: Votos por instituto')
 ```
 
 A Tabela 2 completa encontra-se em **Apêndice**  
 
-Para conhecer um pouco das informações que os dados fornecem, calcularemos estatísticas primárias, como a proporção de votos sim, não e abstenho de cada curso e seus respectivos intervalos de confiança.  
+Para conhecer um pouco das informações que os dados fornecem, calcularemos estatísticas primárias, como a proporção de votos sim, não e abstenho de cada curso e seus respectivos intervalos de confiança. Podemos ver algumas dessas estatísticas na Tabela 3.
 
-
-```{r TENTATIVA, echo=FALSE, eval=FALSE}
-attach(mytbl)
-nomes=c(pnao,lowerpnao, upperpnao, psim, lowerpsim, upperpsim, pabs, lowerpabs, upperpabs)
-kable(mytbl[,], caption = "Tabela 2: Proporções de votos por curso")
+```{r echo=FALSE}
+kable(head(tbl2), caption = "Tabela 3: Proporções por curso")
 ```
+
+Para ver todas as proporções e intervalos de confiança consulte o **Apêndice**.
 
 Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembléias do instituto como um todo, é interessante analisar a proporção de votos contrários para cada um deles.  
 Ao considerar cursos que não são ministrados em Campinas, consideramos os institutos como sendo a própria faculdade, por exemplo, o instituto de Odontologia no campus de Piracicaba é a FOP, os cursos em Limeira pertencem ou à FT ou à FCA, que são as duas unidades da Unicamp na cidade.  
