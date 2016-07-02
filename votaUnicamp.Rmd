@@ -7,7 +7,9 @@ output: html_document
 #Introdução
 
   No atual cenário político e econômico que o Brasil se encontra, greves de diversos setores estão ocupando cada vez mais espaço em busca de melhorias. Na educação não é diferente, uma vez que esta foi afetada com cortes de orçamento. Na Universidade Estadual de Campinas (UNICAMP), diversos alunos decidiram entrar em greve com o intuito de reivindicar cotas raciais e permanência estudantil, por meio da ampliação da moradia e bolsas de auxílio social.  
-  A greve em cada instituto foi deliberada por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão dos estudantes.
+  
+  A greve em cada instituto foi deliberada por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão dos estudantes.  
+  
   Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto. 
 ```{r input, message=FALSE, results='hide', echo=FALSE, warning=FALSE}
 if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
@@ -152,13 +154,16 @@ kable(head(tbl2), caption = "Tabela 3: Proporções por curso")
 Para ver todas as proporções e intervalos de confiança consulte o **Apêndice**.
 
 Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembléias do instituto como um todo, é interessante analisar a proporção de votos contrários para cada um deles.  
-Ao considerar cursos que não são ministrados em Campinas, consideramos os institutos como sendo a própria faculdade, por exemplo, o instituto de Odontologia no campus de Piracicaba é a FOP, os cursos em Limeira pertencem ou à FT ou à FCA, que são as duas unidades da Unicamp na cidade.  
+
+Também devemos considerar os votos dos alunos cuja graduação não é ministrada em Campinas. Nesses casos consideramos os institutos como sendo a própria faculdade. Temos como exemplo o curso de Odontologia no campus de Piracicaba, para ele o instituto será a FOP, assim como os cursos em Limeira pertencem ou à FT ou à FCA, que são as duas unidades da Unicamp na cidade.  
+
+Na Tabela 4 podemos ver algumas dessas proporções por institutos.  
 
 ```{r, echo=FALSE}
-kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 2: Proporção de votos por instituto')
+kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 4: Proporção de votos por instituto')
 ```
 
-A Tabela 2 pode ser encontrada em **Apêndice**.
+A Tabela 4 pode ser encontrada em **Apêndice**.
 
 ```{r echo=FALSE, message=FALSE}
 #coordenadas de cada instituto da unicamp campinas
@@ -171,7 +176,9 @@ ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC'
 
 ##Estimador Para a Proporção
 
-Uma maneira de estimar a proporção para a população de alunos da Unicamp é através do estimador de *Bootstrap*. Para isso consideraremos os alunos que votaram no site uma amostra da população. 
+Como já foi mencionado, estimaremos a proporção de votos opositores à greve através do estimador de *Bootstrap*. Para isso consideraremos como todos os votos oriundos do site como uma amostra da população de alunos da Unicamp. Sendo assim, dessa amostra reamostraremos, com reposição, os votos por pessoa e assim, calcularemos a proporção para essa reamostra.  
+
+O interessante desse processo é que ele será repetido quantas vezes for necessário, e por final o estimador será a média de todas as proporções calculadas. Para esse projeto realizamos 10000 reamostras, o que nos garante pouca variância para a média, e por consequência maior precisão.
 
 ```{r dados, echo=FALSE, message=FALSE}
 tblnomes=html_table(page)[[3]]
