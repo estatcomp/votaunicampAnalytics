@@ -1,11 +1,10 @@
 ---
 title: "Vota Unicamp!"
-author: Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
-  Michely Wu Hsieh e Natalia Rodrigues da Silva
+author: "Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro, Michely Wu Hsieh e Natalia Rodrigues da Silva"
 output: html_document
 ---
 
-###Introdução  e objetivo
+##Introdução  e objetivo
     As universidades estaduais paulistas tem vivido momentos de grande tensão desde que teve inicio uma greve geral dos estudantes que têm como objetivo revindicar pautas como a implementação de cotas etnico-raciais, a ampliação da moradia estudantil e a negociação a respeito dos cortes orçamentarios anunciados pelo governo do estado. Desde o dia 10/05 as intalações da reitoria e da pró-reitoria das UNICAMP foram ocupadas por estudantes e assim permanecem a atual data, mesmo após mandados judiciais de desocupação e ameaças de reintegrção de posse por parte da Policia Militar.
     Além do movimento geral de greve e da ocupação existem movimentos grevistas dentro de cada um dos institutos. A decisão a respeito do apoio, ou não a greve nessa instância é, então, feita através de assembléias, que são reuniões organizadas pelo centro acadêmico de cada instituto, os quais são formados por alunos do mesmo.
     O problema começa quando estudantes e docentes passam a questionar a representatibilidade das assembléias já que, devido as atividades e cronogramas acadêmicos a serem cumpridos, muitos dos estudantes contrários a greve não abrem mão de seus afazeres para comparecerem a tais reuniões, o que faz com que estas contem com um número reduzido de alunos que, em sua maioria, votam a favor.
@@ -56,9 +55,11 @@ library(DT)
 datatable(mytbl, options = list(pageLength = 10))
 ```
 
-#Formatação dos dados
+##Análises
 
-##Análises para Graduação
+### Análises para Graduação
+
+####Análise da Graduação por Áreas
 
 Descrever as alterações feitas na tabela(adição de )
 
@@ -75,7 +76,34 @@ biologicas=filter(graduacao,codigo=="6"|codigo=="100"|codigo=="27"|codigo=="45"|
 humanas=filter(graduacao,codigo=="109"| codigo=="110"| codigo=="17"| codigo=="47"| codigo=="16"|codigo=="44"| codigo=="75"|codigo=="30"| codigo=="54"| codigo=="55"|codigo=="19"|codigo=="7"|codigo=="57"|codigo=="56"|codigo=="18"|codigo=="20"|codigo=="38")
 ##*EXATAS,
 exatas=filter(graduacao,codigo=="48"|codigo=="42"|codigo=="36"|codigo=="83"|codigo=="73"|codigo=="87"|codigo=="8"|codigo=="89"|codigo=="12"|codigo=="13"|codigo=="43"|codigo=="34"|codigo=="49"|codigo=="101"|codigo=="102"|codigo=="88"|codigo=="11"|codigo=="41"|codigo=="108"|codigo=="10"|codigo=="9"|codigo=="39"|codigo=="2"|codigo=="4"|codigo=="53"|codigo=="40"|codigo=="29"|codigo=="1"|codigo=="28"|codigo=="51"|codigo=="5"|codigo=="50"|codigo=="94")
+
+#*#adicionando coluna de área
+library(dplyr)
+exatas<-mutate(exatas,Area="Exatas")
+biologicas<-mutate(biologicas,Area="Biológicas")
+humanas<-mutate(humanas,Area="Humanas")
+artes<-mutate(artes,Area="Artes")
+pespeciais<-mutate(pespeciais,Area="Programas Especiais")
+
+tabelageral=rbind(exatas,biologicas,humanas,artes,pespeciais)
+
+##criando novas colunas com proporções
+tabelageral<-mutate(tabelageral,"Proporção de Sim"=round((tabelageral$sim/tabelageral$total),3))
+tabelageral<-mutate(tabelageral,"Proporção de Não"=round((tabelageral$nao/tabelageral$total),3))
+
+library(DT)
+datatable(tabelageral, options = list(pageLength = 10))
 ```
+
+####Gráfico das proporções por Área
+
+```{r,echo=FALSE }
+proporcaoarea<-matrix(c(sum(exatas$sim)/sum(exatas$total),sum(exatas$nao)/sum(exatas$total),sum(exatas$abstencao)/sum(exatas$total),sum(humanas$sim)/sum(exatas$total),sum(humanas$nao)/sum(humanas$total),sum(humanas$abstencao)/sum(humanas$total),sum(biologicas$sim)/sum(biologicas$total),sum(biologicas$nao)/sum(biologicas$total),sum(biologicas$abstencao)/sum(biologicas$total),sum(artes$sim)/sum(artes$total),sum(artes$nao)/sum(artes$total),sum(artes$abstencao)/sum(artes$total),sum(pespeciais$sim)/sum(pespeciais$total),sum(pespeciais$nao)/sum(pespeciais$total),sum(pespeciais$abstencao)/sum(pespeciais$total)), nrow = 3, ncol=5)
+
+barplot(proporcaoarea,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes","P. Especiais"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"))
+```
+
+####Análise da Graduação por Instituto
 
 ```{r separando os institutos, echo=FALSE}
 library(dplyr)
@@ -102,23 +130,6 @@ FEAGRI = filter(graduacao, codigo=="8")
 FE = filter(graduacao,codigo=="20"|codigo=="38"|codigo=="56")
 PROFIS = filter(graduacao, codigo=="200")
 
-```
-
-```{r adicionando novas colunas, echo=FALSE}
-#*#adicionando coluna de área
-library(dplyr)
-exatas<-mutate(exatas,Area="Exatas")
-biologicas<-mutate(biologicas,Area="Biológicas")
-humanas<-mutate(humanas,Area="Humanas")
-artes<-mutate(artes,Area="Artes")
-pespeciais<-mutate(pespeciais,Area="Programas Especiais")
-
-tabelageral=rbind(exatas,biologicas,humanas,artes,pespeciais)
-
-##Exibindo a tabela geral - adição de institutos
-library(DT)
-datatable(tabelageral, options = list(pageLength = 10))
-
 ##adicionando coluna instituto
 IMECC<-mutate(IMECC,Instituto="IMECC")
 FEM<-mutate(FEM,Instituto="FEM")
@@ -142,87 +153,174 @@ FEAGRI<-mutate(FEAGRI,Instituto="FEAGRI")
 FE<-mutate(FE,Instituto="FE")
 PROFIS<-mutate(PROFIS,Instituto="PROFIS")
 
-tabelageral=rbind(IMECC,FCA,IFGW,IFCH,FEEC,FEC,FOP,FEA,FCM,IE,IA,FEF,IC,FEQ,IB,IQ,IG,FEAGRI,FE,PROFIS)
+tabelageral=rbind(IMECC,FEM,FCA,IFGW,IFCH,FEEC,FEC,FOP,FEA,FCM,IE,IA,FEF,IC,FEQ,IB,IQ,IG,FEAGRI,FE,PROFIS)
 
-##Criando uma tabela de proporção
+##criando novas colunas com proporções
+tabelageral<-mutate(tabelageral,"Proporção de Sim"=round((tabelageral$sim/tabelageral$total),3))
+tabelageral<-mutate(tabelageral,"Proporção de Não"=round((tabelageral$nao/tabelageral$total),3))
 
-codigos<-c(tabelageral$codigo)
-proporcaosim<-round(c((tabelageral$sim/tabelageral$total)),3)
-proporcaonao<-round(c((tabelageral$nao/tabelageral$total)),3)
-
-x<-data.frame(cbind(codigos,proporcaosim,proporcaonao))
-colnames(x)<-c("Códigos","Proporção de Sim", "Proporção de Não")
-datatable(x,options = list(pageLength=10))
-
-##Exibindo a tabela geral - adição de áreas
+##Exibindo a tabela geral - adição de institutos
 library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 ```
 
-#Análise dos Totais de votos
+#### Gráfico das Proporções por Instituto
 
-###Gráficos de Barras por Áreas
-Primeiramente, graficamos os dados por área para melhor visualização. O objetivo é saber se a área do curso de cada aluno que respondeu a pesquisa influencia na sua opinião a respeito da greve.
+```{r, grafico comparativo, message=FALSE, echo=FALSE }
+porinstituto<-matrix(c(sum(IMECC$sim)/sum(IMECC$total),sum(IMECC$nao)/sum(IMECC$total),sum(IMECC$abstencao)/sum(IMECC$total),sum(FEM$sim)/sum(FEM$total),sum(FEM$nao)/sum(FEM$total),sum(FEM$abstencao)/sum(FEM$total),sum(FCA$sim)/sum(FCA$total),sum(FCA$nao)/sum(FCA$total),sum(FCA$abstencao)/sum(FCA$total),sum(IFGW$sim)/sum(IFGW$total),sum(IFGW$nao)/sum(IFGW$total),sum(IFGW$abstencao)/sum(IFGW$total),sum(IFCH$sim)/sum(IFCH$total),sum(IFCH$nao)/sum(IFCH$total),sum(IFCH$abstencao)/sum(IFCH$total),sum(FEEC$sim)/sum(FEEC$total),sum(FEEC$nao)/sum(FEEC$total),sum(FEEC$abstencao)/sum(FEEC$total),sum(FEC$sim)/sum(FEC$total),sum(FEC$nao)/sum(FEC$total),sum(FEC$abstencao)/sum(FEC$total),sum(FOP$sim)/sum(FOP$total),sum(FOP$nao)/sum(FOP$total),sum(FOP$abstencao)/sum(FOP$total),sum(FEA$sim)/sum(FEA$total),sum(FEA$nao)/sum(FEA$total),sum(FEA$abstencao)/sum(FEA$total),sum(FCM$sim)/sum(FCM$total),sum(FCM$nao)/sum(FCM$total),sum(FCM$abstencao)/sum(FCM$total),sum(IE$sim)/sum(IE$total),sum(IE$nao)/sum(IE$total),sum(IE$abstencao)/sum(IE$total),sum(IA$sim)/sum(IA$total),sum(IA$nao)/sum(IA$total),sum(IA$abstencao)/sum(IA$total),sum(FEF$sim)/sum(FEF$total),sum(FEF$nao)/sum(FEF$total),sum(FEF$abstencao)/sum(FEF$total),sum(IC$sim)/sum(IC$total),sum(IC$nao)/sum(IC$total),sum(IC$abstencao)/sum(IC$total),sum(FEQ$sim)/sum(FEQ$total),sum(FEQ$nao)/sum(FEQ$total),sum(FEQ$abstencao)/sum(FEQ$total),sum(IB$sim)/sum(IB$total),sum(IB$nao)/sum(IB$total),sum(IB$abstencao)/sum(IB$total),sum(IQ$sim)/sum(IQ$total),sum(IQ$nao)/sum(IQ$total),sum(IQ$abstencao)/sum(IQ$total),sum(IG$sim)/sum(IG$total),sum(IG$nao)/sum(IG$total),sum(IG$abstencao)/sum(IG$total),sum(FEAGRI$sim)/sum(FEAGRI$total),sum(FEAGRI$nao)/sum(FEAGRI$total),sum(FEAGRI$abstencao)/sum(FEAGRI$total),sum(FE$sim)/sum(FE$total),sum(FE$nao)/sum(FE$total),sum(FE$abstencao)/sum(FE$total),sum(PROFIS$sim)/sum(PROFIS$total),sum(PROFIS$nao)/sum(PROFIS$total),sum(PROFIS$abstencao)/sum(PROFIS$total)), nrow = 3, ncol=21)
 
+barplot(porinstituto, beside = TRUE,main = "Comparativo das Proporções de Votos por Instituto", ylab = "Total de Votos", xlab = "Institutos", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),names.arg=c("IMECC","FEM","FCA","IFGW","IFCH","FEEC","FEC","FOP","FEA","FCM","IE","IA","FEF","IC","FEQ","IB","IQ","IG","FEAGRI","FE","PROFIS"),cex.lab=0.9,cex.names = 0.5)
 
-####Exatas
-```{r,, echo=FALSE}
-barplot(c(sum(exatas$sim),sum(exatas$nao),sum(exatas$abstencao)),legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de exatas")
 ```
 
-####Humanas
-```{r, echo=FALSE}
-barplot(c(sum(humanas$sim),sum(humanas$nao),sum(humanas$abstencao)),legend=colnames(humanas[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de humanas")
+####Proporção Geral de Votos da Graduação
+
+```{r, message=FALSE, echo=FALSE}
+pie(c(sum(graduacao$sim)/sum(graduacao$total),sum(graduacao$nao)/sum(graduacao$total),sum(graduacao$abstencao)/sum(graduacao$total)), labels = c("30,79%", "65,51%", "3,70%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gráfico de setores a proporção de Votos da Graduação")
+legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
 
-####Biológicas
-```{r, echo=FALSE}
-barplot(c(sum(biologicas$sim),sum(biologicas$nao),sum(biologicas$abstencao)),legend=colnames(biologicas[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de biológicas")
+
+##Teste de Hipótese para proporção
+
+```{r teste de hipotese para propor??o}
+##Queremos mostrar que a fra??o de sim n?o excede 50% do total de votos v?lidos
+
+t=sum(graduacao$total)
+s=sum(graduacao$sim)
+n=sum(graduacao$nao)
+
+x=matrix(c(s,n),1,2)
+teste1=prop.test(x,p=0.5,alternative = "less", conf.level = 0.95)
+
+teste1
+
+##Rejeita-se a hip?tese nula, pois o p-valor ? muito pequeno.
 ```
 
-####Artes
-```{r, echo=FALSE}
-barplot(c(sum(artes$sim),sum(artes$nao),sum(artes$abstencao)),legend=colnames(artes[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de artes")
-```
-
-####Programas Especiais
-```{r, echo=FALSE}
-barplot(c(sum(pespeciais$sim),sum(pespeciais$nao),sum(pespeciais$abstencao)),legend=colnames(pespeciais[5:7]),col=c("gray","darkblue","lightblue"),main="Votos de programas especiais")
-```
-
-Analisando os gráficos é possível perceber que em geral, as áreas de exatas, biológicas e programas especiais são contra a greve, no entanto, as áreas de humanas e artes se mostram a favor da greve. #calcular a proporção e analisar qual é maior.
-
-##Gráfico do Total de Votos da Graduação
+####Totais de Votos da Graduação
 
 O gráfico abaixo mostra o total de votos dos alunos da gradução.
 
 ```{r, echo=FALSE}
 barplot(c(sum(graduacao$sim),sum(graduacao$nao),sum(graduacao$abstencao)),legend=colnames(graduacao[5:7]),col=c("gray","darkblue","lightblue"))
+
 ```
 
-Comparando o gráfico total de votos da graduação com cada área, concluimos que a proporção de votos contrários a greve ainda é maior. 
+###Tamanho amostral
 
-##Análise de Proporções
+```{r calculo do tamanho amostral, echo=FALSE}
+##filtrando curso por curso
+curso1<-filter(graduacao, codigo=="1")
+curso10<-filter(graduacao, codigo=="10")
+curso101<-filter(graduacao, codigo=="101")
+curso102<-filter(graduacao, codigo=="102")
+curso108<-filter(graduacao, codigo=="108")
+curso11<-filter(graduacao, codigo=="11")
+curso12<-filter(graduacao, codigo=="12")
+curso13<-filter(graduacao, codigo=="13")
+curso2<-filter(graduacao, codigo=="2")
+curso28<-filter(graduacao, codigo=="28")
+curso29<-filter(graduacao, codigo=="29")
+curso34<-filter(graduacao, codigo=="34")
+curso36<-filter(graduacao, codigo=="36")
+curso39<-filter(graduacao, codigo=="39")
+curso4<-filter(graduacao, codigo=="4")
+curso40<-filter(graduacao, codigo=="40")
+curso41<-filter(graduacao, codigo=="41")
+curso42<-filter(graduacao, codigo=="42")
+curso43<-filter(graduacao, codigo=="43")
+curso48<-filter(graduacao, codigo=="48")
+curso49<-filter(graduacao, codigo=="49")
+curso5<-filter(graduacao, codigo=="5")
+curso50<-filter(graduacao, codigo=="50")
+curso51<-filter(graduacao, codigo=="51")
+curso53<-filter(graduacao, codigo=="53")
+curso8<-filter(graduacao, codigo=="8")
+curso89<-filter(graduacao, codigo=="89")
+curso9<-filter(graduacao, codigo=="9")
+curso100<-filter(graduacao, codigo=="100")
+curso107<-filter(graduacao, codigo=="107")
+curso14<-filter(graduacao, codigo=="14")
+curso15<-filter(graduacao, codigo=="15")
+curso27<-filter(graduacao, codigo=="27")
+curso45<-filter(graduacao, codigo=="45")
+curso46<-filter(graduacao, codigo=="46")
+curso58<-filter(graduacao, codigo=="58")
+curso6<-filter(graduacao, codigo=="6")
+curso63<-filter(graduacao, codigo=="63")
+curso109<-filter(graduacao, codigo=="109")
+curso16<-filter(graduacao, codigo=="16")
+curso17<-filter(graduacao, codigo=="17")
+curso18<-filter(graduacao, codigo=="18")
+curso19<-filter(graduacao, codigo=="19")
+curso38<-filter(graduacao, codigo=="38")
+curso44<-filter(graduacao, codigo=="44")
+curso47<-filter(graduacao, codigo=="47")
+curso55<-filter(graduacao, codigo=="55")
+curso56<-filter(graduacao, codigo=="56")
+curso7<-filter(graduacao, codigo=="7")
+curso75<-filter(graduacao, codigo=="75")
+curso22<-filter(graduacao, codigo=="22")
+curso26<-filter(graduacao, codigo=="26")
+curso64<-filter(graduacao, codigo=="64")
+curso200<-filter(graduacao, codigo=="200")
 
-####Proporções por Área
+##criando coluna com numero de matriculados
+curso1<-mutate(curso1,n_matriculados="67")
+curso10<-mutate(curso10,n_matriculados="891")
+curso101<-mutate(curso101,n_matriculados="363")
+curso102<-mutate(curso102,n_matriculados="361")
+curso108<-mutate(curso108,n_matriculados="30")
+curso11<-mutate(curso11,n_matriculados="426")
+curso12<-mutate(curso12,n_matriculados="515")
+curso13<-mutate(curso13,n_matriculados="467")
+curso2<-mutate(curso2,n_matriculados="312")
+curso28<-mutate(curso28,n_matriculados="75")
+curso29<-mutate(curso29,n_matriculados="271")
+curso34<-mutate(curso34,n_matriculados="572")
+curso36<-mutate(curso36,n_matriculados="244")
+curso39<-mutate(curso39,n_matriculados="348")
+curso4<-mutate(curso4,n_matriculados="277")
+curso40<-mutate(curso40,n_matriculados="171")
+curso41<-mutate(curso41,n_matriculados="667")
+curso42<-mutate(curso42,n_matriculados="306")
+curso43<-mutate(curso43,n_matriculados="712")
+curso48<-mutate(curso48,n_matriculados="209")
+curso49<-mutate(curso49,n_matriculados="345")
+curso5<-mutate(curso5,n_matriculados="402")
+curso50<-mutate(curso50,n_matriculados="254")
+curso51<-mutate(curso51,n_matriculados="304")
+curso53<-mutate(curso53,n_matriculados="156")
+curso8<-mutate(curso8,n_matriculados="426")
+curso89<-mutate(curso89,n_matriculados="245")
+curso9<-mutate(curso9,n_matriculados="285")
+curso100<-mutate(curso100,n_matriculados="284")
+curso107<-mutate(curso107,n_matriculados="257")
+curso14<-mutate(curso14,n_matriculados="386")
+curso15<-mutate(curso15,n_matriculados="712")
+curso27<-mutate(curso27,n_matriculados="289")
+curso45<-mutate(curso45,n_matriculados="307")
 
-```{r}
-##fazer grafico de pizza
+NumeroMatriculados = rbind(curso1, curso10, curso101, curso102, curso108,curso11, curso12, curso13, curso2, curso28, curso29, curso34, curso36,curso39, curso4, curso40, curso41, curso42, curso43, curso48, curso49, curso5,curso50,curso51,curso53,curso8,curso89,curso9,curso100,curso107,curso14,curso15,curso27,curso45)
+
+library(DT)
+datatable(NumeroMatriculados, options = list(pageLength = 100))
+
+
 ```
 
-
-####Proporções por Instituto
-
-```{r}
-##fazer grafico de pizza
-```
 
 #Separação por áreas na pós-graduação
+
 Apesar da greve estudantil ser articulada pelos estudantes da graduação, achamos válido fazer uma análise dos estudantes da pós-graduação, separados em Mestrado e Doutorado para saber se a opinião destes é semelhante à dos alunos da graduação em suas respectivas áreas, levando em conta que o movimento estudantil tem ganhado força e, com isso, interfere também em suas vidas acadêmicas.
 
 ###Análises para Mestrado
 
 Primeiramente, faremos análises do Mestrado.
+
+###Análise do Mestrado por Área
+
 ```{r, echo=FALSE}
 
 library(dplyr)
@@ -239,11 +337,6 @@ exatasm=filter(mestrado,codigo=="47"|codigo=="56"|codigo=="57"|codigo=="55"|codi
 
 ```
 
-```{r sepando por instituto, echo=FALSE}
-##colocarm na frente
-```
-
-
 ```{r, echo=FALSE}
 #*#criandonovacoluna com areas
 
@@ -254,51 +347,42 @@ humanasm<-mutate(humanasm,Area="Humanas")
 artesm<-mutate(artesm,Area="Artes")
 tabelageralm=rbind(exatasm,biologicasm,humanasm,artesm)
 
-
-
-#*#Adicionando, uma coluna de proporção de sim e outra de não
-tabelageralm<-mutate(tabelageralm,"Proporção de Sim"=(tabelageralm  $sim/tabelageralm$total))
-tabelageralm<-mutate(tabelageralm,"Proporção de Não"=(tabelageralm$nao/tabelageralm$total))
+##criando novas colunas com proporções
+tabelageralm<-mutate(tabelageralm,"Proporção de Sim"=round((tabelageralm$sim/tabelageralm$total),3))
+tabelageralm<-mutate(tabelageralm,"Proporção de Não"=round((tabelageralm$nao/tabelageralm$total),3))
 
 ##Exibindo a tabela geral mestrado
 library(DT)
 datatable(tabelageralm, options = list(pageLength = 10))
 ```
 
-#Análise dos Totais de votos
+####Gráfico das proporções por Área
 
-###Gráficos de Barras por Áreas
+```{r,echo=FALSE }
+proporcaoaream<-matrix(c(sum(exatasm$sim)/sum(exatasm$total),sum(exatasm$nao)/sum(exatasm$total),sum(exatasm$abstencao)/sum(exatasm$total),sum(humanasm$sim)/sum(exatasm$total),sum(humanasm$nao)/sum(humanasm$total),sum(humanasm$abstencao)/sum(humanasm$total),sum(biologicasm$sim)/sum(biologicasm$total),sum(biologicasm$nao)/sum(biologicasm$total),sum(biologicasm$abstencao)/sum(biologicasm$total),sum(artesm$sim)/sum(artesm$total),sum(artesm$nao)/sum(artesm$total),sum(artesm$abstencao)/sum(artesm$total)), nrow = 3, ncol=4)
 
-##Exatas
-```{r, echo=FALSE }
-barplot(c(sum(exatasm$sim),sum(exatasm$nao),sum(exatasm$abstencao)),legend=colnames(exatasm[5:7]),col=c("gray","darkblue","lightblue"))
+barplot(proporcaoaream,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatasm[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
-##Humanas
-```{r, echo=FALSE }
-barplot(c(sum(humanasm$sim),sum(humanasm$nao),sum(humanasm$abstencao)),legend=colnames(humanasm[5:7]),col=c("gray","darkblue","lightblue"))
+####Análise do Mestrado por Instituto
+```{r}
+##tabela e grafico
 ```
 
-##Biológicas
-```{r, echo=FALSE }
-barplot(c(sum(biologicasm$sim),sum(biologicasm$nao),sum(biologicasm$abstencao)),legend=colnames(biologicasm[5:7]),col=c("gray","darkblue","lightblue"))
+
+####Proporção Geral de Votos do Mestrado
+
+```{r, message=FALSE, echo=FALSE}
+##ADAPTAR DA GRAUDAÇÃO
 ```
 
-##Artes
-```{r, echo=FALSE }
-barplot(c(sum(artesm$sim),sum(artesm$nao),sum(artesm$abstencao)),legend=colnames(artesm[5:7]),col=c("gray","darkblue","lightblue"))
-```
-
-##Grafico do Total de Votos do Mestrado
+####Grafico do Total de Votos do Mestrado
 ```{r, echo=FALSE}
+
 barplot(c(sum(mestrado$sim),sum(mestrado$nao),sum(mestrado$abstencao)),legend=colnames(mestrado[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
 Como o tamanho da amostra de votos do mestrado é pequeno, não podemos ter respostas certeiras sobre a opinião destas pessoas, contudo os resultados tendem a serem similares com os alunos da graduação.
-
-##Análise de Proporções
-##teste de hipotese
-
 
 ###Análises para Doutorado
 
@@ -316,10 +400,6 @@ biologicasd=filter(doutorado,codigo=="33"|codigo=="89"|codigo=="8"|codigo=="75"|
 exatasd=filter(doutorado,codigo=="81"|codigo=="34"|codigo=="6"|codigo=="7"|codigo=="5"|codigo=="58"|codigo=="32"|codigo=="62"|codigo=="61"|codigo=="98"|codigo=="60"|codigo=="92"|codigo=="59"|codigo=="35"|codigo=="53"|codigo=="54"|codigo=="31"|codigo=="51"|codigo=="79"|codigo=="55")
 ```
 
-```{r separação por institutos}
-
-```
-
 ```{r criando nova coluna areas, echo=FALSE}
 ##criandonovacoluna
 library(dplyr)
@@ -329,8 +409,6 @@ humanasd<-mutate(humanasd,Area="Humanas")
 artesd<-mutate(artesd,Area="Artes")
 tabelagerald=rbind(exatasd,biologicasd,humanasd,artesd)
 
-
-
 ##criando novas colunas com proporções
 tabelagerald<-mutate(tabelagerald,"Proporção de Sim"=(tabelagerald$sim/tabelagerald$total))
 tabelagerald<-mutate(tabelagerald,"Proporção de Não"=(tabelagerald$nao/tabelagerald$total))
@@ -339,12 +417,31 @@ library(DT)
 datatable(tabelagerald, options = list(pageLength = 10))
 ```
 
-##Análise de Proporções
+####Gráfico das proporções por Área
 
-###teste de hipotese
+```{r,echo=FALSE }
+proporcaoaread<-matrix(c(sum(exatasd$sim)/sum(exatasd$total),sum(exatasd$nao)/sum(exatasd$total),sum(exatasd$abstencao)/sum(exatasd$total),sum(humanasd$sim)/sum(exatasd$total),sum(humanasd$nao)/sum(humanasd$total),sum(humanasd$abstencao)/sum(humanasd$total),sum(biologicasd$sim)/sum(biologicasd$total),sum(biologicasd$nao)/sum(biologicasd$total),sum(biologicasd$abstencao)/sum(biologicasd$total),sum(artesd$sim)/sum(artesd$total),sum(artesd$nao)/sum(artesd$total),sum(artesd$abstencao)/sum(artesd$total)), nrow = 3, ncol=4)
+
+barplot(proporcaoaread,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatasd[5:7]),col=c("gray","darkblue","lightblue"))
+```
+
+####Análise do Mestrado por Instituto
+```{r}
+##tabela e grafico
+```
+
+####Proporção Geral de Votos do Doutorado
+
+```{r, message=FALSE, echo=FALSE}
+##ADAPTAR DA GRADUAÇÃO
+```
 
 
+####Grafico do Total de Votos do Doutorado
+```{r, echo=FALSE}
 
+barplot(c(sum(doutorado$sim),sum(doutorado$nao),sum(doutorado$abstencao)),legend=colnames(doutorado[5:7]),col=c("gray","darkblue","lightblue"))
+```
 
 ## Gauge Plots
 
