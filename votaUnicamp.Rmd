@@ -349,7 +349,7 @@ datatable(tabelafinal, options = list(pageLength = 5))
 
 Após conhecermos melhor o comportamento dos dados, é de interesse aplicar o nosso conhecimento estatístico para fazer testes, IC, entre outros; para que com isso possamos contribuir para uma melhor compreesão e sugestões afim de resolver nosso problema sobre a votação da greve.
 
-#Comparando o perfil das áreas de conhecimento
+### Comparando o perfil das áreas de conhecimento
 
  Como já dito anteriormente, há um questionamento se estudantes das três áreas - biológicas, exatas e humanas - possuem uma mesma opinião frente a greve. Já vimos que, aparentemente, a única área que difere das demais é a *Humanas*. Para comprovar, realizamos um teste estatístico, o teste de hipótese.
  
@@ -358,7 +358,7 @@ Num teste de hipóteses, definimos duas hipóteses, chamadas $H_0$ ou hipótese 
 Após realizar o teste, obtemos um valor chamado de valor-p, que nos ajuda a tomar decisão. Se o valor-p for menor que $\alpha$, rejeitamos a hipótese nula e ficamos com a alternativa. Caso contrário, ficamos com a hipótese nula.
 
 
-### Exatas x Biológicas
+**Exatas x Biológicas**
 
 ```{r proporcoesAreas,  echo=FALSE, warning=FALSE, message=FALSE}
 p_Biologicas = areas[2,3]/areas[2,1]
@@ -387,7 +387,7 @@ E realizando o teste, obtemos um p-valor de `r teste_dif_exatas_nao_exatas$p.val
 
 Como nesse caso temos um valor-p maior que o nível de significância, temos mais evidência a favor da hipótese de que as proporções são iguais nesse caso.
 
-### Exatas x Humanas
+**Exatas x Humanas**
 
 Aqui, as proporções individuais são:
 
@@ -410,7 +410,7 @@ E o teste nos leva ao seguinte resultado: p-valor = `r teste_dif_exatas_nao_exat
 
 Ou seja, um valor-p muito pequeno, que significa que as proporções entre exatas e humanas são de fato diferentes.
 
-### Biológicas x Humanas
+**Biológicas x Humanas**
 
 Por fim, comparando as Biológicas e as Humanas, temos as proporções:
 
@@ -434,8 +434,6 @@ E novamente com o teste, obtemos um p-valor = `r teste_dif_exatas_nao_exatas$p.v
 Nesse caso, temos a mesma decisão para o caso de Exatas x Humanas. Ou seja, as Biológicas também diferem das Humanas.
 
 Por fim, então, temos evidências que sugerem que as proporções de Exatas e Biológicas são iguais, enquanto que ambas diferem da proporção dos cursos de Humanas.
-
-Vamos agora estimar a proporção dos votos através do Bootstrap.
 
 ### Bootstrap 
 
