@@ -151,7 +151,7 @@ Para conhecer um pouco das informações que os dados fornecem, calcularemos est
 kable(head(tbl2), caption = "Tabela 3: Proporções por curso")
 ```
 
-Para ver todas as proporções e intervalos de confiança consulte o **Apêndice**.
+Para ver todas as proporções e intervalos de confiança consulte o **Apêndice**.  
 
 Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembléias do instituto como um todo, é interessante analisar a proporção de votos para cada um deles.  
 
@@ -163,16 +163,7 @@ Na Tabela 4 podemos ver algumas dessas proporções por institutos.
 kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 4: Proporção de votos por instituto')
 ```
 
-A Tabela 4 pode ser encontrada em **Apêndice**.
-
-```{r echo=FALSE, message=FALSE}
-#coordenadas de cada instituto da unicamp campinas
-ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC', 'FEA', 'FCM', 'IFCH','IEL', 'IA', 'IC', 'IE', 'IG', 'IQ', 'FE', 'FEAGRI', 'FEQ', 'PROFIS', 'FCF'),
-           lat=c(-22.81583,-22.81657,-22.81935,-22.81938,-22.81476,-22.82132,-22.81596,-22.82063,-22.83063,-22.81546, -22.81537, -22.81531, -22.81488, -22.81480, -22.81328, -22.81889, -22.81658, -22.81927, -22.81989, -22.81749, -22.81770),
-           lon=c(-47.06769,-47.06698,-47.06953,-47.06592,-47.07333,-47.06587,-47.06383,-47.06746,-47.06199,-47.06838,-47.06909, -47.07009, -47.06484, -47.06590, -47.06871, -47.06779, -47.06566, -47.06042,-47.06511, -47.06847, -47.07084 )) 
-```
-
-  
+A Tabela 4 pode ser encontrada em **Apêndice**.  
 
 ##Estimador Para a Proporção
 
@@ -211,7 +202,28 @@ kable(darea, caption="Tabela 5: Votos por área de estudo")
 ```
 
 
-Portanto, é natural questionar-se se existem alguns institutos com comportamentos semelhantes. Podemos analisar isso graficamente, ao realizarmos um gráfico de componentes. Tal análise gráfica pode ser vista na Figura 2.
+Portanto, é natural questionar-se se existem alguns institutos com comportamentos semelhantes. Uma das maneiras de se observar isso é mapeando o campus de Campinas pelas proporções para cada um deles.  
+
+Temos no mapa abaixo a representação geográfica da Unicamp com indicadores da localização de cada instituto. Cada um dos indicadores representam a proporção de voto de seu respectivo instituto, sendo que para aqueles com tons mais fortes de vermelho serão mais favoráveis à greve e aqueles com tons mais fortes de azul os mais contrários à greve. Institutos com cores neutras tem posicionamento dividido.
+
+```{r echo=FALSE, message=FALSE}
+#coordenadas de cada instituto da unicamp campinas
+ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC', 'FEA', 'FCM', 'IFCH','IEL', 'IA', 'IC', 'IE', 'IG', 'IQ', 'FE', 'FEAGRI', 'FEQ', 'PROFIS', 'FCF'),
+           lat=c(-22.81583,-22.81657,-22.81935,-22.81938,-22.81476,-22.82132,-22.81596,-22.82063,-22.83063,-22.81546, -22.81537, -22.81531, -22.81488, -22.81480, -22.81328, -22.81889, -22.81658, -22.81927, -22.81989, -22.81749, -22.81770),
+           lon=c(-47.06769,-47.06698,-47.06953,-47.06592,-47.07333,-47.06587,-47.06383,-47.06746,-47.06199,-47.06838,-47.06909, -47.07009, -47.06484, -47.06590, -47.06871, -47.06779, -47.06566, -47.06042,-47.06511, -47.06847, -47.07084 )) 
+```
+
+```{r enderecos, echo=FALSE}
+ends = merge(ends, dados)
+pal= colorQuantile("RdBu",ends$propn, n=8)
+map = leaflet()
+map = addTiles(map)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, color = pal(ends$pnao))
+map
+```
+
+
+Outra maneira de que encontramos foi analisar isso graficamente, por meio de um gráfico de componentes. Tal análise gráfica pode ser vista na Figura 2.
 
 ```{r plot, echo=FALSE, fig.cap="Figura 2: Gráfico de Componentes para Institutos", fig.align="center"}
 newtbl = dados2[,c("Não","Sim","Abstenções")]
@@ -222,8 +234,7 @@ fit= prcomp(newtbl)
 biplot(fit)
 ```
   
-  
-Como podemos ver, o gráfico acima mostra a tendência de votos por institutos em relação aos vetores que representam as opções. Nota-se que existem alguns institutos aglomerados, o que indica semelhança de proporções e, por isso, faz-se necessário um estudo aprofundado do assunto.  
+Como podemos ver, o gráfico acima mostra a tendência de votos por institutos em relação aos vetores que representam as opções. Nota-se que existem alguns institutos aglomerados, confirmando as suposições iniciais que acreditavam em uma semelhança de proporções para alguns institutos. E, por isso, faz-se necessário um estudo aprofundado do assunto.  
 
 Para isso empregamos análise de *cluster*. Ela foi realizada através de um dendograma, como ilustrado na Figura 3.
 
@@ -232,44 +243,39 @@ teste=vegdist(newtbl, method = "bray")
 plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Bray-Curtis", xlab = "Institutos", ylab = "Índice de Bray-Curtis")
 ```
 
-O dendograma ilustra o nível de similaridade no eixo vertical e os institutos são listados ao longo do eixo horizontal. É possível ver em que nível de similaridade os agrupamentos são formados, e a composição dos agrupamentos da partição final. Tais níveis foram calculados por meio do índice de *Bray-Curtis*. Esse índice quantitativo varia entre 0 e 1, e foi usado para mensurar a similaridade entre diferentes institutos. Quanto mais próximo de $0$, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre eles.
+O dendograma ilustra o nível de similaridade no eixo vertical e os institutos são listados ao longo do eixo horizontal. É possível ver em que nível de similaridade os agrupamentos são formados, e a composição dos agrupamentos da partição final. Tais níveis foram calculados por meio do índice de *Bray-Curtis*. Esse índice quantitativo varia entre 0 e 1, e foi usado para mensurar a similaridade entre diferentes institutos. Quanto mais próximo de 0, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre eles.
 
 #Conclusão
 
-A partir dos estudos realizados nesse trabalho, podemos concluir 
+O código desse estudo foi produzido de maneira reprodutiva, ou seja, a medida que o número de votos cresce, os resultados serão atualizados simultaneamente. Através das análises realizadas, pudemos notar, pelos gráficos, que a distribuição dos votos por instituto não é uniforme. Existem alguns institutos com poucos votos e com isso o seu intervalo de confiança é muito comprido, dessa maneira, pouco podemos concluir sobre a opinião deles.  
+
+Ainda assim, a partir dos estudos realizados nesse trabalho, podemos concluir 
 que `r round(res_boot$t0,2)*100`% dos alunos são contrários à greve. 
 Contudo, dado a atual situação do campus isso nos leva a questionar 
-a representatividade, ora das assembleias estudantis, ora da votação 
-dos dados provenientes do site. 
-Uma possível justificativa seria do receio de se posicionar em um ambiente "hostil". 
-Muitos alunos contrários à greve podem não ter muito interesse em participar das longas assembleias, 
-ou então se sintam intimidados em declarar seu voto perante uma maioria favorável 
-à greve, portanto os impulsiona a votar online. Em compensação, alunos que 
+a representatividade, ora das assembléias estudantis, ora da votação 
+dos dados provenientes do site.  
+
+Uma possível justificativa para essa disparidade seria o receio de alunos contrários à greve de se posicionarem em um ambiente com maioria favorável, portanto isso os impulsiona a votar online. Em compensação, alunos que 
 votam "sim" podem acreditar que o site provoque evasão às 
-assembleias e, com isso, possivelmente não votariam desta forma.  
-No entanto, os dados da votação online, foram analizados não levando em consideração as suposições
-anteriores. O código foi produzido de maneira reprodutiva, ou seja, a medida que o 
-número de votos aumente, os resultados serão atualizados simultaneamente.
-Realizamos uma séries de análises por meio de intervalos de confiança, gráficos e 
-estimamos proporções.  Pudemos notar, pelos gráficos, que a distribuição dos votos por 
-instituto não é uniforme.  
-Existem alguns institutos com poucos votos e com isso o seu intervalo de confiança é muito comprido, dessa maneira, pouco podemos concluir sobre a opinião
-desses institutos.
+assembléias e, com isso, possivelmente não votariam desta forma.  
 
-
+Concluindo, esperamos que mediante as análises aqui apresentadas, possamos ressaltar a importância de um posicionamento de cada aluno da Unicamp. Seja ele por meio do site, cujos dados foram estudados, ou por meio de assembléias. Somente assim conseguiremos de fato alcançar uma decisão mais democrática a respeito da greve representando, de fato, toda a classe estudantil.
 
 #Apêndice
 
 
 ```{r echo=FALSE}
-kable(tbl, caption = 'Dados extraídos do site') 
+kable(tbl, caption = 'Tabela 1: Dados extraídos do site') #primeiras linhas dos dados do site
 ```
 
 ```{r echo=FALSE, }
-kable(dados[,-c(2,3,4,5)], caption = 'Tabela 2: Proporção de votos por instituto')
+kable(dados2, caption = 'Tabela 2: Votos por instituto')
 ```
 
 ```{r echo=FALSE}
-kable(dados2, caption = 'Tabela 3: Votos por instituto')
+kable(tbl2, caption = "Tabela 3: Proporções por curso")
 ```
 
+```{r, echo=FALSE}
+kable(dados[,-c(2,3,4,5)], caption='Tabela 4: Proporção de votos por instituto')
+```
