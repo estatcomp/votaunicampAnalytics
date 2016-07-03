@@ -153,7 +153,7 @@ kable(head(tbl2), caption = "Tabela 3: Proporções por curso")
 
 Para ver todas as proporções e intervalos de confiança consulte o **Apêndice**.  
 
-Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembléias do instituto como um todo, é interessante analisar a proporção de votos para cada um deles.  
+Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembleias do instituto como um todo, é interessante analisar a proporção de votos para cada um deles.  
 
 Também devemos considerar os votos dos alunos cuja graduação não é ministrada em Campinas. Nesses casos consideramos os institutos como sendo a própria faculdade. Temos como exemplo o curso de Odontologia no campus de Piracicaba, para ele o instituto será a FOP, assim como os cursos em Limeira serão ou FT, ou FCA, dependendo de onde são ministrados, uma vez que são as duas unidades da Unicamp na cidade.  
 
@@ -185,7 +185,7 @@ res_boot = boot(pop, prop, R=10000)
 ```
   
   
-Então o resultado final estimado foi que a proporção de alunos contrários à greve corresponde à `r round(res_boot$t0,2)*100`%.  
+Então, o resultado final estimado foi que a proporção de alunos contrários a greve corresponde à `r round(res_boot$t0,2)*100`%.  
 
 ##Análise de Cluster
 
@@ -206,6 +206,8 @@ Portanto, é natural questionar-se se existem alguns institutos com comportament
 
 Temos no mapa abaixo a representação geográfica da Unicamp com indicadores da localização de cada instituto. Cada um dos indicadores representam a proporção de voto de seu respectivo instituto, sendo que para aqueles com tons mais fortes de vermelho serão mais favoráveis à greve e aqueles com tons mais fortes de azul os mais contrários à greve. Institutos com cores neutras tem posicionamento dividido.
 
+$\\$
+
 ```{r echo=FALSE, message=FALSE}
 #coordenadas de cada instituto da unicamp campinas
 ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC', 'FEA', 'FCM', 'IFCH','IEL', 'IA', 'IC', 'IE', 'IG', 'IQ', 'FE', 'FEAGRI', 'FEQ', 'PROFIS', 'FCF'),
@@ -222,6 +224,7 @@ map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, 
 map
 ```
 
+$\\$
 
 Outra maneira de que encontramos foi analisar isso graficamente, por meio de um gráfico de componentes. Tal análise gráfica pode ser vista na Figura 2.
 
@@ -234,7 +237,7 @@ fit= prcomp(newtbl)
 biplot(fit)
 ```
   
-Como podemos ver, o gráfico acima mostra a tendência de votos por institutos em relação aos vetores que representam as opções. Nota-se que existem alguns institutos aglomerados, confirmando as suposições iniciais que acreditavam em uma semelhança de proporções para alguns institutos. E, por isso, faz-se necessário um estudo aprofundado do assunto.  
+Como podemos ver, o gráfico acima mostra a tendência de votos por institutos em relação aos vetores que representam as opções de voto. Nota-se que existem alguns institutos aglomerados, confirmando as suposições iniciais que acreditavam em uma semelhança de proporções para alguns institutos. E, por isso, faz-se necessário um estudo aprofundado do assunto.  
 
 Para isso empregamos análise de *cluster*. Ela foi realizada através de um dendograma, como ilustrado na Figura 3.
 
@@ -252,14 +255,14 @@ O código desse estudo foi produzido de maneira reprodutiva, ou seja, a medida q
 Ainda assim, a partir dos estudos realizados nesse trabalho, podemos concluir 
 que `r round(res_boot$t0,2)*100`% dos alunos são contrários à greve. 
 Contudo, dado a atual situação do campus isso nos leva a questionar 
-a representatividade, ora das assembléias estudantis, ora da votação 
+a representatividade, ora das assembleias estudantis, ora da votação 
 dos dados provenientes do site.  
 
 Uma possível justificativa para essa disparidade seria o receio de alunos contrários à greve de se posicionarem em um ambiente com maioria favorável, portanto isso os impulsiona a votar online. Em compensação, alunos que 
 votam "sim" podem acreditar que o site provoque evasão às 
-assembléias e, com isso, possivelmente não votariam desta forma.  
+assembleias e, com isso, possivelmente não votariam desta forma.  
 
-Concluindo, esperamos que mediante as análises aqui apresentadas, possamos ressaltar a importância de um posicionamento de cada aluno da Unicamp. Seja ele por meio do site, cujos dados foram estudados, ou por meio de assembléias. Somente assim conseguiremos de fato alcançar uma decisão mais democrática a respeito da greve representando, de fato, toda a classe estudantil.
+Concluindo, esperamos que mediante as análises aqui apresentadas, possamos ressaltar a importância de um posicionamento de cada aluno da Unicamp. Seja ele por meio do site, cujos dados foram estudados, ou por meio de assembleias. Somente assim conseguiremos de fato alcançar uma decisão mais democrática a respeito da greve representando, de fato, toda a classe estudantil.
 
 #Apêndice
 
