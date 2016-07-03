@@ -1,6 +1,6 @@
 ---
 title: "Vota Unicamp!"
-author: "Amanda, Bruno, Mariana, Melissa, Tamilyn e Yasmine"
+author: "Amanda - 140485, Bruno - 116297, Mariana - 136907, Melissa - 140830, Tamilyn - 118729 e Yasmine - 148255"
 output: html_document
 ---
 
