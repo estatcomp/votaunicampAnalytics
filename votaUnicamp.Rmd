@@ -1,6 +1,7 @@
 ---
-title: "Vota Unicamp!"
-author: "Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro, Michely Wu Hsieh e Natalia Rodrigues da Silva"
+title: "Pojeto Final ME524 - Vota Unicamp!"
+author: Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
+  Michely Wu Hsieh e Natalia Rodrigues da Silva
 output: html_document
 ---
 
@@ -183,8 +184,10 @@ legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim",
 
 ##Teste de Hipótese para proporção
 
-```{r teste de hipotese para propor??o}
-##Queremos mostrar que a fra??o de sim n?o excede 50% do total de votos v?lidos
+Queremos mostrar que a proporção de "sim" não excede 50% do total de votos válidos
+
+```{r teste de hipotese para proporçao}
+
 
 t=sum(graduacao$total)
 s=sum(graduacao$sim)
@@ -195,8 +198,9 @@ teste1=prop.test(x,p=0.5,alternative = "less", conf.level = 0.95)
 
 teste1
 
-##Rejeita-se a hip?tese nula, pois o p-valor ? muito pequeno.
 ```
+
+Rejeita-se a hipótese nula, pois o p-valor é muito pequeno.
 
 ####Totais de Votos da Graduação
 
@@ -208,6 +212,14 @@ barplot(c(sum(graduacao$sim),sum(graduacao$nao),sum(graduacao$abstencao)),legend
 ```
 
 ###Tamanho amostral
+
+O tamanho da nossa amostra foi determinado através da fórmula para amostra aleatória simples sem reposição, sendo $p=\frac{1}{2}$ (pior caso):
+
+$$ n=\frac{N}{(4(N-1)D+1)} $$
+
+sendo $D=B²/z²$.
+
+Definimos $B=0.1$, ou seja, o erro será de no máximo 10% e $Z=1.96$, pois aproximamos nossa distribuição para uma normal padrão com 95% de significância, o que nos deu os tamanhos presentes na tabela abaixo.
 
 ```{r calculo do tamanho amostral, echo=FALSE}
 ##filtrando curso por curso
@@ -264,7 +276,6 @@ curso75<-filter(graduacao, codigo=="75")
 curso22<-filter(graduacao, codigo=="22")
 curso26<-filter(graduacao, codigo=="26")
 curso64<-filter(graduacao, codigo=="64")
-curso200<-filter(graduacao, codigo=="200")
 
 ##criando coluna com numero de matriculados
 curso1<-mutate(curso1,n_matriculados="67")
@@ -301,13 +312,44 @@ curso14<-mutate(curso14,n_matriculados="386")
 curso15<-mutate(curso15,n_matriculados="712")
 curso27<-mutate(curso27,n_matriculados="289")
 curso45<-mutate(curso45,n_matriculados="307")
+curso46<-mutate(curso46,n_matriculados="244")
+curso58<-mutate(curso58,n_matriculados="130")
+curso6<-mutate(curso6,n_matriculados="250")
+curso63<-mutate(curso63,n_matriculados="227")
+curso109<-mutate(curso109,n_matriculados="182")
+curso16<-mutate(curso16,n_matriculados="342")
+curso17<-mutate(curso17,n_matriculados="360")
+curso18<-mutate(curso18,n_matriculados="107")
+curso19<-mutate(curso19,n_matriculados="205")
+curso38<-mutate(curso38,n_matriculados="468")
+curso44<-mutate(curso44,n_matriculados="351")
+curso47<-mutate(curso47,n_matriculados="215")
+curso55<-mutate(curso55,n_matriculados="103")
+curso56<-mutate(curso56,n_matriculados="146")
+curso7<-mutate(curso7,n_matriculados="163")
+curso75<-mutate(curso75,n_matriculados="114")
+curso22<-mutate(curso22,n_matriculados="364")
+curso26<-mutate(curso26,n_matriculados="112")
+curso64<-mutate(curso64,n_matriculados="147")
 
-NumeroMatriculados = rbind(curso1, curso10, curso101, curso102, curso108,curso11, curso12, curso13, curso2, curso28, curso29, curso34, curso36,curso39, curso4, curso40, curso41, curso42, curso43, curso48, curso49, curso5,curso50,curso51,curso53,curso8,curso89,curso9,curso100,curso107,curso14,curso15,curso27,curso45)
 
-library(DT)
-datatable(NumeroMatriculados, options = list(pageLength = 100))
+NumeroMatriculados = rbind(curso1, curso10, curso101, curso102, curso108,curso11, curso12, curso13, curso2, curso28, curso29, curso34, curso36,curso39, curso4, curso40, curso41, curso42, curso43, curso48, curso49, curso5,curso50,curso51,curso53,curso8,curso89,curso9,curso100,curso107,curso14,curso15,curso27,curso45,curso46,curso58,curso6,curso63,curso109,curso16,curso17,curso18,curso19,curso38,curso44,curso47,curso55,curso56,curso7,curso75,curso22,curso26,curso64)
 
+tabelatamamostral<-data.frame(NumeroMatriculados$codigo, NumeroMatriculados$curso,NumeroMatriculados$n_matriculados)
 
+##calculo do tamanho amostral
+B = 0.1
+z = 1.96
+D = (B/z)^2
+
+N<-c(as.numeric(NumeroMatriculados$n_matriculados))
+
+N2=N-1
+
+tamamostral=round(N/(4*(N2)*D+1),0)
+
+tabelatamamostral<-mutate(tabelatamamostral,"Tamanho Amostral"=tamamostral)
+datatable(tabelatamamostral, options = list(pageLength = 100))
 ```
 
 
@@ -364,16 +406,11 @@ proporcaoaream<-matrix(c(sum(exatasm$sim)/sum(exatasm$total),sum(exatasm$nao)/su
 barplot(proporcaoaream,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatasm[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
-####Análise do Mestrado por Instituto
-```{r}
-##tabela e grafico
-```
-
-
 ####Proporção Geral de Votos do Mestrado
 
 ```{r, message=FALSE, echo=FALSE}
-##ADAPTAR DA GRAUDAÇÃO
+pie(c(sum(mestrado$sim)/sum(mestrado$total),sum(mestrado$nao)/sum(mestrado$total),sum(mestrado$abstencao)/sum(mestrado$total)), labels = c("22,22%", "77,78%", "0%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gráfico de setores a proporção de Votos do Mestrado")
+legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
 
 ####Grafico do Total de Votos do Mestrado
@@ -425,17 +462,12 @@ proporcaoaread<-matrix(c(sum(exatasd$sim)/sum(exatasd$total),sum(exatasd$nao)/su
 barplot(proporcaoaread,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatasd[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
-####Análise do Mestrado por Instituto
-```{r}
-##tabela e grafico
-```
-
 ####Proporção Geral de Votos do Doutorado
 
 ```{r, message=FALSE, echo=FALSE}
-##ADAPTAR DA GRADUAÇÃO
+pie(c(sum(doutorado$sim)/sum(doutorado$total),sum(doutorado$nao)/sum(doutorado$total),sum(doutorado$abstencao)/sum(doutorado$total)), labels = c("17,39%", "78,26%", "4,35%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gráfico de setores a proporção de Votos do Doutorado")
+legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
-
 
 ####Grafico do Total de Votos do Doutorado
 ```{r, echo=FALSE}
@@ -457,18 +489,13 @@ plot(gauge)
 
 ## Obtenção de Dados Geográficos
 
-Obter localizações (lat/lon) por meio do OpenStreet Maps:
-
-- Abrir OpenStreet Maps (OSM) em (http://www.openstreetmap.org/#map=16/-22.8173/-47.0677)
-- Dar zoom máximo no instituto de interesse
-- Olhar o endereço na barra de endereço após o zoom
-- Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
-
-```{r enderecos}
-ends = read.table('institutos.tab', sep='\t', header=TRUE)
+```{r enderecos, message=FALSE, echo=FALSE}
+ends = data.frame(instituto=c('IMECC', 'FEM', 'FEF', 'IA' , 'IEL' , 'IFCH' , 'IFGW', 'IQ' , 'IB' , 'FEEC' , 'FEQ' , 'FE' , 'IE' , 'IC' , 'FEC' , 'FEAGRI' , 'FCM', 'IG' , 'FEA'),
+lat=c(-22.81583,-22.81938,-22.81476,-22.815127,-22.815121,-22.814924,-22.816778,-22.818993,-22.819333,-22.821286,-22.820336,-22.816466, -22.814952,-22.814663,-22.816503,-22.819405,-22.831345,-22.813084,-22.820475),
+lon=c(-47.06769,-47.06592,-47.07333,-47.070112,-47.069397,-47.068303,-47.067328,-47.068038,-47.069402,-47.065894,-47.065617,-47.065728,-47.066153,-47.064811,-47.061943,-47.060955,-47.062188,-47.068574,-47.067189))
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto)
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, color = "purple")
 map
 ```
 
