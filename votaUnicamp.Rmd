@@ -1,7 +1,6 @@
 ---
-title: "Pojeto Final ME524 - Vota Unicamp!"
-author: Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
-  Michely Wu Hsieh e Natalia Rodrigues da Silva
+title: "Vota Unicamp!"
+author: "Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro, Michely Wu Hsieh e Natalia Rodrigues da Silva"
 output: html_document
 ---
 
@@ -11,7 +10,7 @@ output: html_document
     O problema começa quando estudantes e docentes passam a questionar a representatibilidade das assembléias já que, devido as atividades e cronogramas acadêmicos a serem cumpridos, muitos dos estudantes contrários a greve não abrem mão de seus afazeres para comparecerem a tais reuniões, o que faz com que estas contem com um número reduzido de alunos que, em sua maioria, votam a favor.
     Diante desse problema o site "votaunicamp" foi criado com a intenção de conhecer a verdadeira opinião dos estudantes da universidade Estadual de Campinas em relação a pauta da greve estudantil através de uma votação online. A metodologia do site é segura por permitir que cada aluno vote uma unica vez, descartando, então, o risco de que a votação seja fraudada. Na pesquisa os votos são classificados em: "Sim","Não","Abstenção". Além disso, os alunos podem justificar seus votos. 
     O projeto final de ME524 tem como objetivo fazer uma análise descritiva dos dados presentes no site "votaunicamp". Para fazer tal estudo utilizaremos como ferramentas gráficos e tabelas obtidos a partir dos dados presentes no site.
-
+    
 ```{r input, message=FALSE, echo=FALSE}
 ## Setup
 Sys.setlocale(locale='UTF-8')
@@ -56,13 +55,13 @@ library(DT)
 datatable(mytbl, options = list(pageLength = 10))
 ```
 
-##Análises
+#Análises
 
 ### Análises para Graduação
 
 ####Análise da Graduação por Áreas
 
-Descrever as alterações feitas na tabela(adição de )
+Na tabela abaixo, foi adicionada uma coluna com a àrea correspondente de cada curso, e duas colunas com as proporções de votos favoráveis e não favoráveis á greve, respectivamente.
 
 ```{r separacao_areas, echo=FALSE}
 library(dplyr)
@@ -96,15 +95,30 @@ library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 ```
 
-####Gráfico das proporções por Área
+## Gráficos
+Abaixo, organizamos os dados, já separados por área, em uma tabela e em um gráfico nos quais podemos ver a proporção de votos sim, não e abstençao em cada uma delas. A intensão é que, através disso, possamos avaliar se a área do curso de cada aluno que respondeu a pesquisa influencia, ou não, na sua opinião a respeito da greve.
 
-```{r,echo=FALSE }
-proporcaoarea<-matrix(c(sum(exatas$sim)/sum(exatas$total),sum(exatas$nao)/sum(exatas$total),sum(exatas$abstencao)/sum(exatas$total),sum(humanas$sim)/sum(exatas$total),sum(humanas$nao)/sum(humanas$total),sum(humanas$abstencao)/sum(humanas$total),sum(biologicas$sim)/sum(biologicas$total),sum(biologicas$nao)/sum(biologicas$total),sum(biologicas$abstencao)/sum(biologicas$total),sum(artes$sim)/sum(artes$total),sum(artes$nao)/sum(artes$total),sum(artes$abstencao)/sum(artes$total),sum(pespeciais$sim)/sum(pespeciais$total),sum(pespeciais$nao)/sum(pespeciais$total),sum(pespeciais$abstencao)/sum(pespeciais$total)), nrow = 3, ncol=5)
+```{r, message=FALSE, echo=FALSE}
+proporcaoarea<-matrix(c(round(sum(exatas$sim)/sum(exatas$total),3),round(sum(exatas$nao)/sum(exatas$total),3),round(sum(exatas$abstencao)/sum(exatas$total),3),round(sum(humanas$sim)/sum(exatas$total),3),roud(sum(humanas$nao)/sum(humanas$total),3),round(sum(humanas$abstencao)/sum(humanas$total),3),round(sum(biologicas$sim)/sum(biologicas$total),3),round(sum(biologicas$nao)/sum(biologicas$total),3),round(sum(biologicas$abstencao)/sum(biologicas$total),3),round(sum(artes$sim)/sum(artes$total),3),round(sum(artes$nao)/sum(artes$total),3),round(sum(artes$abstencao)/sum(artes$total),3),round(sum(pespeciais$sim)/sum(pespeciais$total),3),round(sum(pespeciais$nao)/sum(pespeciais$total),3),round(sum(pespeciais$abstencao)/sum(pespeciais$total),3)), nrow = 3, ncol=5)
 
-barplot(proporcaoarea,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes","P. Especiais"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"))
+
+colnames(proporcaoarea) = c("Exatas", "Humanas", "Biológicas", "Artes", "P. Especiais")
+rownames(proporcaoarea)= c("Prop. Sim", "Prop. Não", "Prop. Abstenção")
+
+library(DT)
+datatable(proporcaoarea, options = list(pageLength = 10))
+``` 
+
+```{r, echo=FALSE}
+barplot(proporcaoarea,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes","P. Especiais"),main = "Comparativo das proporções de Votos por Área", ylab = "Proporção de Votos", xlab = "Áreas", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"))
+
 ```
 
-####Análise da Graduação por Instituto
+Analisando o gráfico vemos que nas áreas de exatas, humanas, biológicas e programas especiais a maioria dos alunos que votaram  expressaram opiião contrária a greve, enquanto na área artística a grande maioria se posicionou a favor do movimento.
+
+##Análise da Graduação por Instituto
+
+Na tabela abaixo organizamos os cursos de graduação de acordo com o isntituto ao qual cada um pertence. Utilizaremos esta tabela como base para gerar gráficos nos quais poderemos comparar a proporção de votos em cada um dos institutos.
 
 ```{r separando os institutos, echo=FALSE}
 library(dplyr)
@@ -165,51 +179,49 @@ library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 ```
 
-#### Gráfico das Proporções por Instituto
+No gráfico abaixo podemos ver a proporção de votos em cada um dos institutos. O objetivo deste gráfico é podermos observar, separadamente, quais dos institutos tem mais votos a favor ou contra o movimento de greve.
 
 ```{r, grafico comparativo, message=FALSE, echo=FALSE }
 porinstituto<-matrix(c(sum(IMECC$sim)/sum(IMECC$total),sum(IMECC$nao)/sum(IMECC$total),sum(IMECC$abstencao)/sum(IMECC$total),sum(FEM$sim)/sum(FEM$total),sum(FEM$nao)/sum(FEM$total),sum(FEM$abstencao)/sum(FEM$total),sum(FCA$sim)/sum(FCA$total),sum(FCA$nao)/sum(FCA$total),sum(FCA$abstencao)/sum(FCA$total),sum(IFGW$sim)/sum(IFGW$total),sum(IFGW$nao)/sum(IFGW$total),sum(IFGW$abstencao)/sum(IFGW$total),sum(IFCH$sim)/sum(IFCH$total),sum(IFCH$nao)/sum(IFCH$total),sum(IFCH$abstencao)/sum(IFCH$total),sum(FEEC$sim)/sum(FEEC$total),sum(FEEC$nao)/sum(FEEC$total),sum(FEEC$abstencao)/sum(FEEC$total),sum(FEC$sim)/sum(FEC$total),sum(FEC$nao)/sum(FEC$total),sum(FEC$abstencao)/sum(FEC$total),sum(FOP$sim)/sum(FOP$total),sum(FOP$nao)/sum(FOP$total),sum(FOP$abstencao)/sum(FOP$total),sum(FEA$sim)/sum(FEA$total),sum(FEA$nao)/sum(FEA$total),sum(FEA$abstencao)/sum(FEA$total),sum(FCM$sim)/sum(FCM$total),sum(FCM$nao)/sum(FCM$total),sum(FCM$abstencao)/sum(FCM$total),sum(IE$sim)/sum(IE$total),sum(IE$nao)/sum(IE$total),sum(IE$abstencao)/sum(IE$total),sum(IA$sim)/sum(IA$total),sum(IA$nao)/sum(IA$total),sum(IA$abstencao)/sum(IA$total),sum(FEF$sim)/sum(FEF$total),sum(FEF$nao)/sum(FEF$total),sum(FEF$abstencao)/sum(FEF$total),sum(IC$sim)/sum(IC$total),sum(IC$nao)/sum(IC$total),sum(IC$abstencao)/sum(IC$total),sum(FEQ$sim)/sum(FEQ$total),sum(FEQ$nao)/sum(FEQ$total),sum(FEQ$abstencao)/sum(FEQ$total),sum(IB$sim)/sum(IB$total),sum(IB$nao)/sum(IB$total),sum(IB$abstencao)/sum(IB$total),sum(IQ$sim)/sum(IQ$total),sum(IQ$nao)/sum(IQ$total),sum(IQ$abstencao)/sum(IQ$total),sum(IG$sim)/sum(IG$total),sum(IG$nao)/sum(IG$total),sum(IG$abstencao)/sum(IG$total),sum(FEAGRI$sim)/sum(FEAGRI$total),sum(FEAGRI$nao)/sum(FEAGRI$total),sum(FEAGRI$abstencao)/sum(FEAGRI$total),sum(FE$sim)/sum(FE$total),sum(FE$nao)/sum(FE$total),sum(FE$abstencao)/sum(FE$total),sum(PROFIS$sim)/sum(PROFIS$total),sum(PROFIS$nao)/sum(PROFIS$total),sum(PROFIS$abstencao)/sum(PROFIS$total)), nrow = 3, ncol=21)
 
-barplot(porinstituto, beside = TRUE,main = "Comparativo das Proporções de Votos por Instituto", ylab = "Total de Votos", xlab = "Institutos", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),names.arg=c("IMECC","FEM","FCA","IFGW","IFCH","FEEC","FEC","FOP","FEA","FCM","IE","IA","FEF","IC","FEQ","IB","IQ","IG","FEAGRI","FE","PROFIS"),cex.lab=0.9,cex.names = 0.5)
+barplot(porinstituto,beside = TRUE, main = "Comparativo das proporções de Votos por Instituto", ylab = "Proporção de Votos", xlab = "Institutos", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),names.arg=c("IMECC","FEM","FCA","IFGW","IFCH","FEEC","FEC","FOP","FEA","FCM","IE","IA","FEF","IC","FEQ","IB","IQ","IG","FEAGRI","FE","PROFIS"),cex.lab=0.9,cex.names = 0.5)
 
 ```
 
-####Proporção Geral de Votos da Graduação
+Podemos ver que, na grande maioria dos institutos, a proporção de votos contrários a greve é maior do que a proporção de alunos a favor.
+
+##Proporção Geral de Votos da Graduação
+
+O gráfico abaixo mostra a proporção de votos "sim", "não" e "abstenção" dos alunos da graduação.
 
 ```{r, message=FALSE, echo=FALSE}
 pie(c(sum(graduacao$sim)/sum(graduacao$total),sum(graduacao$nao)/sum(graduacao$total),sum(graduacao$abstencao)/sum(graduacao$total)), labels = c("30,79%", "65,51%", "3,70%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gráfico de setores a proporção de Votos da Graduação")
 legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
 
+Ao analisarmos estes gráficos podemos concluir que, segundo a pesquisa, a maioria dos alunos dos cursos de graduação da Unicamp são contrários ao movimento da greve estudantil. O que revela uma contadição com a atual condição da universidade, que tem 18 dos seus institutos em greve.
 
 ##Teste de Hipótese para proporção
 
-Queremos mostrar que a proporção de "sim" não excede 50% do total de votos válidos
+Dado que, nos gráficos e tabelas anteriores, observamos que a proporção de votos "não" é maior que a proporção de votos "sim", queremos testar se essa proporção amostral é suficiente para dizermos que o opinião populacional também é contrária a greve. Para isso vamos realizar um teste de hipóteses para essas proporções.
 
-```{r teste de hipotese para proporçao}
+Para fazer esse tipo de teste definimos duas hipóteses $H_0$ e $H_1$, que são chamadas respectivamente de hipótese nula e hipótese alternativa. No nosso caso $H_0$: proporção de sim >ou= 50% e $H_1$: proporção de sim < 50%
 
+Definidas essas hipóteses, buscamos, nos dados, evidências a favor de uma delas.Para isso definimos um valor ($\alpha$)=0.5 que é a probabilidade de rejeitarmos a hipótese nula quando ela é verdadeira, ou seja, em 5% das vezes que fizermos esse teste iremos dizer que a proporção de votos "sim" é menos que 50%, quando, de fato, não é.
 
+No nosso teste rejeitaremos $H_0$ quando o p-valor for (COMPLETAR)
+
+```{r teste de hipotese para proporçao, echo=FALSE}
 t=sum(graduacao$total)
 s=sum(graduacao$sim)
 n=sum(graduacao$nao)
 
 x=matrix(c(s,n),1,2)
 teste1=prop.test(x,p=0.5,alternative = "less", conf.level = 0.95)
-
 teste1
-
 ```
 
-Rejeita-se a hipótese nula, pois o p-valor é muito pequeno.
-
-####Totais de Votos da Graduação
-
-O gráfico abaixo mostra o total de votos dos alunos da gradução.
-
-```{r, echo=FALSE}
-barplot(c(sum(graduacao$sim),sum(graduacao$nao),sum(graduacao$abstencao)),legend=colnames(graduacao[5:7]),col=c("gray","darkblue","lightblue"))
-
-```
+Dado que o p-valor do nosso teste é 0,3197115 (COLOCAR A DECISÃO DO TESTE)
 
 ###Tamanho amostral
 
@@ -352,18 +364,18 @@ tabelatamamostral<-mutate(tabelatamamostral,"Tamanho Amostral"=tamamostral)
 datatable(tabelatamamostral, options = list(pageLength = 100))
 ```
 
-
-#Separação por áreas na pós-graduação
-
+## Separação por áreas na pós-graduação
 Apesar da greve estudantil ser articulada pelos estudantes da graduação, achamos válido fazer uma análise dos estudantes da pós-graduação, separados em Mestrado e Doutorado para saber se a opinião destes é semelhante à dos alunos da graduação em suas respectivas áreas, levando em conta que o movimento estudantil tem ganhado força e, com isso, interfere também em suas vidas acadêmicas.
 
-###Análises para Mestrado
+### Análises para Mestrado
+
+####Tabela de Dados do Mestrado
 
 Primeiramente, faremos análises do Mestrado.
 
 ###Análise do Mestrado por Área
 
-```{r, echo=FALSE}
+```{r, message=FALSE, echo=FALSE}
 
 library(dplyr)
 mestrado=filter(mytbl, nivel=="Mestrado")
@@ -379,7 +391,7 @@ exatasm=filter(mestrado,codigo=="47"|codigo=="56"|codigo=="57"|codigo=="55"|codi
 
 ```
 
-```{r, echo=FALSE}
+```{r, message=FALSE, echo=FALSE}
 #*#criandonovacoluna com areas
 
 library(dplyr)
@@ -388,10 +400,6 @@ biologicasm<-mutate(biologicasm,Area="Biológicas")
 humanasm<-mutate(humanasm,Area="Humanas")
 artesm<-mutate(artesm,Area="Artes")
 tabelageralm=rbind(exatasm,biologicasm,humanasm,artesm)
-
-##criando novas colunas com proporções
-tabelageralm<-mutate(tabelageralm,"Proporção de Sim"=round((tabelageralm$sim/tabelageralm$total),3))
-tabelageralm<-mutate(tabelageralm,"Proporção de Não"=round((tabelageralm$nao/tabelageralm$total),3))
 
 ##Exibindo a tabela geral mestrado
 library(DT)
@@ -413,17 +421,29 @@ pie(c(sum(mestrado$sim)/sum(mestrado$total),sum(mestrado$nao)/sum(mestrado$total
 legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
 
-####Grafico do Total de Votos do Mestrado
-```{r, echo=FALSE}
+Como o tamanho da amostra de votos do mestrado é pequeno, não podemos ter respostas certeiras sobre a opinião destas pessoas, contudo os resultados tendem a serem similares com os alunos da graduação.
 
-barplot(c(sum(mestrado$sim),sum(mestrado$nao),sum(mestrado$abstencao)),legend=colnames(mestrado[5:7]),col=c("gray","darkblue","lightblue"))
+##Teste de Hipótese 
+
+Assim como fizemos para a graduação, faremos um teste de hipóteses para a proporção de votos do mestrado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: proporção de sim >ou= 50% e $H_1$: proporção de sim < 50% e ($\alpha$)=0.05
+
+```{r , echo=FALSE}
+tm=sum(mestrado$total)
+sm=sum(mestrado$sim)
+nm=sum(mestrado$nao)
+
+y=matrix(c(sm,nm),1,2)
+teste2=prop.test(y,p=0.5,alternative = "less", conf.level = 0.95)
+teste2
 ```
 
-Como o tamanho da amostra de votos do mestrado é pequeno, não podemos ter respostas certeiras sobre a opinião destas pessoas, contudo os resultados tendem a serem similares com os alunos da graduação.
+Dado que o p-valor do nosso teste é 0,2222222 (COLOCAR A DECISÃO DO TESTE)
 
 ###Análises para Doutorado
 
-```{r separação por areas, echo=FALSE}
+####Tabela de Dados para Doutorado
+
+```{r separação por areas, message=FALSE, echo=FALSE}
 library(dplyr)
 doutorado=filter(mytbl, nivel=="Doutorado")
 
@@ -437,7 +457,7 @@ biologicasd=filter(doutorado,codigo=="33"|codigo=="89"|codigo=="8"|codigo=="75"|
 exatasd=filter(doutorado,codigo=="81"|codigo=="34"|codigo=="6"|codigo=="7"|codigo=="5"|codigo=="58"|codigo=="32"|codigo=="62"|codigo=="61"|codigo=="98"|codigo=="60"|codigo=="92"|codigo=="59"|codigo=="35"|codigo=="53"|codigo=="54"|codigo=="31"|codigo=="51"|codigo=="79"|codigo=="55")
 ```
 
-```{r criando nova coluna areas, echo=FALSE}
+```{r criando nova coluna areas, message=FALSE, echo=FALSE}
 ##criandonovacoluna
 library(dplyr)
 exatasd<-mutate(exatasd,Area="Exatas")
@@ -445,10 +465,6 @@ biologicasd<-mutate(biologicasd,Area="Biológicas")
 humanasd<-mutate(humanasd,Area="Humanas")
 artesd<-mutate(artesd,Area="Artes")
 tabelagerald=rbind(exatasd,biologicasd,humanasd,artesd)
-
-##criando novas colunas com proporções
-tabelagerald<-mutate(tabelagerald,"Proporção de Sim"=(tabelagerald$sim/tabelagerald$total))
-tabelagerald<-mutate(tabelagerald,"Proporção de Não"=(tabelagerald$nao/tabelagerald$total))
 
 library(DT)
 datatable(tabelagerald, options = list(pageLength = 10))
@@ -462,6 +478,8 @@ proporcaoaread<-matrix(c(sum(exatasd$sim)/sum(exatasd$total),sum(exatasd$nao)/su
 barplot(proporcaoaread,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatasd[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
+Os alunos de doutorado seguem o mesmo padrão dos de mestrado e graduação. Apesar dos poucos votos, os gráficos de exatas e biológicas acima indicam que os alunos destas áreas são contrários a greve.
+
 ####Proporção Geral de Votos do Doutorado
 
 ```{r, message=FALSE, echo=FALSE}
@@ -469,11 +487,22 @@ pie(c(sum(doutorado$sim)/sum(doutorado$total),sum(doutorado$nao)/sum(doutorado$t
 legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
 
-####Grafico do Total de Votos do Doutorado
-```{r, echo=FALSE}
+##Teste de Hipótese
 
-barplot(c(sum(doutorado$sim),sum(doutorado$nao),sum(doutorado$abstencao)),legend=colnames(doutorado[5:7]),col=c("gray","darkblue","lightblue"))
+Assim como fizemos para a graduação e para o mestrado, faremos um teste de hipóteses para a proporção de votos do doutorado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: proporção de sim >ou= 50% e $H_1$: proporção de sim < 50% e ($\alpha$)=0.05
+
+```{r , echo=FALSE}
+td=sum(doutorado$total)
+sd=sum(doutorado$sim)
+nd=sum(doutorado$nao)
+
+z=matrix(c(sd,nd),1,2)
+teste3=prop.test(z,p=0.5,alternative = "less", conf.level = 0.95)
+teste3
 ```
+
+Dado que o p-valor do nosso teste é (COLOCAR VALOR DO P-VALOR) (COLOCAR A DECISÃO DO TESTE)
+
 
 ## Gauge Plots
 
@@ -489,6 +518,8 @@ plot(gauge)
 
 ## Obtenção de Dados Geográficos
 
+Esse mapa mostra a localização de cada um dos institutos da Unicamp mencionados no trabalho.
+
 ```{r enderecos, message=FALSE, echo=FALSE}
 ends = data.frame(instituto=c('IMECC', 'FEM', 'FEF', 'IA' , 'IEL' , 'IFCH' , 'IFGW', 'IQ' , 'IB' , 'FEEC' , 'FEQ' , 'FE' , 'IE' , 'IC' , 'FEC' , 'FEAGRI' , 'FCM', 'IG' , 'FEA'),
 lat=c(-22.81583,-22.81938,-22.81476,-22.815127,-22.815121,-22.814924,-22.816778,-22.818993,-22.819333,-22.821286,-22.820336,-22.816466, -22.814952,-22.814663,-22.816503,-22.819405,-22.831345,-22.813084,-22.820475),
@@ -500,6 +531,8 @@ map
 ```
 
 ## Intervalos de Confiança
+
+Abaixo colocamos uma tabela com os intervalos de confiaça para a proporção de votos não para cada curso. Um intervalo de confinança significa a cada 100 vezes que essa pesquisa for feita, em média em 95 delas a proporção de "nãos" estará dentro desse intervalo.
 
 ```{r stats}
 p = with(mytbl, nao/(total))
