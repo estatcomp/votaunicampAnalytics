@@ -5,13 +5,13 @@ output: html_document
 
 # Introdução
 
-  A um pouco mais de um mês estudantes impulsionados por problemas que as universidades estaduais paulistas (USP, UNESP e UNICAMP) enfrentam, sejam eles, má administração, corte financeiros, permanência estudantil, entraram em greve para reinvindicar algumas pautas que julgam necessárias.
+  Há um pouco mais de um mês estudantes impulsionados por problemas que as universidades estaduais paulistas (USP, UNESP e UNICAMP) enfrentam, sejam eles, má administração, cortes financeiros, permanência estudantil, entraram em greve para reivindicar algumas pautas que julgam necessárias.
   
   Abordando especificamente a UNICAMP, apesar de existir um movimento geral dos alunos no campus, cada instituto tem autonomia sobre as suas salas de aulas, e matérias ministradas por eles. Perante a este fato, a greve de alunos de cada instituto é decidida por meio de assembléias estudantis, organizada, normalmente, pelos centros acadêmicos. Entretando, as tomadas de decisões baseadas nos resultados das assembléias são questionáveis devido a sua falta de representatividade. 
   
   Com o propósito de verificar, de fato, a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/”, no qual alunos matriculados na UNICAMP podem votar e até mesmo justificarem o voto. 
   
-  A partir desse site, o objetivo do trabalho é analisar a opinião dos alunos de graduação da Unicamp, verificar se realmente o número de alunos a favor da greve é maior que o número de alunos contrarios a ela. Além do mais, podemos fazer comparações entre os diversos institutos, ver quais são a favor, contra ou neutros em relação a greve. 
+  A partir desse site, o objetivo do trabalho é analisar a opinião dos alunos de graduação da Unicamp, verificar se realmente o número de alunos a favor da greve é maior que o número de alunos contrários a ela. Além do mais, podemos fazer comparações entre os diversos institutos, ver quais são a favor, contra ou neutros em relação a greve. 
 
 # Obtenção dos dados
 
@@ -115,7 +115,7 @@ todosinstitutos = todosinstitutos[,c(5,1,2,3,4,6,7,8)]
   Sendo assim, a seguir temos o gráfico que mostra a proporção dos votos por área.
 
 ```{r comparação de área, echo=FALSE, warning=FALSE, message=FALSE}
-minhatab[which((minhatab$Área != "Exatas") & (minhatab$Área != "Humanas") & (minhatab$Área != "Profis")),]$Área = "Biológicas"
+minhatab[which((minhatab$Área != "Exatas") & (minhatab$Área != "Humanas") & (minhatab$Área != "Profis") ),]$Área = "Biológicas"
 areas = data.frame(matrix(nrow=4, ncol=7))
 nomesareas = c("Exatas", "Biológicas", "Humanas", "Profis")
 rownames(areas) = nomesareas
@@ -149,13 +149,13 @@ p3
 
   Com o gráfico pode-se notar que, aparentemente, a única área na qual a maioria dos alunos é a favor da greve é a **Humanas**. 
   
-  Isto pode ser comprovado por análises estatísticas, que iremos fazer mais pra frente através de Teste de Hipóteses.
+  Isto pode ser comprovado por análises estatísticas, que iremos fazer mais para frente através de Teste de Hipóteses.
   
   Os cursos, além de serem agrupados nestas 3 grandes áreas, também são agrupados por institutos. Por exemplo, o Instituto da Computação (IC) é composto pelos cursos de Ciência da Computação, e Engenharia de Computação. Ao todo a UNICAMP possui 25 institutos, sendo 22 no *Campus de Campinas*, 2 no *Campus de Limeira* e apenas 1 no *Campus de Piracicaba*(Odontologia). 
   
   O gráfico a seguir mostra através das cores a proporção de votos 'Não' em cada instituto, no campus de Campinas, o qual se concentra a maioria dos institutos. A cor mais escura representa uma maior proporção de "não".
   
-  Além disso, ao clicar em cada instituto, é possível vizualizar a quantidade de votos a favor, contra, ou abstenção em relação a greve. 
+  Além disso, ao clicar em cada instituto, é possível visualizar a quantidade de votos a favor, contra, ou abstenção em relação a greve. 
 
 **Campus Campinas**
 
@@ -345,7 +345,9 @@ colnames(tabelafinal) = c("Área","Instituto","Curso","Total","Sim","Não", "Abs
 datatable(tabelafinal, options = list(pageLength = 5))
 ```
 
-## Analises estatísticas
+Na tabela acima, existem dois cursos que tiveram votos computados mas não constava no site da Diretoria Acadêmica o código do curso e tampouco os institutos desses cursos. Logo, para esses cursos o campo "Instituto" está zerado. Além disso, a área ficou como Biológicas, apesar do nome indicar que não seria Biológicas, mas como são apenas 1 voto para cada um dos dois cursos, não causa problemas nas análises. 
+
+## Análises estatísticas
 
 Após conhecermos melhor o comportamento dos dados, é de interesse aplicar o nosso conhecimento estatístico para fazer testes, IC, entre outros; para que com isso possamos contribuir para uma melhor compreesão e sugestões afim de resolver nosso problema sobre a votação da greve.
 
