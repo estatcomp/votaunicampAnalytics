@@ -1,7 +1,17 @@
 ---
 title: "Vota Unicamp!"
-author: "Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro, Michely Wu Hsieh e Natalia Rodrigues da Silva"
-output: html_document
+author: Ana Flávia Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
+  Michely Wu Hsieh e Natalia Rodrigues da Silva
+output:
+  html_document:
+    fig_caption: yes
+    force_captions: yes
+    highlight: pygments
+    number_sections: yes
+    theme: cerulean
+  pdf_document: default
+subtitle: Relatório Final
+csl: mee.csl
 ---
 
 ##Introdução  e objetivo
@@ -55,11 +65,9 @@ library(DT)
 datatable(mytbl, options = list(pageLength = 10))
 ```
 
-#Análises
+##Análises
 
-### Análises para Graduação
-
-####Análise da Graduação por Áreas
+###Análise da Graduação por Áreas
 
 Na tabela abaixo, foi adicionada uma coluna com a àrea correspondente de cada curso, e duas colunas com as proporções de votos favoráveis e não favoráveis á greve, respectivamente.
 
@@ -95,11 +103,28 @@ library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 ```
 
-## Gráficos
+### Gráficos
 Abaixo, organizamos os dados, já separados por área, em uma tabela e em um gráfico nos quais podemos ver a proporção de votos sim, não e abstençao em cada uma delas. A intensão é que, através disso, possamos avaliar se a área do curso de cada aluno que respondeu a pesquisa influencia, ou não, na sua opinião a respeito da greve.
 
 ```{r, message=FALSE, echo=FALSE}
-proporcaoarea<-matrix(c(round(sum(exatas$sim)/sum(exatas$total),3),round(sum(exatas$nao)/sum(exatas$total),3),round(sum(exatas$abstencao)/sum(exatas$total),3),round(sum(humanas$sim)/sum(exatas$total),3),roud(sum(humanas$nao)/sum(humanas$total),3),round(sum(humanas$abstencao)/sum(humanas$total),3),round(sum(biologicas$sim)/sum(biologicas$total),3),round(sum(biologicas$nao)/sum(biologicas$total),3),round(sum(biologicas$abstencao)/sum(biologicas$total),3),round(sum(artes$sim)/sum(artes$total),3),round(sum(artes$nao)/sum(artes$total),3),round(sum(artes$abstencao)/sum(artes$total),3),round(sum(pespeciais$sim)/sum(pespeciais$total),3),round(sum(pespeciais$nao)/sum(pespeciais$total),3),round(sum(pespeciais$abstencao)/sum(pespeciais$total),3)), nrow = 3, ncol=5)
+
+pexatass=round((sum(exatas$sim)/sum(exatas$total)),3)
+pexatasn=round(sum(exatas$nao)/sum(exatas$total),3)
+pexatasa=round(sum(exatas$abstencao)/sum(exatas$total),3)
+phumanass=round(sum(humanas$sim)/sum(humanas$total),3)
+phumanasn=round(sum(humanas$nao)/sum(humanas$total),3)
+phumanasa=round(sum(humanas$abstencao)/sum(humanas$total),3)
+pbiologicass=round(sum(biologicas$sim)/sum(biologicas$total),3)
+pbiologicasn=round(sum(biologicas$nao)/sum(biologicas$total),3)
+pbiologicasa=round(sum(biologicas$abstencao)/sum(biologicas$total),3)
+partess=round(sum(artes$sim)/sum(artes$total),3)
+partesn=round(sum(artes$nao)/sum(artes$total),3)
+partesa=round(sum(artes$abstencao)/sum(artes$total),3)
+ppespeciaiss=round(sum(pespeciais$sim)/sum(pespeciais$total),3)
+ppespeciaisn=round(sum(pespeciais$nao)/sum(pespeciais$total),3)
+ppespeciaisa=round(sum(pespeciais$abstencao)/sum(pespeciais$total),3)
+  
+proporcaoarea<-matrix(c(pexatass,pexatasn,pexatass,phumanass,phumanasn,phumanasa,pbiologicass,pbiologicasn,pbiologicasa,partess,partesn,partesa,ppespeciaiss,ppespeciaisn,ppespeciaisa), nrow = 3, ncol=5)
 
 
 colnames(proporcaoarea) = c("Exatas", "Humanas", "Biológicas", "Artes", "P. Especiais")
@@ -116,7 +141,7 @@ barplot(proporcaoarea,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas
 
 Analisando o gráfico vemos que nas áreas de exatas, humanas, biológicas e programas especiais a maioria dos alunos que votaram  expressaram opiião contrária a greve, enquanto na área artística a grande maioria se posicionou a favor do movimento.
 
-##Análise da Graduação por Instituto
+###Análise da Graduação por Instituto
 
 Na tabela abaixo organizamos os cursos de graduação de acordo com o isntituto ao qual cada um pertence. Utilizaremos esta tabela como base para gerar gráficos nos quais poderemos comparar a proporção de votos em cada um dos institutos.
 
@@ -190,7 +215,7 @@ barplot(porinstituto,beside = TRUE, main = "Comparativo das proporções de Voto
 
 Podemos ver que, na grande maioria dos institutos, a proporção de votos contrários a greve é maior do que a proporção de alunos a favor.
 
-##Proporção Geral de Votos da Graduação
+###Proporção Geral de Votos da Graduação
 
 O gráfico abaixo mostra a proporção de votos "sim", "não" e "abstenção" dos alunos da graduação.
 
@@ -201,7 +226,7 @@ legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim",
 
 Ao analisarmos estes gráficos podemos concluir que, segundo a pesquisa, a maioria dos alunos dos cursos de graduação da Unicamp são contrários ao movimento da greve estudantil. O que revela uma contadição com a atual condição da universidade, que tem 18 dos seus institutos em greve.
 
-##Teste de Hipótese para proporção
+###Teste de Hipótese para proporção
 
 Dado que, nos gráficos e tabelas anteriores, observamos que a proporção de votos "não" é maior que a proporção de votos "sim", queremos testar se essa proporção amostral é suficiente para dizermos que o opinião populacional também é contrária a greve. Para isso vamos realizar um teste de hipóteses para essas proporções.
 
@@ -223,15 +248,15 @@ teste1
 
 Dado que o p-valor do nosso teste é 0,3197115 (COLOCAR A DECISÃO DO TESTE)
 
-###Tamanho amostral
+###Tamanho amostral por curso de Graduação
 
-O tamanho da nossa amostra foi determinado através da fórmula para amostra aleatória simples sem reposição, sendo $p=\frac{1}{2}$ (pior caso):
+O tamanho amostral foi determinado através da fórmula para amostra aleatória simples sem reposição, sendo $p=\frac{1}{2}$ (pior caso):
 
 $$ n=\frac{N}{(4(N-1)D+1)} $$
 
 sendo $D=B²/z²$.
 
-Definimos $B=0.1$, ou seja, o erro será de no máximo 10% e $Z=1.96$, pois aproximamos nossa distribuição para uma normal padrão com 95% de significância, o que nos deu os tamanhos presentes na tabela abaixo.
+Definimos $B=0.1$, ou seja, o erro será de no máximo 10% e $Z=1.96$, pois aproximamos nossa distribuição para uma normal padrão com 95% de significância, o que nos deu os tamanhos amostrais presentes na tabela abaixo.
 
 ```{r calculo do tamanho amostral, echo=FALSE}
 ##filtrando curso por curso
@@ -347,7 +372,7 @@ curso64<-mutate(curso64,n_matriculados="147")
 
 NumeroMatriculados = rbind(curso1, curso10, curso101, curso102, curso108,curso11, curso12, curso13, curso2, curso28, curso29, curso34, curso36,curso39, curso4, curso40, curso41, curso42, curso43, curso48, curso49, curso5,curso50,curso51,curso53,curso8,curso89,curso9,curso100,curso107,curso14,curso15,curso27,curso45,curso46,curso58,curso6,curso63,curso109,curso16,curso17,curso18,curso19,curso38,curso44,curso47,curso55,curso56,curso7,curso75,curso22,curso26,curso64)
 
-tabelatamamostral<-data.frame(NumeroMatriculados$codigo, NumeroMatriculados$curso,NumeroMatriculados$n_matriculados)
+tabelatamamostral<-data.frame(NumeroMatriculados$codigo, NumeroMatriculados$curso,NumeroMatriculados$n_matriculados,NumeroMatriculados$total)
 
 ##calculo do tamanho amostral
 B = 0.1
@@ -361,19 +386,23 @@ N2=N-1
 tamamostral=round(N/(4*(N2)*D+1),0)
 
 tabelatamamostral<-mutate(tabelatamamostral,"Tamanho Amostral"=tamamostral)
+colnames(tabelatamamostral)=c("Código","Curso","Número de Matriculados","Total de Votos","Tamanho Amostral")
+
 datatable(tabelatamamostral, options = list(pageLength = 100))
 ```
 
-## Separação por áreas na pós-graduação
+Observando a tabela acima, podemos ver que em todos os cursos, o número de votos registrados nesta pesquisa não atinge o valor do tamanho amostral calculado,o que deixa claro que os dados são viesados e não representam a população de alunos regularmente matriculados nos curso de graduação da UNICAMP.
+
+# Separação por áreas na pós-graduação
 Apesar da greve estudantil ser articulada pelos estudantes da graduação, achamos válido fazer uma análise dos estudantes da pós-graduação, separados em Mestrado e Doutorado para saber se a opinião destes é semelhante à dos alunos da graduação em suas respectivas áreas, levando em conta que o movimento estudantil tem ganhado força e, com isso, interfere também em suas vidas acadêmicas.
 
-### Análises para Mestrado
-
-####Tabela de Dados do Mestrado
-
-Primeiramente, faremos análises do Mestrado.
+## Análises para Mestrado
 
 ###Análise do Mestrado por Área
+
+###Tabela de Dados para Mestrado
+
+Na tabela abaixo, filtramos apenas os dados referente aos cursos de *Mestrado* e adicionamos uma coluna com a àrea correspondente de cada curso, e duas colunas com as proporções de votos favoráveis e não favoráveis á greve, respectivamente.
 
 ```{r, message=FALSE, echo=FALSE}
 
@@ -406,7 +435,7 @@ library(DT)
 datatable(tabelageralm, options = list(pageLength = 10))
 ```
 
-####Gráfico das proporções por Área
+###Gráfico das proporções por Área
 
 ```{r,echo=FALSE }
 proporcaoaream<-matrix(c(sum(exatasm$sim)/sum(exatasm$total),sum(exatasm$nao)/sum(exatasm$total),sum(exatasm$abstencao)/sum(exatasm$total),sum(humanasm$sim)/sum(exatasm$total),sum(humanasm$nao)/sum(humanasm$total),sum(humanasm$abstencao)/sum(humanasm$total),sum(biologicasm$sim)/sum(biologicasm$total),sum(biologicasm$nao)/sum(biologicasm$total),sum(biologicasm$abstencao)/sum(biologicasm$total),sum(artesm$sim)/sum(artesm$total),sum(artesm$nao)/sum(artesm$total),sum(artesm$abstencao)/sum(artesm$total)), nrow = 3, ncol=4)
@@ -414,7 +443,7 @@ proporcaoaream<-matrix(c(sum(exatasm$sim)/sum(exatasm$total),sum(exatasm$nao)/su
 barplot(proporcaoaream,beside = TRUE, names.arg=c("Exatas","Humanas","Biológicas","Artes"),main = "Comparativo das proporções de 'Sim' por Área", ylab = "Total de Votos", xlab = "Áreas", legend=colnames(exatasm[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
-####Proporção Geral de Votos do Mestrado
+###Proporção Geral de Votos do Mestrado
 
 ```{r, message=FALSE, echo=FALSE}
 pie(c(sum(mestrado$sim)/sum(mestrado$total),sum(mestrado$nao)/sum(mestrado$total),sum(mestrado$abstencao)/sum(mestrado$total)), labels = c("22,22%", "77,78%", "0%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gráfico de setores a proporção de Votos do Mestrado")
@@ -423,7 +452,7 @@ legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim",
 
 Como o tamanho da amostra de votos do mestrado é pequeno, não podemos ter respostas certeiras sobre a opinião destas pessoas, contudo os resultados tendem a serem similares com os alunos da graduação.
 
-##Teste de Hipótese 
+###Teste de Hipótese 
 
 Assim como fizemos para a graduação, faremos um teste de hipóteses para a proporção de votos do mestrado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: proporção de sim >ou= 50% e $H_1$: proporção de sim < 50% e ($\alpha$)=0.05
 
@@ -439,9 +468,11 @@ teste2
 
 Dado que o p-valor do nosso teste é 0,2222222 (COLOCAR A DECISÃO DO TESTE)
 
-###Análises para Doutorado
+##Análises para Doutorado
 
-####Tabela de Dados para Doutorado
+###Tabela de Dados para Doutorado
+
+Na tabela abaixo, filtramos apenas os dados referente aos cursos de *Doutorado* e adicionamos uma coluna com a àrea correspondente de cada curso, e duas colunas com as proporções de votos favoráveis e não favoráveis á greve, respectivamente.
 
 ```{r separação por areas, message=FALSE, echo=FALSE}
 library(dplyr)
@@ -470,7 +501,7 @@ library(DT)
 datatable(tabelagerald, options = list(pageLength = 10))
 ```
 
-####Gráfico das proporções por Área
+###Gráfico das proporções por Área
 
 ```{r,echo=FALSE }
 proporcaoaread<-matrix(c(sum(exatasd$sim)/sum(exatasd$total),sum(exatasd$nao)/sum(exatasd$total),sum(exatasd$abstencao)/sum(exatasd$total),sum(humanasd$sim)/sum(exatasd$total),sum(humanasd$nao)/sum(humanasd$total),sum(humanasd$abstencao)/sum(humanasd$total),sum(biologicasd$sim)/sum(biologicasd$total),sum(biologicasd$nao)/sum(biologicasd$total),sum(biologicasd$abstencao)/sum(biologicasd$total),sum(artesd$sim)/sum(artesd$total),sum(artesd$nao)/sum(artesd$total),sum(artesd$abstencao)/sum(artesd$total)), nrow = 3, ncol=4)
@@ -480,14 +511,14 @@ barplot(proporcaoaread,beside = TRUE, names.arg=c("Exatas","Humanas","Biológica
 
 Os alunos de doutorado seguem o mesmo padrão dos de mestrado e graduação. Apesar dos poucos votos, os gráficos de exatas e biológicas acima indicam que os alunos destas áreas são contrários a greve.
 
-####Proporção Geral de Votos do Doutorado
+###Proporção Geral de Votos do Doutorado
 
 ```{r, message=FALSE, echo=FALSE}
 pie(c(sum(doutorado$sim)/sum(doutorado$total),sum(doutorado$nao)/sum(doutorado$total),sum(doutorado$abstencao)/sum(doutorado$total)), labels = c("17,39%", "78,26%", "4,35%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gráfico de setores a proporção de Votos do Doutorado")
 legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "Não", "Abstenções"))
 ```
 
-##Teste de Hipótese
+###Teste de Hipótese
 
 Assim como fizemos para a graduação e para o mestrado, faremos um teste de hipóteses para a proporção de votos do doutorado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: proporção de sim >ou= 50% e $H_1$: proporção de sim < 50% e ($\alpha$)=0.05
 
@@ -526,7 +557,7 @@ lat=c(-22.81583,-22.81938,-22.81476,-22.815127,-22.815121,-22.814924,-22.816778,
 lon=c(-47.06769,-47.06592,-47.07333,-47.070112,-47.069397,-47.068303,-47.067328,-47.068038,-47.069402,-47.065894,-47.065617,-47.065728,-47.066153,-47.064811,-47.061943,-47.060955,-47.062188,-47.068574,-47.067189))
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, color = "purple")
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, color = "orange")
 map
 ```
 
@@ -542,3 +573,11 @@ colnames(ics) = c("lower", "upper")
 mytbl$p = p
 mytbl = cbind(mytbl, ics)
 ```
+
+## Conclusão
+
+Diante de todos os dados análisados,interpretação dos gráficos e o que vivenciamos durante todo período de greve em nossa universidade, acreditamos que, apesar do número de votos presentes no site "votaunicamp" ter sido baixo, podemos considerar que a amostra se aproxima da realidade. Notamos que os alunos de exatas e biológicas, em sua maioria, tendem a serem contrários a greve. Enquanto os alunos de humanas e artes são a favor, isso se deve ao fato desses cursos estarem diretamente ligados às questões sociais.
+A decisão a respeito da greve é feita através de assembléias, que são reuniões organizadas pelo centro acadêmico de cada instituto, os quais são formados, majoritariamente por alunos favoráveis ao movimento. Devido as atividades e cronogramas acadêmicos a serem cumpridos, muitos dos estudantes contrários a greve não abrem mão de seus afazeres para comparecerem a tais reuniões que acabam contando com um número reduzido de alunos que, em sua maioria, votam a favor.
+Vale ressaltar também que pelo motivo da pesquisa não ser anônima, pode causar possível receio dos alunos que são favoráveis a greve, pelo fato de precisar identificar o seu primeiro nome, seu curso e seu RG, fazendo que sejam expostos aos docentes que terão acesso a essa pesquisa.Portanto os dados podem ser tendenciosos. 
+Até o momento mais da metade dos institutos da UNICAMP estão em greve o que revela um contraste com os resultados da pesquisa, e, além disso evidencia um fato que, por motivos como os relatados acima, tem sido fortemente questionado por docentes e estudantes: a não representatividade das assembléias.
+Sabemos que a posição de cada estudante mediante a greve é muito importante para chegar a uma conclusão mais justa. Com isso, a votação por assembleias e online são essenciais para obtermos um resultado certeiro.
