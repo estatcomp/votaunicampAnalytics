@@ -571,7 +571,10 @@ mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
 ics = cbind(pmax(p-mes, 0), pmin(p+mes, 1))
 colnames(ics) = c("lower", "upper")
 mytbl$p = p
-mytbl = cbind(mytbl, ics)
+tabelaIC<- data.frame(mytbl$codigo,mytbl$nivel, mytbl$curso,mytbl$p)
+tabelaic2 = cbind(tabelaIC, ics)
+colnames(tabelaic2)=c("Código", "Nível", "Total","p","Limite Inferior","Limite Superior")
+datatable(tabelaic2, options = list(pageLength = 10))
 ```
 
 ## Conclusão
