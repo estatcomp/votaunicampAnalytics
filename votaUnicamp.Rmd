@@ -1,6 +1,6 @@
 ---
 title: "Vota Unicamp!"
-author: Ana Fl√°via Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
+author: Ana Fl·via Polisel, Bruna Mendes Heyn, Eliane Ramos de Siqueira, Gustavo Cordeiro,
   Michely Wu Hsieh e Natalia Rodrigues da Silva
 output:
   html_document:
@@ -10,16 +10,16 @@ output:
     number_sections: yes
     theme: cerulean
   pdf_document: default
-subtitle: Relat√≥rio Final
+subtitle: RelatÛrio Final
 csl: mee.csl
 ---
 
-##Introdu√ß√£o  e objetivo
-    As universidades estaduais paulistas tem vivido momentos de grande tens√£o desde que teve inicio uma greve geral dos estudantes que t√™m como objetivo revindicar pautas como a implementa√ß√£o de cotas etnico-raciais, a amplia√ß√£o da moradia estudantil e a negocia√ß√£o a respeito dos cortes or√ßamentarios anunciados pelo governo do estado. Desde o dia 10/05 as intala√ß√µes da reitoria e da pr√≥-reitoria das UNICAMP foram ocupadas por estudantes e assim permanecem a atual data, mesmo ap√≥s mandados judiciais de desocupa√ß√£o e amea√ßas de reintegr√ß√£o de posse por parte da Policia Militar.
-    Al√©m do movimento geral de greve e da ocupa√ß√£o existem movimentos grevistas dentro de cada um dos institutos. A decis√£o a respeito do apoio, ou n√£o a greve nessa inst√¢ncia √©, ent√£o, feita atrav√©s de assembl√©ias, que s√£o reuni√µes organizadas pelo centro acad√™mico de cada instituto, os quais s√£o formados por alunos do mesmo.
-    O problema come√ßa quando estudantes e docentes passam a questionar a representatibilidade das assembl√©ias j√° que, devido as atividades e cronogramas acad√™micos a serem cumpridos, muitos dos estudantes contr√°rios a greve n√£o abrem m√£o de seus afazeres para comparecerem a tais reuni√µes, o que faz com que estas contem com um n√∫mero reduzido de alunos que, em sua maioria, votam a favor.
-    Diante desse problema o site "votaunicamp" foi criado com a inten√ß√£o de conhecer a verdadeira opini√£o dos estudantes da universidade Estadual de Campinas em rela√ß√£o a pauta da greve estudantil atrav√©s de uma vota√ß√£o online. A metodologia do site √© segura por permitir que cada aluno vote uma unica vez, descartando, ent√£o, o risco de que a vota√ß√£o seja fraudada. Na pesquisa os votos s√£o classificados em: "Sim","N√£o","Absten√ß√£o". Al√©m disso, os alunos podem justificar seus votos. 
-    O projeto final de ME524 tem como objetivo fazer uma an√°lise descritiva dos dados presentes no site "votaunicamp". Para fazer tal estudo utilizaremos como ferramentas gr√°ficos e tabelas obtidos a partir dos dados presentes no site.
+##IntroduÁ„o  e objetivo
+    As universidades estaduais paulistas tem vivido momentos de grande tens„o desde que teve inicio uma greve geral dos estudantes que tÍm como objetivo revindicar pautas como a implementaÁ„o de cotas etnico-raciais, a ampliaÁ„o da moradia estudantil e a negociaÁ„o a respeito dos cortes orÁamentarios anunciados pelo governo do estado. Desde o dia 10/05 as intalaÁıes da reitoria e da prÛ-reitoria das UNICAMP foram ocupadas por estudantes e assim permanecem a atual data, mesmo apÛs mandados judiciais de desocupaÁ„o e ameaÁas de reintegrÁ„o de posse por parte da Policia Militar.
+    AlÈm do movimento geral de greve e da ocupaÁ„o existem movimentos grevistas dentro de cada um dos institutos. A decis„o a respeito do apoio, ou n„o a greve nessa inst‚ncia È, ent„o, feita atravÈs de assemblÈias, que s„o reuniıes organizadas pelo centro acadÍmico de cada instituto, os quais s„o formados por alunos do mesmo.
+    O problema comeÁa quando estudantes e docentes passam a questionar a representatibilidade das assemblÈias j· que, devido as atividades e cronogramas acadÍmicos a serem cumpridos, muitos dos estudantes contr·rios a greve n„o abrem m„o de seus afazeres para comparecerem a tais reuniıes, o que faz com que estas contem com um n˙mero reduzido de alunos que, em sua maioria, votam a favor.
+    Diante desse problema o site "votaunicamp" foi criado com a intenÁ„o de conhecer a verdadeira opini„o dos estudantes da universidade Estadual de Campinas em relaÁ„o a pauta da greve estudantil atravÈs de uma votaÁ„o online. A metodologia do site È segura por permitir que cada aluno vote uma unica vez, descartando, ent„o, o risco de que a votaÁ„o seja fraudada. Na pesquisa os votos s„o classificados em: "Sim","N„o","AbstenÁ„o". AlÈm disso, os alunos podem justificar seus votos. 
+    O projeto final de ME524 tem como objetivo fazer uma an·lise descritiva dos dados presentes no site "votaunicamp". Para fazer tal estudo utilizaremos como ferramentas gr·ficos e tabelas obtidos a partir dos dados presentes no site.
     
 ```{r input, message=FALSE, echo=FALSE}
 ## Setup
@@ -31,20 +31,20 @@ library(leaflet)
 library(pracma)
 page = read_html('https://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
-names(tbl)=c("Curso","Total","Sim","Absten√ß√µes","N√£o")
+names(tbl)=c("Curso","Total","Sim","AbstenÁıes","N„o")
 tbl$Curso=repair_encoding(tbl$Curso)
 #head(tbl)
 ```
 
 ```{r format, echo=FALSE}
-## Formata√ß√£o de Dados
+## FormataÁ„o de Dados
 mytbl = data.frame(codigo=as.integer(str_extract(tbl$Curso, "^\\d+")),
 nivel=NA,
 curso=gsub("^(\\d+) - (.*)$", "\\2", tbl$Curso),
 total=tbl$Total,
 sim=as.integer(str_extract(tbl$Sim, "^\\d+")),
-nao=as.integer(str_extract(tbl$N√£o, "^\\d+")),
-abstencao=as.integer(str_extract(tbl$Absten√ß√µes, "^\\d+")))
+nao=as.integer(str_extract(tbl$N„o, "^\\d+")),
+abstencao=as.integer(str_extract(tbl$AbstenÁıes, "^\\d+")))
 nivel = str_extract(mytbl$curso, "(Dou|Mes)[a-z]+")
 nivel[grepl("Mes", nivel)] = "Mestrado"
 nivel[grepl("Dou", nivel)] = "Doutorado"
@@ -58,18 +58,18 @@ mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
 ##Tabela de Dados Original
 
 Essa tabela apresenta todos os dados presentes no site dividos em sete categorias: 
-C√≥digo do curso, n√≠vel do curso, nome do curso, total de votos, n√∫mero de sim, n√∫mero de n√£o e n√∫mero de absten√ß√£o.
+CÛdigo do curso, nÌvel do curso, nome do curso, total de votos, n˙mero de sim, n˙mero de n„o e n˙mero de abstenÁ„o.
 
 ```{r tabela de dados, echo=FALSE}
 library(DT)
 datatable(mytbl, options = list(pageLength = 10))
 ```
 
-##An√°lises
+##An·lises
 
-###An√°lise da Gradua√ß√£o por √Åreas
+###An·lise da GraduaÁ„o por ¡reas
 
-Na tabela abaixo, foi adicionada uma coluna com a √†rea correspondente de cada curso, e duas colunas com as propor√ß√µes de votos favor√°veis e n√£o favor√°veis √° greve, respectivamente.
+Na tabela abaixo, foi adicionada uma coluna com a ‡rea correspondente de cada curso, e duas colunas com as proporÁıes de votos favor·veis e n„o favor·veis · greve, respectivamente.
 
 ```{r separacao_areas, echo=FALSE}
 library(dplyr)
@@ -85,26 +85,26 @@ humanas=filter(graduacao,codigo=="109"| codigo=="110"| codigo=="17"| codigo=="47
 ##*EXATAS,
 exatas=filter(graduacao,codigo=="48"|codigo=="42"|codigo=="36"|codigo=="83"|codigo=="73"|codigo=="87"|codigo=="8"|codigo=="89"|codigo=="12"|codigo=="13"|codigo=="43"|codigo=="34"|codigo=="49"|codigo=="101"|codigo=="102"|codigo=="88"|codigo=="11"|codigo=="41"|codigo=="108"|codigo=="10"|codigo=="9"|codigo=="39"|codigo=="2"|codigo=="4"|codigo=="53"|codigo=="40"|codigo=="29"|codigo=="1"|codigo=="28"|codigo=="51"|codigo=="5"|codigo=="50"|codigo=="94")
 
-#*#adicionando coluna de √°rea
+#*#adicionando coluna de ·rea
 library(dplyr)
 exatas<-mutate(exatas,Area="Exatas")
-biologicas<-mutate(biologicas,Area="Biol√≥gicas")
+biologicas<-mutate(biologicas,Area="BiolÛgicas")
 humanas<-mutate(humanas,Area="Humanas")
 artes<-mutate(artes,Area="Artes")
 pespeciais<-mutate(pespeciais,Area="Programas Especiais")
 
 tabelageral=rbind(exatas,biologicas,humanas,artes,pespeciais)
 
-##criando novas colunas com propor√ß√µes
-tabelageral<-mutate(tabelageral,"Propor√ß√£o de Sim"=round((tabelageral$sim/tabelageral$total),3))
-tabelageral<-mutate(tabelageral,"Propor√ß√£o de N√£o"=round((tabelageral$nao/tabelageral$total),3))
+##criando novas colunas com proporÁıes
+tabelageral<-mutate(tabelageral,"ProporÁ„o de Sim"=round((tabelageral$sim/tabelageral$total),3))
+tabelageral<-mutate(tabelageral,"ProporÁ„o de N„o"=round((tabelageral$nao/tabelageral$total),3))
 
 library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 ```
 
-### Gr√°ficos
-Abaixo, organizamos os dados, j√° separados por √°rea, em uma tabela e em um gr√°fico nos quais podemos ver a propor√ß√£o de votos sim, n√£o e absten√ßao em cada uma delas. A intens√£o √© que, atrav√©s disso, possamos avaliar se a √°rea do curso de cada aluno que respondeu a pesquisa influencia, ou n√£o, na sua opini√£o a respeito da greve.
+### Gr·ficos
+Abaixo, organizamos os dados, j· separados por ·rea, em uma tabela e em um gr·fico nos quais podemos ver a proporÁ„o de votos sim, n„o e abstenÁao em cada uma delas. A intens„o È que, atravÈs disso, possamos avaliar se a ·rea do curso de cada aluno que respondeu a pesquisa influencia, ou n„o, na sua opini„o a respeito da greve.
 
 ```{r, message=FALSE, echo=FALSE}
 
@@ -127,23 +127,23 @@ ppespeciaisa=round(sum(pespeciais$abstencao)/sum(pespeciais$total),3)
 proporcaoarea<-matrix(c(pexatass,pexatasn,pexatass,phumanass,phumanasn,phumanasa,pbiologicass,pbiologicasn,pbiologicasa,partess,partesn,partesa,ppespeciaiss,ppespeciaisn,ppespeciaisa), nrow = 3, ncol=5)
 
 
-colnames(proporcaoarea) = c("Exatas", "Humanas", "Biol√≥gicas", "Artes", "P. Especiais")
-rownames(proporcaoarea)= c("Prop. Sim", "Prop. N√£o", "Prop. Absten√ß√£o")
+colnames(proporcaoarea) = c("Exatas", "Humanas", "BiolÛgicas", "Artes", "P. Especiais")
+rownames(proporcaoarea)= c("Prop. Sim", "Prop. N„o", "Prop. AbstenÁ„o")
 
 library(DT)
 datatable(proporcaoarea, options = list(pageLength = 10))
 ``` 
 
 ```{r, echo=FALSE}
-barplot(proporcaoarea,beside = TRUE, names.arg=c("Exatas","Humanas","Biol√≥gicas","Artes","P. Especiais"),main = "Comparativo das propor√ß√µes de Votos por √Årea", ylab = "Propor√ß√£o de Votos", xlab = "√Åreas", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"))
+barplot(proporcaoarea,beside = TRUE, names.arg=c("Exatas","Humanas","BiolÛgicas","Artes","P. Especiais"),main = "Comparativo das proporÁıes de Votos por ¡rea", ylab = "ProporÁ„o de Votos", xlab = "¡reas", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"))
 
 ```
 
-Analisando o gr√°fico vemos que nas √°reas de exatas, humanas, biol√≥gicas e programas especiais a maioria dos alunos que votaram  expressaram opii√£o contr√°ria a greve, enquanto na √°rea art√≠stica a grande maioria se posicionou a favor do movimento.
+Analisando o gr·fico vemos que nas ·reas de exatas, humanas, biolÛgicas e programas especiais a maioria dos alunos que votaram  expressaram opii„o contr·ria a greve, enquanto na ·rea artÌstica a grande maioria se posicionou a favor do movimento.
 
-###An√°lise da Gradua√ß√£o por Instituto
+###An·lise da GraduaÁ„o por Instituto
 
-Na tabela abaixo organizamos os cursos de gradua√ß√£o de acordo com o isntituto ao qual cada um pertence. Utilizaremos esta tabela como base para gerar gr√°ficos nos quais poderemos comparar a propor√ß√£o de votos em cada um dos institutos.
+Na tabela abaixo organizamos os cursos de graduaÁ„o de acordo com o isntituto ao qual cada um pertence. Utilizaremos esta tabela como base para gerar gr·ficos nos quais poderemos comparar a proporÁ„o de votos em cada um dos institutos.
 
 ```{r separando os institutos, echo=FALSE}
 library(dplyr)
@@ -195,48 +195,48 @@ PROFIS<-mutate(PROFIS,Instituto="PROFIS")
 
 tabelageral=rbind(IMECC,FEM,FCA,IFGW,IFCH,FEEC,FEC,FOP,FEA,FCM,IE,IA,FEF,IC,FEQ,IB,IQ,IG,FEAGRI,FE,PROFIS)
 
-##criando novas colunas com propor√ß√µes
-tabelageral<-mutate(tabelageral,"Propor√ß√£o de Sim"=round((tabelageral$sim/tabelageral$total),3))
-tabelageral<-mutate(tabelageral,"Propor√ß√£o de N√£o"=round((tabelageral$nao/tabelageral$total),3))
+##criando novas colunas com proporÁıes
+tabelageral<-mutate(tabelageral,"ProporÁ„o de Sim"=round((tabelageral$sim/tabelageral$total),3))
+tabelageral<-mutate(tabelageral,"ProporÁ„o de N„o"=round((tabelageral$nao/tabelageral$total),3))
 
-##Exibindo a tabela geral - adi√ß√£o de institutos
+##Exibindo a tabela geral - adiÁ„o de institutos
 library(DT)
 datatable(tabelageral, options = list(pageLength = 10))
 ```
 
-No gr√°fico abaixo podemos ver a propor√ß√£o de votos em cada um dos institutos. O objetivo deste gr√°fico √© podermos observar, separadamente, quais dos institutos tem mais votos a favor ou contra o movimento de greve.
+No gr·fico abaixo podemos ver a proporÁ„o de votos em cada um dos institutos. O objetivo deste gr·fico È podermos observar, separadamente, quais dos institutos tem mais votos a favor ou contra o movimento de greve.
 
 ```{r, grafico comparativo, message=FALSE, echo=FALSE }
 porinstituto<-matrix(c(sum(IMECC$sim)/sum(IMECC$total),sum(IMECC$nao)/sum(IMECC$total),sum(IMECC$abstencao)/sum(IMECC$total),sum(FEM$sim)/sum(FEM$total),sum(FEM$nao)/sum(FEM$total),sum(FEM$abstencao)/sum(FEM$total),sum(FCA$sim)/sum(FCA$total),sum(FCA$nao)/sum(FCA$total),sum(FCA$abstencao)/sum(FCA$total),sum(IFGW$sim)/sum(IFGW$total),sum(IFGW$nao)/sum(IFGW$total),sum(IFGW$abstencao)/sum(IFGW$total),sum(IFCH$sim)/sum(IFCH$total),sum(IFCH$nao)/sum(IFCH$total),sum(IFCH$abstencao)/sum(IFCH$total),sum(FEEC$sim)/sum(FEEC$total),sum(FEEC$nao)/sum(FEEC$total),sum(FEEC$abstencao)/sum(FEEC$total),sum(FEC$sim)/sum(FEC$total),sum(FEC$nao)/sum(FEC$total),sum(FEC$abstencao)/sum(FEC$total),sum(FOP$sim)/sum(FOP$total),sum(FOP$nao)/sum(FOP$total),sum(FOP$abstencao)/sum(FOP$total),sum(FEA$sim)/sum(FEA$total),sum(FEA$nao)/sum(FEA$total),sum(FEA$abstencao)/sum(FEA$total),sum(FCM$sim)/sum(FCM$total),sum(FCM$nao)/sum(FCM$total),sum(FCM$abstencao)/sum(FCM$total),sum(IE$sim)/sum(IE$total),sum(IE$nao)/sum(IE$total),sum(IE$abstencao)/sum(IE$total),sum(IA$sim)/sum(IA$total),sum(IA$nao)/sum(IA$total),sum(IA$abstencao)/sum(IA$total),sum(FEF$sim)/sum(FEF$total),sum(FEF$nao)/sum(FEF$total),sum(FEF$abstencao)/sum(FEF$total),sum(IC$sim)/sum(IC$total),sum(IC$nao)/sum(IC$total),sum(IC$abstencao)/sum(IC$total),sum(FEQ$sim)/sum(FEQ$total),sum(FEQ$nao)/sum(FEQ$total),sum(FEQ$abstencao)/sum(FEQ$total),sum(IB$sim)/sum(IB$total),sum(IB$nao)/sum(IB$total),sum(IB$abstencao)/sum(IB$total),sum(IQ$sim)/sum(IQ$total),sum(IQ$nao)/sum(IQ$total),sum(IQ$abstencao)/sum(IQ$total),sum(IG$sim)/sum(IG$total),sum(IG$nao)/sum(IG$total),sum(IG$abstencao)/sum(IG$total),sum(FEAGRI$sim)/sum(FEAGRI$total),sum(FEAGRI$nao)/sum(FEAGRI$total),sum(FEAGRI$abstencao)/sum(FEAGRI$total),sum(FE$sim)/sum(FE$total),sum(FE$nao)/sum(FE$total),sum(FE$abstencao)/sum(FE$total),sum(PROFIS$sim)/sum(PROFIS$total),sum(PROFIS$nao)/sum(PROFIS$total),sum(PROFIS$abstencao)/sum(PROFIS$total)), nrow = 3, ncol=21)
 
-barplot(porinstituto,beside = TRUE, main = "Comparativo das propor√ß√µes de Votos por Instituto", ylab = "Propor√ß√£o de Votos", xlab = "Institutos", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),names.arg=c("IMECC","FEM","FCA","IFGW","IFCH","FEEC","FEC","FOP","FEA","FCM","IE","IA","FEF","IC","FEQ","IB","IQ","IG","FEAGRI","FE","PROFIS"),cex.lab=0.9,cex.names = 0.5)
+barplot(porinstituto,beside = TRUE, main = "Comparativo das proporÁıes de Votos por Instituto", ylab = "ProporÁ„o de Votos", xlab = "Institutos", legend=colnames(exatas[5:7]),col=c("gray","darkblue","lightblue"),names.arg=c("IMECC","FEM","FCA","IFGW","IFCH","FEEC","FEC","FOP","FEA","FCM","IE","IA","FEF","IC","FEQ","IB","IQ","IG","FEAGRI","FE","PROFIS"),cex.lab=0.9,cex.names = 0.5)
 
 ```
 
-Podemos ver que, na grande maioria dos institutos, a propor√ß√£o de votos contr√°rios a greve √© maior do que a propor√ß√£o de alunos a favor.
+Podemos ver que, na grande maioria dos institutos, a proporÁ„o de votos contr·rios a greve È maior do que a proporÁ„o de alunos a favor.
 
-###Propor√ß√£o Geral de Votos da Gradua√ß√£o
+###ProporÁ„o Geral de Votos da GraduaÁ„o
 
-O gr√°fico abaixo mostra a propor√ß√£o de votos "sim", "n√£o" e "absten√ß√£o" dos alunos da gradua√ß√£o.
+O gr·fico abaixo mostra a proporÁ„o de votos "sim", "n„o" e "abstenÁ„o" dos alunos da graduaÁ„o.
 
 ```{r, message=FALSE, echo=FALSE}
-pie(c(sum(graduacao$sim)/sum(graduacao$total),sum(graduacao$nao)/sum(graduacao$total),sum(graduacao$abstencao)/sum(graduacao$total)), labels = c("30,79%", "65,51%", "3,70%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gr√°fico de setores a propor√ß√£o de Votos da Gradua√ß√£o")
-legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "N√£o", "Absten√ß√µes"))
+pie(c(sum(graduacao$sim)/sum(graduacao$total),sum(graduacao$nao)/sum(graduacao$total),sum(graduacao$abstencao)/sum(graduacao$total)), labels = c("30,79%", "65,51%", "3,70%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gr·fico de setores a proporÁ„o de Votos da GraduaÁ„o")
+legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "N„o", "AbstenÁıes"))
 ```
 
-Ao analisarmos estes gr√°ficos podemos concluir que, segundo a pesquisa, a maioria dos alunos dos cursos de gradua√ß√£o da Unicamp s√£o contr√°rios ao movimento da greve estudantil. O que revela uma contadi√ß√£o com a atual condi√ß√£o da universidade, que tem 18 dos seus institutos em greve.
+Ao analisarmos estes gr·ficos podemos concluir que, segundo a pesquisa, a maioria dos alunos dos cursos de graduaÁ„o da Unicamp s„o contr·rios ao movimento da greve estudantil. O que revela uma contadiÁ„o com a atual condiÁ„o da universidade, que tem 18 dos seus institutos em greve.
 
-###Teste de Hip√≥tese para propor√ß√£o
+###Teste de HipÛtese para proporÁ„o
 
-Dado que, nos gr√°ficos e tabelas anteriores, observamos que a propor√ß√£o de votos "n√£o" √© maior que a propor√ß√£o de votos "sim", queremos testar se essa propor√ß√£o amostral √© suficiente para dizermos que o opini√£o populacional tamb√©m √© contr√°ria a greve. Para isso vamos realizar um teste de hip√≥teses para essas propor√ß√µes.
+Dado que, nos gr·ficos e tabelas anteriores, observamos que a proporÁ„o de votos "n„o" È maior que a proporÁ„o de votos "sim", queremos testar se essa proporÁ„o amostral È suficiente para dizermos que o opini„o populacional tambÈm È contr·ria a greve. Para isso vamos realizar um teste de hipÛteses para essas proporÁıes.
 
-Para fazer esse tipo de teste definimos duas hip√≥teses $H_0$ e $H_1$, que s√£o chamadas respectivamente de hip√≥tese nula e hip√≥tese alternativa. No nosso caso $H_0$: propor√ß√£o de sim >ou= 50% e $H_1$: propor√ß√£o de sim < 50%
+Para fazer esse tipo de teste definimos duas hipÛteses $H_0$ e $H_1$, que s„o chamadas respectivamente de hipÛtese nula e hipÛtese alternativa. No nosso caso $H_0$: proporÁ„o de sim >ou= 50% e $H_1$: proporÁ„o de sim < 50%
 
-Definidas essas hip√≥teses, buscamos, nos dados, evid√™ncias a favor de uma delas.Para isso definimos um valor ($\alpha$)=0.5 que √© a probabilidade de rejeitarmos a hip√≥tese nula quando ela √© verdadeira, ou seja, em 5% das vezes que fizermos esse teste iremos dizer que a propor√ß√£o de votos "sim" √© menos que 50%, quando, de fato, n√£o √©.
+Definidas essas hipÛteses, buscamos, nos dados, evidÍncias a favor de uma delas.Para isso definimos um valor ($\alpha$)=0.05 que È a probabilidade de rejeitarmos a hipÛtese nula quando ela È verdadeira, ou seja, em 5% das vezes que fizermos esse teste iremos dizer que a proporÁ„o de votos "sim" È menos que 50%, quando, de fato, n„o È.
 
-No nosso teste rejeitaremos $H_0$ quando o p-valor for (COMPLETAR)
+No nosso teste rejeitaremos $H_0$ quando o p-valor for menor que 0.05
 
-```{r teste de hipotese para propor√ßao, echo=FALSE}
+```{r teste de hipotese para proporÁao, echo=FALSE}
 t=sum(graduacao$total)
 s=sum(graduacao$sim)
 n=sum(graduacao$nao)
@@ -246,17 +246,17 @@ teste1=prop.test(x,p=0.5,alternative = "less", conf.level = 0.95)
 teste1
 ```
 
-Dado que o p-valor do nosso teste √© 0,3197115 (COLOCAR A DECIS√ÉO DO TESTE)
+Dado que o p-valor do nosso teste È $1.383e-13$ rejeitamos a hipÛtese nula e concluimos que a proporÁ„o de votos "sim" na graduaÁ„o n„o È maior que 50%
 
-###Tamanho amostral por curso de Gradua√ß√£o
+###Tamanho amostral por curso de GraduaÁ„o
 
-O tamanho amostral foi determinado atrav√©s da f√≥rmula para amostra aleat√≥ria simples sem reposi√ß√£o, sendo $p=\frac{1}{2}$ (pior caso):
+O tamanho amostral foi determinado atravÈs da fÛrmula para amostra aleatÛria simples sem reposiÁ„o, sendo $p=\frac{1}{2}$ (pior caso):
 
 $$ n=\frac{N}{(4(N-1)D+1)} $$
 
-sendo $D=B¬≤/z¬≤$.
+sendo $D=B≤/z≤$.
 
-Definimos $B=0.1$, ou seja, o erro ser√° de no m√°ximo 10% e $Z=1.96$, pois aproximamos nossa distribui√ß√£o para uma normal padr√£o com 95% de signific√¢ncia, o que nos deu os tamanhos amostrais presentes na tabela abaixo.
+Definimos $B=0.1$, ou seja, o erro ser· de no m·ximo 10% e $Z=1.96$, pois aproximamos nossa distribuiÁ„o para uma normal padr„o com 95% de signific‚ncia, o que nos deu os tamanhos amostrais presentes na tabela abaixo.
 
 ```{r calculo do tamanho amostral, echo=FALSE}
 ##filtrando curso por curso
@@ -386,23 +386,23 @@ N2=N-1
 tamamostral=round(N/(4*(N2)*D+1),0)
 
 tabelatamamostral<-mutate(tabelatamamostral,"Tamanho Amostral"=tamamostral)
-colnames(tabelatamamostral)=c("C√≥digo","Curso","N√∫mero de Matriculados","Total de Votos","Tamanho Amostral")
+colnames(tabelatamamostral)=c("CÛdigo","Curso","N˙mero de Matriculados","Total de Votos","Tamanho Amostral")
 
 datatable(tabelatamamostral, options = list(pageLength = 100))
 ```
 
-Observando a tabela acima, podemos ver que em todos os cursos, o n√∫mero de votos registrados nesta pesquisa n√£o atinge o valor do tamanho amostral calculado,o que deixa claro que os dados s√£o viesados e n√£o representam a popula√ß√£o de alunos regularmente matriculados nos curso de gradua√ß√£o da UNICAMP.
+Observando a tabela acima, podemos ver que em todos os cursos, o n˙mero de votos registrados nesta pesquisa n„o atinge o valor do tamanho amostral calculado,o que deixa claro que os dados s„o viesados e n„o representam a populaÁ„o de alunos regularmente matriculados nos curso de graduaÁ„o da UNICAMP.
 
-# Separa√ß√£o por √°reas na p√≥s-gradua√ß√£o
-Apesar da greve estudantil ser articulada pelos estudantes da gradua√ß√£o, achamos v√°lido fazer uma an√°lise dos estudantes da p√≥s-gradua√ß√£o, separados em Mestrado e Doutorado para saber se a opini√£o destes √© semelhante √† dos alunos da gradua√ß√£o em suas respectivas √°reas, levando em conta que o movimento estudantil tem ganhado for√ßa e, com isso, interfere tamb√©m em suas vidas acad√™micas.
+# SeparaÁ„o por ·reas na pÛs-graduaÁ„o
+Apesar da greve estudantil ser articulada pelos estudantes da graduaÁ„o, achamos v·lido fazer uma an·lise dos estudantes da pÛs-graduaÁ„o, separados em Mestrado e Doutorado para saber se a opini„o destes È semelhante ‡ dos alunos da graduaÁ„o em suas respectivas ·reas, levando em conta que o movimento estudantil tem ganhado forÁa e, com isso, interfere tambÈm em suas vidas acadÍmicas.
 
-## An√°lises para Mestrado
+## An·lises para Mestrado
 
-###An√°lise do Mestrado por √Årea
+###An·lise do Mestrado por ¡rea
 
 ###Tabela de Dados para Mestrado
 
-Na tabela abaixo, filtramos apenas os dados referente aos cursos de *Mestrado* e adicionamos uma coluna com a √†rea correspondente de cada curso, e duas colunas com as propor√ß√µes de votos favor√°veis e n√£o favor√°veis √° greve, respectivamente.
+Na tabela abaixo, filtramos apenas os dados referente aos cursos de *Mestrado* e adicionamos uma coluna com a ‡rea correspondente de cada curso, e duas colunas com as proporÁıes de votos favor·veis e n„o favor·veis · greve, respectivamente.
 
 ```{r, message=FALSE, echo=FALSE}
 
@@ -413,7 +413,7 @@ mestrado=filter(mytbl, nivel=="Mestrado")
 artesm=filter(mestrado,codigo=="87"|codigo=="88"|codigo=="30"|codigo=="73")
 ##HUMANAS
 humanasm=filter(mestrado,codigo=="20"|codigo=="86"|codigo=="53"|codigo=="17"|codigo=="81"|codigo=="18"|codigo=="40"|codigo=="7"|codigo=="36"|codigo=="37"|codigo=="75"|codigo=="24"|codigo=="19"|codigo=="80"|codigo=="38"|codigo=="54"|codigo=="26"|codigo=="79"|codigo=="41")
-##BIOL√ìGICAS
+##BIOL”GICAS
 biologicasm=filter(mestrado,codigo=="84"|codigo=="91"|codigo=="92"|codigo=="49"|codigo=="58"|codigo=="35"|codigo=="42"|codigo=="74"|codigo=="51"|codigo=="50"|codigo=="44"|codigo=="90"|codigo=="48"|codigo=="28"|codigo=="59"|codigo=="67"|codigo=="23"|codigo=="71"|codigo=="70"|codigo=="14"|codigo=="69"|codigo=="83"|codigo=="65"|codigo=="61"|codigo=="60"|codigo=="63"|codigo=="64"|codigo=="62")
 ##EXATAS
 exatasm=filter(mestrado,codigo=="47"|codigo=="56"|codigo=="57"|codigo=="55"|codigo=="8"|codigo=="89"|codigo=="12"|codigo=="11"|codigo=="72"|codigo=="10"|codigo=="39"|codigo=="9"|codigo=="82"|codigo=="3"|codigo=="4"|codigo=="2"|codigo=="1"|codigo=="29"|codigo=="5")
@@ -425,7 +425,7 @@ exatasm=filter(mestrado,codigo=="47"|codigo=="56"|codigo=="57"|codigo=="55"|codi
 
 library(dplyr)
 exatasm<-mutate(exatasm,Area="Exatas")
-biologicasm<-mutate(biologicasm,Area="Biol√≥gicas")
+biologicasm<-mutate(biologicasm,Area="BiolÛgicas")
 humanasm<-mutate(humanasm,Area="Humanas")
 artesm<-mutate(artesm,Area="Artes")
 tabelageralm=rbind(exatasm,biologicasm,humanasm,artesm)
@@ -435,26 +435,27 @@ library(DT)
 datatable(tabelageralm, options = list(pageLength = 10))
 ```
 
-###Gr√°fico das propor√ß√µes por √Årea
+###Gr·fico das proporÁıes por ¡rea
 
 ```{r,echo=FALSE }
 proporcaoaream<-matrix(c(sum(exatasm$sim)/sum(exatasm$total),sum(exatasm$nao)/sum(exatasm$total),sum(exatasm$abstencao)/sum(exatasm$total),sum(humanasm$sim)/sum(exatasm$total),sum(humanasm$nao)/sum(humanasm$total),sum(humanasm$abstencao)/sum(humanasm$total),sum(biologicasm$sim)/sum(biologicasm$total),sum(biologicasm$nao)/sum(biologicasm$total),sum(biologicasm$abstencao)/sum(biologicasm$total),sum(artesm$sim)/sum(artesm$total),sum(artesm$nao)/sum(artesm$total),sum(artesm$abstencao)/sum(artesm$total)), nrow = 3, ncol=4)
 
-barplot(proporcaoaream,beside = TRUE, names.arg=c("Exatas","Humanas","Biol√≥gicas","Artes"),main = "Comparativo das propor√ß√µes de 'Sim' por √Årea", ylab = "Total de Votos", xlab = "√Åreas", legend=colnames(exatasm[5:7]),col=c("gray","darkblue","lightblue"))
+barplot(proporcaoaream,beside = TRUE, names.arg=c("Exatas","Humanas","BiolÛgicas","Artes"),main = "Comparativo das proporÁıes de 'Sim' por ¡rea", ylab = "Total de Votos", xlab = "¡reas", legend=colnames(exatasm[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
-###Propor√ß√£o Geral de Votos do Mestrado
+###ProporÁ„o Geral de Votos do Mestrado
 
 ```{r, message=FALSE, echo=FALSE}
-pie(c(sum(mestrado$sim)/sum(mestrado$total),sum(mestrado$nao)/sum(mestrado$total),sum(mestrado$abstencao)/sum(mestrado$total)), labels = c("22,22%", "77,78%", "0%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gr√°fico de setores a propor√ß√£o de Votos do Mestrado")
-legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "N√£o", "Absten√ß√µes"))
+pie(c(sum(mestrado$sim)/sum(mestrado$total),sum(mestrado$nao)/sum(mestrado$total),sum(mestrado$abstencao)/sum(mestrado$total)), labels = c("22,22%", "77,78%", "0%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gr·fico de setores a proporÁ„o de Votos do Mestrado")
+legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "N„o", "AbstenÁıes"))
 ```
 
-Como o tamanho da amostra de votos do mestrado √© pequeno, n√£o podemos ter respostas certeiras sobre a opini√£o destas pessoas, contudo os resultados tendem a serem similares com os alunos da gradua√ß√£o.
+Como o tamanho da amostra de votos do mestrado È pequeno, n„o podemos ter respostas certeiras sobre a opini„o destas pessoas, contudo os resultados tendem a serem similares com os alunos da graduaÁ„o.
 
-###Teste de Hip√≥tese 
+###Teste de HipÛtese 
 
-Assim como fizemos para a gradua√ß√£o, faremos um teste de hip√≥teses para a propor√ß√£o de votos do mestrado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: propor√ß√£o de sim >ou= 50% e $H_1$: propor√ß√£o de sim < 50% e ($\alpha$)=0.05
+Assim como fizemos para a graduaÁ„o, faremos um teste de hipÛteses para a proporÁ„o de votos do mestrado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: proporÁ„o de sim >ou= 50% e $H_1$: proporÁ„o de sim < 50% e ($\alpha$)=0.05.
+Rejeitamos $H_0$ se o p-valor for menor que 0,05
 
 ```{r , echo=FALSE}
 tm=sum(mestrado$total)
@@ -466,15 +467,15 @@ teste2=prop.test(y,p=0.5,alternative = "less", conf.level = 0.95)
 teste2
 ```
 
-Dado que o p-valor do nosso teste √© 0,2222222 (COLOCAR A DECIS√ÉO DO TESTE)
+Dado que o p-valor do nosso teste È $0.01695$ rejeitamos $H_0$ e concluimos que a proporÁ„o de votos "sim" no mestrado n„o È maior que 50%
 
-##An√°lises para Doutorado
+##An·lises para Doutorado
 
 ###Tabela de Dados para Doutorado
 
-Na tabela abaixo, filtramos apenas os dados referente aos cursos de *Doutorado* e adicionamos uma coluna com a √†rea correspondente de cada curso, e duas colunas com as propor√ß√µes de votos favor√°veis e n√£o favor√°veis √° greve, respectivamente.
+Na tabela abaixo, filtramos apenas os dados referente aos cursos de *Doutorado* e adicionamos uma coluna com a ‡rea correspondente de cada curso, e duas colunas com as proporÁıes de votos favor·veis e n„o favor·veis · greve, respectivamente.
 
-```{r separa√ß√£o por areas, message=FALSE, echo=FALSE}
+```{r separaÁ„o por areas, message=FALSE, echo=FALSE}
 library(dplyr)
 doutorado=filter(mytbl, nivel=="Doutorado")
 
@@ -482,7 +483,7 @@ doutorado=filter(mytbl, nivel=="Doutorado")
 artesd=filter(doutorado,codigo=="105"|codigo=="106"|codigo=="2"|codigo=="22")
 ##HUMANAS
 humanasd=filter(doutorado,codigo=="21"|codigo=="67"|codigo=="67"|codigo=="68"|codigo=="93"|codigo=="57"||codigo=="28"|codigo=="25"|codigo=="30"|codigo=="66"|codigo=="94"|codigo=="74"|codigo=="69"|codigo=="103"|codigo=="27"|codigo=="26"|codigo=="76"|codigo=="24"|codigo=="95"|codigo=="70"|codigo=="102")
-##BIOL√ìGICAS
+##BIOL”GICAS
 biologicasd=filter(doutorado,codigo=="33"|codigo=="89"|codigo=="8"|codigo=="75"|codigo=="97"|codigo=="23"|codigo=="104"|codigo=="90"|codigo=="87"|codigo=="36"|codigo=="91"|codigo=="78"|codigo=="100"|codigo=="16"|codigo=="73"|codigo=="20"|codigo=="19"|codigo=="64"|codigo=="18"|codigo=="101"|codigo=="14"|codigo=="10"|codigo=="9"|codigo=="12"|codigo=="13"|codigo=="11")
 ##EXATAS
 exatasd=filter(doutorado,codigo=="81"|codigo=="34"|codigo=="6"|codigo=="7"|codigo=="5"|codigo=="58"|codigo=="32"|codigo=="62"|codigo=="61"|codigo=="98"|codigo=="60"|codigo=="92"|codigo=="59"|codigo=="35"|codigo=="53"|codigo=="54"|codigo=="31"|codigo=="51"|codigo=="79"|codigo=="55")
@@ -492,7 +493,7 @@ exatasd=filter(doutorado,codigo=="81"|codigo=="34"|codigo=="6"|codigo=="7"|codig
 ##criandonovacoluna
 library(dplyr)
 exatasd<-mutate(exatasd,Area="Exatas")
-biologicasd<-mutate(biologicasd,Area="Biol√≥gicas")
+biologicasd<-mutate(biologicasd,Area="BiolÛgicas")
 humanasd<-mutate(humanasd,Area="Humanas")
 artesd<-mutate(artesd,Area="Artes")
 tabelagerald=rbind(exatasd,biologicasd,humanasd,artesd)
@@ -501,26 +502,27 @@ library(DT)
 datatable(tabelagerald, options = list(pageLength = 10))
 ```
 
-###Gr√°fico das propor√ß√µes por √Årea
+###Gr·fico das proporÁıes por ¡rea
 
 ```{r,echo=FALSE }
 proporcaoaread<-matrix(c(sum(exatasd$sim)/sum(exatasd$total),sum(exatasd$nao)/sum(exatasd$total),sum(exatasd$abstencao)/sum(exatasd$total),sum(humanasd$sim)/sum(exatasd$total),sum(humanasd$nao)/sum(humanasd$total),sum(humanasd$abstencao)/sum(humanasd$total),sum(biologicasd$sim)/sum(biologicasd$total),sum(biologicasd$nao)/sum(biologicasd$total),sum(biologicasd$abstencao)/sum(biologicasd$total),sum(artesd$sim)/sum(artesd$total),sum(artesd$nao)/sum(artesd$total),sum(artesd$abstencao)/sum(artesd$total)), nrow = 3, ncol=4)
 
-barplot(proporcaoaread,beside = TRUE, names.arg=c("Exatas","Humanas","Biol√≥gicas","Artes"),main = "Comparativo das propor√ß√µes de 'Sim' por √Årea", ylab = "Total de Votos", xlab = "√Åreas", legend=colnames(exatasd[5:7]),col=c("gray","darkblue","lightblue"))
+barplot(proporcaoaread,beside = TRUE, names.arg=c("Exatas","Humanas","BiolÛgicas","Artes"),main = "Comparativo das proporÁıes de 'Sim' por ¡rea", ylab = "Total de Votos", xlab = "¡reas", legend=colnames(exatasd[5:7]),col=c("gray","darkblue","lightblue"))
 ```
 
-Os alunos de doutorado seguem o mesmo padr√£o dos de mestrado e gradua√ß√£o. Apesar dos poucos votos, os gr√°ficos de exatas e biol√≥gicas acima indicam que os alunos destas √°reas s√£o contr√°rios a greve.
+Os alunos de doutorado seguem o mesmo padr„o dos de mestrado e graduaÁ„o. Apesar dos poucos votos, os gr·ficos de exatas e biolÛgicas acima indicam que os alunos destas ·reas s„o contr·rios a greve.
 
-###Propor√ß√£o Geral de Votos do Doutorado
+###ProporÁ„o Geral de Votos do Doutorado
 
 ```{r, message=FALSE, echo=FALSE}
-pie(c(sum(doutorado$sim)/sum(doutorado$total),sum(doutorado$nao)/sum(doutorado$total),sum(doutorado$abstencao)/sum(doutorado$total)), labels = c("17,39%", "78,26%", "4,35%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gr√°fico de setores a propor√ß√£o de Votos do Doutorado")
-legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "N√£o", "Absten√ß√µes"))
+pie(c(sum(doutorado$sim)/sum(doutorado$total),sum(doutorado$nao)/sum(doutorado$total),sum(doutorado$abstencao)/sum(doutorado$total)), labels = c("17,39%", "78,26%", "4,35%"),radius = 1, ylim=c(0,1), col=c("gray","darkblue","lightblue"), main="Gr·fico de setores a proporÁ„o de Votos do Doutorado")
+legend("bottomright", fill = c("gray","darkblue","lightblue"), legend = c("Sim", "N„o", "AbstenÁıes"))
 ```
 
-###Teste de Hip√≥tese
+###Teste de HipÛtese
 
-Assim como fizemos para a gradua√ß√£o e para o mestrado, faremos um teste de hip√≥teses para a propor√ß√£o de votos do doutorado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: propor√ß√£o de sim >ou= 50% e $H_1$: propor√ß√£o de sim < 50% e ($\alpha$)=0.05
+Assim como fizemos para a graduaÁ„o e para o mestrado, faremos um teste de hipÛteses para a proporÁ„o de votos do doutorado utilizando as mesmas hipoteses e o mesmo ($\alpha$), ou seja: $H_0$: proporÁ„o de sim >ou= 50% e $H_1$: proporÁ„o de sim < 50% e ($\alpha$)=0.05.
+Rejeitamos $H_0$ se o p-valor for menor que 0.05
 
 ```{r , echo=FALSE}
 td=sum(doutorado$total)
@@ -532,24 +534,21 @@ teste3=prop.test(z,p=0.5,alternative = "less", conf.level = 0.95)
 teste3
 ```
 
-Dado que o p-valor do nosso teste √© (COLOCAR VALOR DO P-VALOR) (COLOCAR A DECIS√ÉO DO TESTE)
+Dado que o p-valor do nosso teste È $0.002789$ rejeitamos $H_0$ e concluimos que a proporÁ„o de votos "sim" no doutorado n„o È maior que 50%
 
-
-## Gauge Plots
-
-```{r plot_gauge}
+```{r plot_gauge, echo=FALSE}
 tbl0 = subset(mytbl, nivel=='Graduacao')
 tbl0$pnao = round(tbl0$nao/tbl0$total*100, 0)
 gauge = gvisGauge(tbl0[, c('curso', 'pnao')], 'curso', 'nao',
                   options=list(min=0, max=100, greenFrom=0,
                                  greenTo=20, yellowFrom=40, yellowTo=60,
                                  redFrom=80, redTo=100, width=400, height=300))
-plot(gauge)
+#plot(gauge)
 ```
 
-## Obten√ß√£o de Dados Geogr√°ficos
+## ObtenÁ„o de Dados Geogr·ficos
 
-Esse mapa mostra a localiza√ß√£o de cada um dos institutos da Unicamp mencionados no trabalho.
+Esse mapa mostra a localizaÁ„o de cada um dos institutos da Unicamp mencionados no trabalho.
 
 ```{r enderecos, message=FALSE, echo=FALSE}
 ends = data.frame(instituto=c('IMECC', 'FEM', 'FEF', 'IA' , 'IEL' , 'IFCH' , 'IFGW', 'IQ' , 'IB' , 'FEEC' , 'FEQ' , 'FE' , 'IE' , 'IC' , 'FEC' , 'FEAGRI' , 'FCM', 'IG' , 'FEA'),
@@ -561,9 +560,9 @@ map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, 
 map
 ```
 
-## Intervalos de Confian√ßa
+## Intervalos de ConfianÁa
 
-Abaixo colocamos uma tabela com os intervalos de confia√ßa para a propor√ß√£o de votos n√£o para cada curso. Um intervalo de confinan√ßa significa a cada 100 vezes que essa pesquisa for feita, em m√©dia em 95 delas a propor√ß√£o de "n√£os" estar√° dentro desse intervalo.
+Abaixo colocamos uma tabela com os intervalos de confiaÁa para a proporÁ„o de votos n„o para cada curso. Um intervalo de confinanÁa significa a cada 100 vezes que essa pesquisa for feita, em mÈdia em 95 delas a proporÁ„o de "n„os" estar· dentro desse intervalo.
 
 ```{r stats}
 p = with(mytbl, nao/(total))
@@ -573,14 +572,15 @@ colnames(ics) = c("lower", "upper")
 mytbl$p = p
 tabelaIC<- data.frame(mytbl$codigo,mytbl$nivel, mytbl$curso,mytbl$p)
 tabelaic2 = cbind(tabelaIC, ics)
-colnames(tabelaic2)=c("C√≥digo", "N√≠vel", "Total","p","Limite Inferior","Limite Superior")
+colnames(tabelaic2)=c("CÛdigo", "NÌvel", "Total","p","Limite Inferior","Limite Superior")
 datatable(tabelaic2, options = list(pageLength = 10))
 ```
 
-## Conclus√£o
+## Conclus„o
+Primeiramente È preciso esclarecer que os resultados aqui apresentados n„o s„o representativos da nossa populaÁ„o, j· que os dados, possivelmente s„o viesados pelo fato da pesquisa n„o ser anÙnima, o que pode causar receio nos alunos que s„o favor·veis a greve. Para registrar o voto È preciso se identificar, fornecendo o seu primeiro nome, curso, RG, e RA o que deixa tais alunos expostos aos docentes que ter„o acesso a essa pesquisa. AlÈm disso, como foi mostrado acima, nenhum dos cursos que responderam a votaÁ„o atingiu o n˙mero amostral minimo para se ter dados com nÌvel de confianÁa de 95%.
+Dito isto apresentaremos os resultados que obtivemos na an·lise de dados, reiterando o fato de que estes resultados n„o representam a populaÁ„o.
 
-Diante de todos os dados an√°lisados,interpreta√ß√£o dos gr√°ficos e o que vivenciamos durante todo per√≠odo de greve em nossa universidade, acreditamos que, apesar do n√∫mero de votos presentes no site "votaunicamp" ter sido baixo, podemos considerar que a amostra se aproxima da realidade. Notamos que os alunos de exatas e biol√≥gicas, em sua maioria, tendem a serem contr√°rios a greve. Enquanto os alunos de humanas e artes s√£o a favor, isso se deve ao fato desses cursos estarem diretamente ligados √†s quest√µes sociais.
-A decis√£o a respeito da greve √© feita atrav√©s de assembl√©ias, que s√£o reuni√µes organizadas pelo centro acad√™mico de cada instituto, os quais s√£o formados, majoritariamente por alunos favor√°veis ao movimento. Devido as atividades e cronogramas acad√™micos a serem cumpridos, muitos dos estudantes contr√°rios a greve n√£o abrem m√£o de seus afazeres para comparecerem a tais reuni√µes que acabam contando com um n√∫mero reduzido de alunos que, em sua maioria, votam a favor.
-Vale ressaltar tamb√©m que pelo motivo da pesquisa n√£o ser an√¥nima, pode causar poss√≠vel receio dos alunos que s√£o favor√°veis a greve, pelo fato de precisar identificar o seu primeiro nome, seu curso e seu RG, fazendo que sejam expostos aos docentes que ter√£o acesso a essa pesquisa.Portanto os dados podem ser tendenciosos. 
-At√© o momento mais da metade dos institutos da UNICAMP est√£o em greve o que revela um contraste com os resultados da pesquisa, e, al√©m disso evidencia um fato que, por motivos como os relatados acima, tem sido fortemente questionado por docentes e estudantes: a n√£o representatividade das assembl√©ias.
-Sabemos que a posi√ß√£o de cada estudante mediante a greve √© muito importante para chegar a uma conclus√£o mais justa. Com isso, a vota√ß√£o por assembleias e online s√£o essenciais para obtermos um resultado certeiro.
+Diante de nossas an·lises e interpretaÁıes de gr·ficos e tabelas, notamos que os alunos de exatas e biolÛgicas, em sua maioria, tendem a serem contr·rios a greve, enquanto os alunos de humanas e artes s„o a favor, o que, provavelmente, se deve ao fato desses cursos estarem diretamente ligados ‡s questıes sociais.
+AtÈ o momento mais da metade dos institutos da UNICAMP est„o em greve o que revela um contraste com os resultados da pesquisa, e, alÈm disso evidencia um fato que, por motivos como os relatados anteriormente, tem sido fortemente questionado por docentes e estudantes: a n„o representatividade das assemblÈias.
+
+Por fim concluimos que È de extrema import‚ncia que cada aluno se posicione a respeito das pautas de greve participando ativamente dos eventos, assemblÈias e votaÁıes online, afim de que se conheÁa a verdadeira opini„o dos estudantes da universidade a respeiro do tema.
