@@ -12,6 +12,7 @@ library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
+library(data.table)
 page = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
 head(tbl)
@@ -34,14 +35,14 @@ nivel[is.na(nivel)] = "Graduacao"
 mytbl$nivel = nivel
 rm(nivel)
 mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
+tbl0 = subset(mytbl, nivel=='Graduacao')
+tbl0$pnao = round(tbl0$nao/tbl0$total*100, 0)
 head(mytbl)
 ```
 
 ## Gauge Plots
 
 ```{r plot_gauge}
-tbl0 = subset(mytbl, nivel=='Graduacao')
-tbl0$pnao = round(tbl0$nao/tbl0$total*100, 0)
 gauge = gvisGauge(tbl0[, c('curso', 'pnao')], 'curso', 'nao',
                   options=list(min=0, max=100, greenFrom=0,
                                  greenTo=20, yellowFrom=40, yellowTo=60,
@@ -60,19 +61,43 @@ Obter localizações (lat/lon) por meio do OpenStreet Maps:
 
 ```{r enderecos}
 ends = read.table('institutos.tab', sep='\t', header=TRUE)
+head(ends)
+```
+
+## Obtenção de Metadados
+
+Atualizar arquivo `metadados.tab` com informações de curso e a que instituto pertence:
+
+```{r metadados}
+metadados = read.table('metadados.tab', sep='\t', header=TRUE, stringsAsFactors = FALSE)
+head(metadados)
+```
+
+## Apresentação de Dados Geo-referenciados por Instituto
+
+```{r geodata}
+grad = merge(tbl0, metadados)
+grad = data.table(grad)
+gradinst = grad[, list(sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by=instituto]
+gradinst = merge(gradinst, ends, by='instituto')
+gradinst$pnao = with(gradinst, nao/(sim+nao+abstencao)]
+```
+
+```{r showdatageo}
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto)
+map = addCircleMarkers(map, lat=gradinst$lat, lng=gradinst$lon, popup=gradinst$instituto)
 map
 ```
+
 
 ## Intervalos de Confiança
 
 ```{r stats}
-p = with(mytbl, nao/(total))
-mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
+p = with(tbl0, nao/(total))
+mes = qnorm(.975)*sqrt(1/(4*tbl0$total))
 ics = cbind(pmax(p-mes, 0), pmin(p+mes, 1))
 colnames(ics) = c("lower", "upper")
-mytbl$p = p
-mytbl = cbind(mytbl, ics)
+tbl0$p = p
+tbl0 = cbind(tbl0, ics)
 ```
