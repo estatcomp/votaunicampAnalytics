@@ -1,34 +1,25 @@
 ---
 title: "Vota Unicamp!"
-author: "Amanda - 140485, Bruno - 116297, Mariana - 136907, Melissa - 140830, Tamilyn - 118729 e Yasmine - 148255"
+author: "Benilton S Carvalho"
 output: html_document
 ---
 
-#Introdução
+## Setup
 
-  No atual cenário político e econômico que o Brasil se encontra, greves de diversos setores estão ocupando cada vez mais espaço em busca de melhorias. Na educação não é diferente, uma vez que esta foi afetada com cortes de orçamento. Na Universidade Estadual de Campinas (UNICAMP), diversos alunos decidiram entrar em greve com o intuito de reivindicar cotas raciais e permanência estudantil, por meio da ampliação da moradia e bolsas de auxílio social.  
-  
-  A greve em cada instituto foi deliberada por meio de assembleias estudantis. Contudo, muito se questiona a respeito da representatividade das decisões tomadas, uma vez que existe pouca adesão dos estudantes.  
-  
-  Com intuito de verificar qual a opinião da classe estudantil, foi criado o site “https://votaunicamp.herokuapp.com/” para que os alunos matriculados tanto em cursos de graduação e pós graduação votassem e, se quisessem, justificassem o voto. 
-```{r input, message=FALSE, results='hide', echo=FALSE, warning=FALSE}
-if (Sys.info()['sysname'] == 'Darwin') Sys.setlocale(locale='UTF-8')
-library(knitr)
-library(printr)
-library(vegan)
+```{r input, message=FALSE}
+Sys.setlocale(locale='UTF-8')
 library(stringr)
 library(rvest)
 library(googleVis)
 library(leaflet)
-library(formattable)
-library(data.table)
-library(formattable)
-library(ggplot2)
-page = read_html('http://votaunicamp.herokuapp.com/prev_results/', encoding='UTF-8')
+page = read_html('http://votaunicamp.herokuapp.com/results/', encoding='UTF-8')
 tbl = html_table(page)[[2]]
+head(tbl)
 ```
 
-```{r format, message=FALSE, echo=FALSE, warning=FALSE}
+## Formatação de Dados
+
+```{r format}
 mytbl = data.frame(codigo=as.integer(str_extract(tbl$Curso, "^\\d+")),
                    nivel=NA,
                    curso=gsub("^(\\d+) - (.*)$", "\\2", tbl$Curso),
@@ -43,242 +34,45 @@ nivel[is.na(nivel)] = "Graduacao"
 mytbl$nivel = nivel
 rm(nivel)
 mytbl$curso = gsub("(Mes|Dou).+ em (.*)$", "\\2", mytbl$curso)
+head(mytbl)
 ```
 
-```{r melhoropcaoinstitutos, echo=FALSE}
-gradinst = cbind(nivel='Graduacao', read.table('Grad.csv', header=TRUE, sep=','))
-doutinst = cbind(nivel='Doutorado', read.table('Dout.csv', header=TRUE, sep=','))
-mestinst = cbind(nivel='Mestrado', read.table('Mestr.csv', header=TRUE, sep=','))
-names(gradinst) = names(doutinst) = names(mestinst) = c('nivel', 'codigo', 'instituto', 'area')
-inst = rbind(gradinst, doutinst, mestinst)
-rm(gradinst, doutinst, mestinst)
-mytbl = merge(mytbl, inst)
+## Gauge Plots
+
+```{r plot_gauge}
+tbl0 = subset(mytbl, nivel=='Graduacao')
+tbl0$pnao = round(tbl0$nao/tbl0$total*100, 0)
+gauge = gvisGauge(tbl0[, c('curso', 'pnao')], 'curso', 'nao',
+                  options=list(min=0, max=100, greenFrom=0,
+                                 greenTo=20, yellowFrom=40, yellowTo=60,
+                                 redFrom=80, redTo=100, width=400, height=300))
+plot(gauge)
 ```
 
+## Obtenção de Dados Geográficos
 
-#Objetivos
+Obter localizações (lat/lon) por meio do OpenStreet Maps:
 
-Temos o intuito de estudar o comportamento da classe dos estudantes em relação à greve, como por exemplo, se existe uma relação entre a área de estudo e o voto. Assim, podemos caracterizar o perfil do aluno como favorável ou contrário à mobilização.
+- Abrir OpenStreet Maps (OSM) em (http://www.openstreetmap.org/#map=16/-22.8173/-47.0677)
+- Dar zoom máximo no instituto de interesse
+- Olhar o endereço na barra de endereço após o zoom
+- Atualizar o arquivo `institutos.tab` (separado por tabulações) abaixo com as novas informações
 
-#Metodologia
-
-Para a análise, apresentaremos as proporções e informações obtidas do banco de dados de forma visual e dinâmica. Utilizamos diversos estimadores para a proporção de votos. Contudo, o métodos utilizado para estimar a proporção geral da Unicamp foi *Bootstrap*. Ele foi escolhido em vista da acuracia de sua estimação.  
-
-Também estudamos o comportamento dos institutos através de análise de *cluster*. *Cluster* é um termo em inglês utilizado para denominar um grupo com características semelhantes. Em nosso caso, estudaremos os institutos afim de identificar se existe alguma similaridade de votos entre eles.
-
-## Formatação de Dados
-
-Extraímos do site uma tabela com o número de votos de cada curso (sim, não ou abstenho), incluindo os cursos da Unicamp dos campus Limeira e Piracicaba.  
-Abaixo, algumas observações da tabela:  
-
-
-```{r echo=FALSE}
-kable(head(tbl), caption = 'Tabela 1: Dados extraídos do site') #primeiras linhas dos dados do site
-```
-
-A Tabela 1 completa pode ser acessada em **Apêndice**.
-
-
-##Análises Exploratórias
-
-```{r , message=FALSE, echo=FALSE, warning=FALSE}
-#Proporção de Não
-tbl2 = mytbl[,c(2,3)]
-pnao = with(mytbl, nao/total)
-mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
-ics = cbind(pmax(pnao-mes, 0), pmin(pnao+mes, 1))
-tbl2$Nao = pnao
-tbl2$lowerpnao=ics[,1]
-tbl2$upperpnao=ics[,2]
-rm(pnao, mes, ics)
-```
-
-
-```{r message=FALSE, echo=FALSE, warning=FALSE}
-#Proporção de Sim
-psim = with(mytbl, sim/total)
-mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
-ics = cbind(pmax(psim-mes, 0), pmin(psim+mes, 1))
-tbl2$Sim=psim
-tbl2$lowerpsim=ics[,1]
-tbl2$upperpsim=ics[,2]
-rm(psim, mes, ics)
-```
-
-
-```{r message=FALSE, echo=FALSE, warning=FALSE}
-#Proporção de Abstenho
-pabs = with(mytbl, abstencao/total)
-mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
-ics = cbind(pmax(pabs-mes, 0), pmin(pabs+mes, 1))
-tbl2$Abtenho=pabs
-tbl2$lowerpabs=ics[,1]
-tbl2$upperpabs=ics[,2]
-names(tbl2)=c("Nível", "Curso", "Não", "Inf Não", "Sup Não", "Sim", "Inf Sim", "Sup Sim", "Abstenho", "Inf Abstenho", "Sup Abstenho")
-```
-
-
-Inicialmente podemos conhecer a origem dos votos através de um gráfico de barras. A Figura 1 nos permite ver quais são os institutos com mais votos, o que também pode nos trazer informação sobre a homogeneidade de nossa amostra e sua representatividade.
-
-```{r grafbar, echo=FALSE}
-mytbl = as.data.table(mytbl)
-dados = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by=instituto]
-dados = as.data.frame(dados)
-dados$psim = with(dados, sim/total)
-dados$pnao = with(dados, nao/total)
-dados$pabs = with(dados, abstencao/total)
-```
-
-```{r echo=FALSE, fig.cap="Figura 1: Total de votos por instituto", fig.align="center"}
-Institutos=reorder(dados$instituto, dados$total)
-Total=dados$total
-ggplot(dados, aes(Institutos, Total)) + geom_bar(stat='identity') + coord_flip() + theme_bw()
-```
-
-Na Tabela 2 temos mais detalhadamente os votos de alguns institutos.  
-
-```{r, echo=FALSE}
-dados2 = dados[, c('instituto', 'nao', 'sim', 'abstencao', 'total')]
-names(dados2) = c("Instituto", "Não", "Sim", "Abstenções", "Total")
-kable(head(dados2), caption = 'Tabela 2: Votos por instituto')
-```
-
-A Tabela 2 completa encontra-se em **Apêndice**  
-
-Para conhecer um pouco das informações que os dados fornecem, calcularemos estatísticas primárias, como a proporção de votos sim, não e abstenho de cada curso, seja ele de nível de graduação ou pós-graduação, e seus respectivos intervalos de confiança. Podemos ver algumas dessas estatísticas na Tabela 3.
-
-```{r echo=FALSE}
-kable(head(tbl2), caption = "Tabela 3: Proporções por curso")
-```
-
-Para ver todas as proporções e intervalos de confiança consulte o **Apêndice**.  
-
-Levando em consideração que os institutos em sua grande parte possuem cursos em mesma área de estudo, e, além disso, que a greve é votada e decidida em assembleias do instituto como um todo, é interessante analisar a proporção de votos para cada um deles.  
-
-Também devemos considerar os votos dos alunos cuja graduação não é ministrada em Campinas. Nesses casos consideramos os institutos como sendo a própria faculdade. Temos como exemplo o curso de Odontologia no campus de Piracicaba, para ele o instituto será a FOP, assim como os cursos em Limeira serão ou FT, ou FCA, dependendo de onde são ministrados, uma vez que são as duas unidades da Unicamp na cidade.  
-
-Na Tabela 4 podemos ver algumas dessas proporções por institutos.  
-
-```{r, echo=FALSE}
-kable(head(dados[,-c(2,3,4,5)]), caption='Tabela 4: Proporção de votos por instituto')
-```
-
-A Tabela 4 pode ser encontrada em **Apêndice**.  
-
-##Estimador Para a Proporção
-
-Como já foi mencionado, estimaremos a proporção de votos opositores à greve através do estimador de *Bootstrap*. Para isso consideraremos como todos os votos oriundos do site como uma amostra da população de alunos da Unicamp. Sendo assim, dessa amostra reamostraremos, com reposição, os votos por pessoa e assim, calcularemos a proporção para essa reamostra.  
-
-O interessante desse processo é que ele será repetido quantas vezes for necessário, e por final o estimador será a média de todas as proporções calculadas. Para esse projeto realizamos 10000 reamostras, o que nos garante pouca variância para a média, e por consequência maior precisão.
-
-```{r dados, echo=FALSE, message=FALSE}
-tblnomes=html_table(page)[[3]]
-pop=tblnomes[,c(4,5)]
-```
-
-```{r boot, echo=FALSE, message=FALSE}
-prop=function(pop, indices){
-  length(which(pop[indices,]$Voto == "Não"))/nrow(pop[indices,])
-}
-library(boot)
-res_boot = boot(pop, prop, R=10000)
-```
-  
-  
-Então, o resultado final estimado foi que a proporção de alunos contrários a greve corresponde à `r round(res_boot$t0,2)*100`%.  
-
-##Análise de Cluster
-
-Baseando-se em um conhecimento prévio do ambiente acadêmico e, principalmente, comportamental, sabemos que alguns institutos tem opinão semelhante. Acredita-se que alunos que tem como área de estudo Ciências Humanas, por exemplo, sejam mais favoráveis à greve, uma vez que enfoque de seus cursos são mais voltados para questões sociais. O que pode ser comprovado ao calcularmos as proporções de votos por área de estudo presentes na Tabela 5.  
-
-```{r prop-area, echo=FALSE}
-darea = mytbl[, list(total=sum(total), sim=sum(sim), nao=sum(nao), abstencao=sum(abstencao)), by= area]
-darea = as.data.frame(darea)
-darea$psim = with(darea, sim/total)
-darea$pnao = with(darea, nao/total)
-darea$pabs = with(darea, abstencao/total)
-names(darea)=c("Área", "Total", "Sim", "Não", "Abstenho", "Proporção Sim", "Proporção Não", "Proporção Abs")
-kable(darea, caption="Tabela 5: Votos por área de estudo")
-```
-
-
-Portanto, é natural questionar-se se existem alguns institutos com comportamentos semelhantes. Uma das maneiras de se observar isso é mapeando o campus de Campinas pelas proporções para cada um deles.  
-
-Temos no mapa abaixo a representação geográfica da Unicamp com indicadores da localização de cada instituto. Cada um dos indicadores representam a proporção de voto de seu respectivo instituto, sendo que para aqueles com tons mais fortes de vermelho serão mais favoráveis à greve e aqueles com tons mais fortes de azul os mais contrários à greve. Institutos com cores neutras tem posicionamento dividido.
-
-$\\$
-
-```{r echo=FALSE, message=FALSE}
-#coordenadas de cada instituto da unicamp campinas
-ends = data.frame(instituto=c('IMECC', 'IFGW', 'IB', 'FEM', 'FEF', 'FEEC', 'FEC', 'FEA', 'FCM', 'IFCH','IEL', 'IA', 'IC', 'IE', 'IG', 'IQ', 'FE', 'FEAGRI', 'FEQ', 'PROFIS', 'FCF'),
-           lat=c(-22.81583,-22.81657,-22.81935,-22.81938,-22.81476,-22.82132,-22.81596,-22.82063,-22.83063,-22.81546, -22.81537, -22.81531, -22.81488, -22.81480, -22.81328, -22.81889, -22.81658, -22.81927, -22.81989, -22.81749, -22.81770),
-           lon=c(-47.06769,-47.06698,-47.06953,-47.06592,-47.07333,-47.06587,-47.06383,-47.06746,-47.06199,-47.06838,-47.06909, -47.07009, -47.06484, -47.06590, -47.06871, -47.06779, -47.06566, -47.06042,-47.06511, -47.06847, -47.07084 )) 
-```
-
-```{r enderecos, echo=FALSE}
-ends = merge(ends, dados)
-pal= colorQuantile("RdBu",ends$propn, n=8)
+```{r enderecos}
+ends = read.table('institutos.tab', sep='\t', header=TRUE)
 map = leaflet()
 map = addTiles(map)
-map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto, color = pal(ends$pnao))
+map = addCircleMarkers(map, lat=ends$lat, lng=ends$lon, popup = ends$instituto)
 map
 ```
 
-$\\$
+## Intervalos de Confiança
 
-Outra maneira de que encontramos foi analisar isso graficamente, por meio de um gráfico de componentes. Tal análise gráfica pode ser vista na Figura 2.
-
-```{r plot, echo=FALSE, fig.cap="Figura 2: Gráfico de Componentes para Institutos", fig.align="center"}
-newtbl = dados2[,c("Não","Sim","Abstenções")]
-newtbl = as.data.frame(newtbl)
-dados2$Instituto = as.character(dados2$Instituto)
-rownames(newtbl)= dados2[[1]]
-fit= prcomp(newtbl)
-biplot(fit)
-```
-  
-Como podemos ver, o gráfico acima mostra a tendência de votos por institutos em relação aos vetores que representam as opções de voto. Nota-se que existem alguns institutos aglomerados, confirmando as suposições iniciais que acreditavam em uma semelhança de proporções para alguns institutos. E, por isso, faz-se necessário um estudo aprofundado do assunto.  
-
-Para isso empregamos análise de *cluster*. Ela foi realizada através de um dendograma, como ilustrado na Figura 3.
-
-```{r dendograma, echo=FALSE, fig.cap="Figura 3: Dendograma de Cluster", fig.align="center"}
-teste=vegdist(newtbl, method = "bray")
-plot(hclust(teste, method = "average"), hang = -1, main = "Dendograma de Bray-Curtis", xlab = "Institutos", ylab = "Índice de Bray-Curtis")
-```
-
-O dendograma ilustra o nível de similaridade no eixo vertical e os institutos são listados ao longo do eixo horizontal. É possível ver em que nível de similaridade os agrupamentos são formados, e a composição dos agrupamentos da partição final. Tais níveis foram calculados por meio do índice de *Bray-Curtis*. Esse índice quantitativo varia entre 0 e 1, e foi usado para mensurar a similaridade entre diferentes institutos. Quanto mais próximo de 0, a semelhança é maior entre os institutos, uma vez que o índice calcula a "distância" entre eles.
-
-#Conclusão
-
-O código desse estudo foi produzido de maneira reprodutiva, ou seja, a medida que o número de votos cresce, os resultados serão atualizados simultaneamente. Através das análises realizadas, pudemos notar, pelos gráficos, que a distribuição dos votos por instituto não é uniforme. Existem alguns institutos com poucos votos e com isso o seu intervalo de confiança é muito comprido, dessa maneira, pouco podemos concluir sobre a opinião deles.  
-
-Ainda assim, a partir dos estudos realizados nesse trabalho, podemos concluir 
-que `r round(res_boot$t0,2)*100`% dos alunos são contrários à greve. 
-Contudo, dado a atual situação do campus isso nos leva a questionar 
-a representatividade, ora das assembleias estudantis, ora da votação 
-dos dados provenientes do site.  
-
-Uma possível justificativa para essa disparidade seria o receio de alunos contrários à greve de se posicionarem em um ambiente com maioria favorável, portanto isso os impulsiona a votar online. Em compensação, alunos que 
-votam "sim" podem acreditar que o site provoque evasão às 
-assembleias e, com isso, possivelmente não votariam desta forma.  
-
-Concluindo, esperamos que mediante as análises aqui apresentadas, possamos ressaltar a importância de um posicionamento de cada aluno da Unicamp. Seja ele por meio do site, cujos dados foram estudados, ou por meio de assembleias. Somente assim conseguiremos de fato alcançar uma decisão mais democrática a respeito da greve representando, de fato, toda a classe estudantil.
-
-#Apêndice
-
-
-```{r echo=FALSE}
-kable(tbl, caption = 'Tabela 1: Dados extraídos do site') #primeiras linhas dos dados do site
-```
-
-```{r echo=FALSE, }
-kable(dados2, caption = 'Tabela 2: Votos por instituto')
-```
-
-```{r echo=FALSE}
-kable(tbl2, caption = "Tabela 3: Proporções por curso")
-```
-
-```{r, echo=FALSE}
-kable(dados[,-c(2,3,4,5)], caption='Tabela 4: Proporção de votos por instituto')
+```{r stats}
+p = with(mytbl, nao/(total))
+mes = qnorm(.975)*sqrt(1/(4*mytbl$total))
+ics = cbind(pmax(p-mes, 0), pmin(p+mes, 1))
+colnames(ics) = c("lower", "upper")
+mytbl$p = p
+mytbl = cbind(mytbl, ics)
 ```
